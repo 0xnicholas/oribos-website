@@ -50,7 +50,7 @@ A documentation category name, not a module: the trio of durable agents, signals
 _Avoid_: 案例页、customers 页(Oribos 无客户案例)
 
 **场景卡 (Scenario card)**:
-用例页正文的卡片单元,代替客户故事卡:场景名 + 2–3 句「用 Oribos 怎么搭」+ 用到的子系统/包名(首发每页三张);配图为宿主界面 mock。
+用例页正文的卡片单元,代替客户故事卡:场景名 + 2–3 句「用 Oribos 怎么搭」+ 用到的子系统/包名(首发每页三张);卡片本体纯文字——宿主界面 mock 是页面级素材,每用例页一张置于页头,复用首页对应卡那张(改版图 #39 裁定)。
 _Avoid_: 客户故事卡、案例卡(Oribos 无客户案例);能力清单(能力维度归 feature tabs)
 
 **关键词页 (Keyword page)**:
