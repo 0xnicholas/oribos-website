@@ -71,7 +71,10 @@ const footer = `
 const head = `
 <html lang="en">
 	<head>
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<meta property="og:site_name" content="Oribos" />
 		<meta property="og:image" content="${origin}/og.png" />
 		<meta property="og:image:width" content="1200" />
@@ -159,11 +162,17 @@ test('disclosures are wired: every control names a panel, and starts closed', ()
 	assert.ok(notAButton.length > 0, 'a disclosure is controlled by a real button');
 });
 
-test('the head carries the favicon, the og image pair and the theme-color pair', () => {
+test('the head carries the favicon set, the og image pair and the theme-color pair', () => {
 	assert.deepEqual(headIssues(page(head), origin), []);
 
-	const noIcon = head.replace('<link rel="icon" type="image/svg+xml" href="/favicon.svg" />', '');
+	const noIcon = head.replace('<link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />', '');
 	assert.match(headIssues(page(noIcon), origin)[0]!, /favicon/);
+
+	const noPng = head.replace('<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />', '');
+	assert.match(headIssues(page(noPng), origin)[0]!, /32×32/);
+
+	const noTouch = head.replace('<link rel="apple-touch-icon" href="/apple-touch-icon.png" />', '');
+	assert.match(headIssues(page(noTouch), origin)[0]!, /apple-touch-icon/);
 
 	const wrongImage = head.replace(`${origin}/og.png`, `${origin}/card.png`);
 	assert.match(headIssues(page(wrongImage), origin)[0]!, /og:image/);

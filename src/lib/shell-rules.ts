@@ -301,11 +301,23 @@ export function headIssues(page: ShellPage, origin: string): string[] {
 		issues.push(`${page.path}: <html lang="en"> (SPEC §1)`);
 	}
 
+	// The favicon set (#41): one SVG source, the 32/16 PNG fallbacks, the apple-touch-icon.
 	const icons = tagsOf(page.html, 'link').filter((tag) => attributeValue(tag, 'rel') === 'icon');
-	if (icons.length !== 1) {
-		issues.push(`${page.path}: ${icons.length} <link rel="icon"> — the one favicon ships with every page (SPEC §5.3)`);
-	} else if (attributeValue(icons[0]!, 'href') !== '/favicon.svg') {
-		issues.push(`${page.path}: the favicon is ${attributeValue(icons[0]!, 'href')}, expected /favicon.svg (SPEC §5.3)`);
+	const svgIcons = icons.filter((tag) => attributeValue(tag, 'type') === 'image/svg+xml');
+	if (svgIcons.length !== 1 || attributeValue(svgIcons[0]!, 'href') !== '/favicon.svg') {
+		issues.push(`${page.path}: the SVG favicon link is missing or not /favicon.svg (#41)`);
+	} else if (attributeValue(svgIcons[0]!, 'sizes') !== 'any') {
+		issues.push(`${page.path}: the SVG favicon link carries sizes="any", so Chromium keeps it over the PNG fallbacks (#41)`);
+	}
+	for (const size of [32, 16] as const) {
+		const png = icons.find((tag) => attributeValue(tag, 'sizes') === `${size}x${size}`);
+		if (png === undefined || attributeValue(png, 'href') !== `/favicon-${size}.png`) {
+			issues.push(`${page.path}: the ${size}×${size} PNG favicon link is missing (#41)`);
+		}
+	}
+	const touch = tagsOf(page.html, 'link').filter((tag) => attributeValue(tag, 'rel') === 'apple-touch-icon');
+	if (touch.length !== 1 || attributeValue(touch[0]!, 'href') !== '/apple-touch-icon.png') {
+		issues.push(`${page.path}: the apple-touch-icon link is missing or not /apple-touch-icon.png (#41)`);
 	}
 
 	const ogImage = attributesOf(page.html, 'meta', 'property', 'og:image', 'content');

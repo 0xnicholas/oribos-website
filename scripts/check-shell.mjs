@@ -13,7 +13,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { builtPages, failGate, readText, runChecks, shippedCss, shippedScripts, startGate } from './lib/cli.mjs';
-import { faviconIssues, llmsIssues, ogImageIssues } from '../src/lib/asset-rules.ts';
+import { faviconIssues, llmsIssues, ogImageIssues, sizedPngIssues } from '../src/lib/asset-rules.ts';
 import {
 	footerIssues,
 	headIssues,
@@ -86,7 +86,15 @@ const checks = [
 			: notFound.flatMap((page) => notFoundIssues(page)),
 		'404: the default minimal page — one sentence, one way home, nothing else',
 	],
-	[faviconIssues(readText(path.join(dist, 'favicon.svg'))), 'favicon.svg: one glyph, both theme values'],
+	[faviconIssues(readText(path.join(dist, 'favicon.svg'))), 'favicon.svg: the amber-square mark, both theme values'],
+	[
+		[
+			...sizedPngIssues(binary('favicon-32.png'), 'favicon-32.png', 32),
+			...sizedPngIssues(binary('favicon-16.png'), 'favicon-16.png', 16),
+			...sizedPngIssues(binary('apple-touch-icon.png'), 'apple-touch-icon.png', 180),
+		],
+		'favicon PNG exports: 32×32 and 16×16 fallbacks, the 180×180 apple-touch-icon',
+	],
 	[ogImageIssues(binary('og.png')), 'og.png: one static 1200×630 card'],
 	[
 		llmsIssues(readText(path.join(dist, 'llms.txt')), pages, SITE.origin),

@@ -1,17 +1,24 @@
 #!/usr/bin/env node
 /**
- * The one-off OG-card generator (SPEC §5.3). It renders the single static 1200×630 card —
- * warm paper, the wordmark and the public tagline — with the system's Chrome in headless mode
- * and writes `public/og.png`. The PNG is the artifact and is committed; this script exists so
- * the card can be regenerated when the wordmark, the tagline or the palette moves.
+ * The one-off OG-card generator (SPEC §5.3). It renders the single static 1200×630 card with
+ * the system's Chrome in headless mode and writes `public/og.png`. The PNG is the artifact and
+ * is committed; this script exists so the card can be regenerated when the wordmark, the
+ * tagline or the palette moves.
+ *
+ * The card carries the map #33 visual language (#36, #41): the neutral field with its 1px
+ * hairline frame, the amber square as the wordmark's dot, self-hosted Inter (the file in
+ * `public/fonts/`, embedded as a data URI at render time). The wordmark and the public tagline
+ * still come out of `src/lib/brand.ts`, so the copy cannot drift from the site.
+ *
+ * The colours are stated here, not read from `src/styles/global.css`: the branch's token layer
+ * is still the pre-revamp one, and the revamp (#40) replaces it wholesale. When the new token
+ * layer lands, this card reads it again like its predecessor did.
  *
  * It is deliberately outside `pnpm verify` and outside the dependency tree: no image library,
- * no build-time OG generation (SPEC §8.7-C keeps per-page OG out of this effort). The card's
- * colours and copy are read from the site's own sources — `src/styles/global.css` (light
- * theme) and `src/lib/brand.ts` (wordmark, tagline) — so the card cannot drift from the site.
+ * no build-time OG generation (SPEC §8.7-C keeps per-page OG out of this effort).
  *
  * Usage:
- *   node --experimental-strip-types scripts/make-og.mjs [--out public/og.png]
+ *   node --experimental-strip-types scripts/make-og.mjs [--theme dark|light] [--out public/og.png]
  *     [--chrome "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"]
  */
 import { spawnSync } from 'node:child_process';
@@ -21,13 +28,25 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pngSize } from '../src/lib/asset-rules.ts';
 import { publicTagline, wordmark } from '../src/lib/brand.ts';
-import { parseLandingTokens } from '../src/lib/brand-tokens.ts';
 import { parseArgs } from './lib/cli.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const { options, errors } = parseArgs(process.argv.slice(2), { values: ['out', 'chrome'] });
+const { options, errors } = parseArgs(process.argv.slice(2), { values: ['out', 'chrome', 'theme'] });
 if (errors.length > 0) {
 	for (const error of errors) console.error(`✗ ${error}`);
+	process.exit(2);
+}
+
+// The map #33 set (#36): one neutral pair, the hairline, the amber — single hue, lightness
+// split per theme. `acc` matches the favicon tile of the same theme.
+const THEMES = {
+	dark: { bg: '#101010', ink: '#f2f1ee', ink2: '#b3b1aa', line: '#2a2925', acc: '#ea9f2e' },
+	light: { bg: '#ffffff', ink: '#161513', ink2: '#5f5f5c', line: '#e6e6e0', acc: '#9e630a' },
+};
+const themeName = options.theme ?? 'dark';
+const theme = THEMES[themeName];
+if (theme === undefined) {
+	console.error(`✗ --theme must be one of: ${Object.keys(THEMES).join(', ')}`);
 	process.exit(2);
 }
 
@@ -40,44 +59,79 @@ if (!existsSync(chrome)) {
 	process.exit(1);
 }
 
-// The card is the light theme on warm paper (SPEC §5.1/§5.3): the values come out of the token
-// layer, so a palette change reaches the card the next time it is rendered.
-const parsed = parseLandingTokens(readFileSync(path.join(repoRoot, 'src/styles/global.css'), 'utf8'));
-if (parsed.errors.length > 0) {
-	console.error(`✗ src/styles/global.css is not a valid brand token layer:\n${parsed.errors.join('\n')}`);
+const fontPath = path.join(repoRoot, 'public/fonts/inter-latin-wght-normal.woff2');
+if (!existsSync(fontPath)) {
+	console.error(`✗ no Inter at ${path.relative(repoRoot, fontPath)} — the card sets the self-hosted Inter (#36)`);
 	process.exit(1);
 }
-const light = parsed.tokens.light;
+const font = readFileSync(fontPath).toString('base64');
+
+// The footer's own discipline for the tagline (SPEC §2.3): sentence one on its own line, a
+// touch heavier; the card follows it. Falls back to the whole string if the shape ever moves.
+const stop = publicTagline.indexOf('. ');
+const taglineHtml =
+	stop === -1
+		? publicTagline
+		: `<span class="s1">${publicTagline.slice(0, stop + 1)}</span>${publicTagline.slice(stop + 2)}`;
 
 const html = `<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<style>
-			* { margin: 0; }
+			@font-face {
+				font-family: 'InterVar';
+				src: url(data:font/woff2;base64,${font}) format('woff2');
+				font-weight: 100 900;
+			}
+			* { margin: 0; box-sizing: border-box; }
 			body {
-				box-sizing: border-box;
 				width: 1200px;
 				height: 630px;
-				padding: 96px;
+				overflow: hidden;
+				background: ${theme.bg};
+				font-family: 'InterVar', system-ui, sans-serif;
+			}
+			.frame { position: absolute; inset: 36px; border: 1px solid ${theme.line}; }
+			main {
+				position: relative;
+				height: 100%;
+				padding: 0 96px;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
-				gap: 32px;
-				overflow: hidden;
-				background: ${light['--sl-color-black']};
-				color: ${light['--sl-color-white']};
-				font-family: ${light['--sl-font']};
 			}
-			.rule { width: 96px; height: 10px; border-radius: 5px; background: ${light['--sl-color-accent']}; }
-			.wordmark { font-size: 96px; font-weight: 700; letter-spacing: -0.03em; }
-			.tagline { max-width: 920px; font-size: 34px; line-height: 1.45; color: ${light['--sl-color-gray-2']}; }
+			.wm {
+				font-size: 89px;
+				line-height: 96px;
+				font-weight: 600;
+				letter-spacing: -0.025em;
+				color: ${theme.ink};
+			}
+			.wm .sq {
+				display: inline-block;
+				width: 32px;
+				height: 32px;
+				margin-left: 12px;
+				background: ${theme.acc};
+			}
+			.tag {
+				max-width: 1000px;
+				margin-top: 40px;
+				font-size: 38px;
+				line-height: 44px;
+				color: ${theme.ink2};
+				text-wrap: balance;
+			}
+			.tag .s1 { display: block; margin-bottom: 8px; font-weight: 600; color: ${theme.ink}; }
 		</style>
 	</head>
 	<body>
-		<div class="rule"></div>
-		<div class="wordmark">${wordmark}</div>
-		<p class="tagline">${publicTagline}</p>
+		<div class="frame"></div>
+		<main>
+			<div class="wm">${wordmark}<span class="sq"></span></div>
+			<p class="tag">${taglineHtml}</p>
+		</main>
 	</body>
 </html>
 `;
@@ -112,4 +166,4 @@ if (size === null || size.width !== 1200 || size.height !== 630) {
 	process.exit(1);
 }
 
-console.log(`✓ ${path.relative(repoRoot, out)} — ${size.width}×${size.height}`);
+console.log(`✓ ${path.relative(repoRoot, out)} — ${size.width}×${size.height}, ${themeName}`);

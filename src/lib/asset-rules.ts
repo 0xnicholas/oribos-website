@@ -1,24 +1,30 @@
 /**
  * The site-level asset rules (SPEC §5.3 favicon / OG card, §8.4 llms.txt) over what `public/`
- * puts into `dist/`: the single-glyph favicon carrying both theme values, the one static
- * 1200×630 OG card, and the minimal llms.txt page list. `scripts/check-shell.mjs` reads the
- * built files against these; the shapes live here so they unit-test without a build.
+ * puts into `dist/`: the amber-square favicon (one SVG carrying both theme values plus the PNG
+ * exports), the one static 1200×630 OG card, and the minimal llms.txt page list.
+ * `scripts/check-shell.mjs` reads the built files against these; the shapes live here so they
+ * unit-test without a build.
  */
 
 import { wordmark } from './brand.ts';
 
-/** SPEC §5.3: one glyph, transparent, its value following the OS theme. */
+/**
+ * The favicon (map #33 ticket #41, direction #36): the amber-square mark — a full-bleed amber
+ * tile whose value follows the OS theme (light `#9e630a` / dark `#ea9f2e`, one hue, lightness
+ * split) and a constant white `O`, the Inter 600 capital as a vector path.
+ */
 export function faviconIssues(svg: string | null): string[] {
-	if (svg === null) return ['public/favicon.svg is missing — the shell ships the single-glyph favicon (SPEC §5.3)'];
+	if (svg === null) return ['public/favicon.svg is missing — the shell ships the amber-square favicon (#41)'];
 
 	const issues: string[] = [];
 	if (!/<svg\b/i.test(svg)) issues.push('public/favicon.svg is not an SVG document');
-	if (!svg.includes('#9e630a')) issues.push('public/favicon.svg has no light value #9e630a (SPEC §5.3)');
-	if (!svg.includes('#efd29f')) {
-		issues.push('public/favicon.svg has no dark value #efd29f (SPEC §5.3)');
+	if (!svg.includes('#9e630a')) issues.push('public/favicon.svg has no light tile value #9e630a (#41)');
+	if (!svg.includes('#ea9f2e')) {
+		issues.push('public/favicon.svg has no dark tile value #ea9f2e (#41)');
 	} else if (!/prefers-color-scheme:\s*dark/.test(svg)) {
-		issues.push('public/favicon.svg does not switch its dark value with prefers-color-scheme (SPEC §5.3)');
+		issues.push('public/favicon.svg does not switch its dark tile value with prefers-color-scheme (#41)');
 	}
+	if (!svg.includes('#ffffff')) issues.push('public/favicon.svg has lost the white `O` mark (#41)');
 	return issues;
 }
 
@@ -39,6 +45,17 @@ export function ogImageIssues(png: Uint8Array | null): string[] {
 	if (size === null) return ['public/og.png is not a PNG'];
 	if (size.width !== 1200 || size.height !== 630) {
 		return [`public/og.png is ${size.width}×${size.height} — the card is one static 1200×630 (SPEC §5.3)`];
+	}
+	return [];
+}
+
+/** The favicon's PNG exports (#41): fixed-size rasters of the SVG mark. */
+export function sizedPngIssues(png: Uint8Array | null, name: string, size: number): string[] {
+	if (png === null) return [`public/${name} is missing — the favicon set ships its PNG exports (#41)`];
+	const actual = pngSize(png);
+	if (actual === null) return [`public/${name} is not a PNG`];
+	if (actual.width !== size || actual.height !== size) {
+		return [`public/${name} is ${actual.width}×${actual.height} — the export is ${size}×${size} (#41)`];
 	}
 	return [];
 }
