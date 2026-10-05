@@ -65,6 +65,10 @@ _Avoid_: 首页 FAQ(用例页同样出现)
 关键词页正文末的本地 FAQ,承接该页对应搜索词的长尾问句;与全局 FAQ 零重叠。
 _Avoid_: FAQ(未限定时指代不清)、SEO 问答
 
+**架构事实带 (Architecture facts band)**:
+首页第二区,logo 墙位的替代(改版图 #37 裁定):一行 3–4 格 fact strip,内容只取数字与 claims 政策中已批准的绝对值架构声明(`0 runtime dependencies`、逐子系统 subpath 导出、无 database/queue/长驻进程、CI byte budget 机制),不带任何数值。
+_Avoid_: social proof 占位带、logo 墙(无客户案例)、数字宣称
+
 **维护者署名 (Maintainer attribution)**:
 站点公开面上代表 Balsats 的个人标识:只到 GitHub handle(`@0xnicholas`),不出现真实姓名与邮箱;footer 的 `©` 行保持项目名义,不随署名改变。
 _Avoid_: 实名署名、作者邮箱、团队页(Balsats 无团队)
