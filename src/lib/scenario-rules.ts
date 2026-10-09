@@ -286,7 +286,7 @@ function cardIssues(page: ScenarioPage, spec: UseCasePageSpec): string[] {
 function orderIssues(page: ScenarioPage): string[] {
 	const markers = ['data-use-case-art', 'data-use-case-hero', 'data-scenarios', 'id="get-started"', 'data-faq', 'data-use-case-back'];
 	if (markersInOrder(page.html, markers)) return [];
-	return [`${page.path}: the skeleton is out of order — art → H1 → scenario cards → GitHub CTA → FAQ → \`← All use cases\` (SPEC §4.3)`];
+	return [`${page.path}: the skeleton is out of order — art → H1 → scenario cards → final CTA → FAQ → \`← All use cases\` (SPEC §4.3)`];
 }
 
 /** SPEC §4.3: no code block on the page, no social-proof band, no breadcrumbs. */
