@@ -255,25 +255,40 @@ export function finalCtaIssues(page: HeroPage): string[] {
 	return issues;
 }
 
-/** SPEC §8.5: one dual-theme code surface — `.astro-code`, switched by the OS preference. */
-export function shikiIssues(css: string): string[] {
+/** SPEC-revamp §2.6: one dual-theme grayscale code surface — `.astro-code`, switched by the
+ * OS preference, painted by the custom `oribos-*` pair. The retired github pair must not
+ * ship: `<Code />` does not inherit `markdown.shikiConfig`, so a call site without the
+ * explicit themes prop silently falls back to it (the regression this check exists for). */
+export function shikiIssues(css: string, html = ''): string[] {
 	const issues: string[] = [];
 	const darkBlocks = [...css.matchAll(/@media[^{]*prefers-color-scheme:\s*dark[^{]*\{([^}]*)\}/g)].map(
 		(match) => match[1]!,
 	);
 	const shiki = darkBlocks.find((body) => body.includes('astro-code'));
 	if (shiki === undefined) {
-		issues.push('the shipped CSS has no dark-mode switch for `.astro-code` (SPEC §8.5)');
+		issues.push('the shipped CSS has no dark-mode switch for `.astro-code` (SPEC-revamp §2.6)');
 	} else if (!/var\(--shiki-dark\)/.test(shiki) || !/var\(--shiki-dark-bg\)/.test(shiki)) {
-		issues.push('the `.astro-code` dark switch does not read the block\'s `--shiki-dark` pair (SPEC §8.5)');
+		issues.push('the `.astro-code` dark switch does not read the block\'s `--shiki-dark` pair (SPEC-revamp §2.6)');
 	}
 
 	// The one code surface: a `.astro-code` rule carries the block's padding and type scale.
 	if (!/\.astro-code[^{}]*\{[^}]*padding/.test(css)) {
-		issues.push('the shipped CSS has no `.astro-code` surface rule — every block is the same shape (SPEC §8.5)');
+		issues.push('the shipped CSS has no `.astro-code` surface rule — every block is the same shape (SPEC-revamp §2.6)');
 	}
 	if (/white-space:\s*pre-wrap/.test(css)) {
 		issues.push('the shipped CSS wraps code — blocks scroll horizontally instead (SPEC §7.1)');
+	}
+
+	// The custom pair, not the retired one (SPEC-revamp §2.6).
+	if (html !== '') {
+		for (const retired of ['github-light', 'github-dark']) {
+			if (html.includes(retired)) {
+				issues.push(`a code block still renders with the retired \`${retired}\` theme — the §2.6 pair is \`oribos-light\` / \`oribos-dark\``);
+			}
+		}
+		if (html.includes('astro-code') && (!html.includes('oribos-light') || !html.includes('oribos-dark'))) {
+			issues.push('a code block does not carry the dual `oribos-light` / `oribos-dark` pair (SPEC-revamp §2.6)');
+		}
 	}
 	return issues;
 }

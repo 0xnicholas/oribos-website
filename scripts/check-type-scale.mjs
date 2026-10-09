@@ -34,35 +34,35 @@ const issues = [];
 const { errors: layerErrors } = parseLandingTokens(css);
 for (const error of layerErrors) console.error(`✗ ${error}`);
 if (layerErrors.length === 0) console.log('✓ the --t-* declarations equal the §2.3 table (sizes + 4px-multiple line heights)');
-issues.push(...layerErrors);
 
 // 2. The source: the banned utilities and hand-written sizes.
 const steps = new Set(typeScaleSteps.map((step) => `--t-${step}`));
 const sizeUtilities = /(?:^|[\s":])text-(sm|6xl|7xl|8xl|9xl|\[[^\]]*\])(?=[\s"])/g;
 const leadingUtilities = /(?:^|[\s":])leading-(?!none\b)[a-z0-9[\]#/.-]*(?=[\s"])/g;
+const sourceIssues = [];
 
 for (const directory of ['src/components', 'src/layouts', 'src/pages']) {
 	for (const file of filesUnder(path.join(repoRoot, directory)).filter((name) => name.endsWith('.astro'))) {
 		const text = readText(path.join(repoRoot, directory, file));
 		if (text === null) continue;
 		for (const match of text.matchAll(sizeUtilities)) {
-			issues.push(`${directory}/${file}: \`text-${match[1]}\` is not one of the eight §2.3 steps`);
+			sourceIssues.push(`${directory}/${file}: \`text-${match[1]}\` is not one of the eight §2.3 steps`);
 		}
 		for (const match of text.matchAll(leadingUtilities)) {
-			issues.push(`${directory}/${file}: \`${match[0].trim()}\` overrides the locked line height — the type-scale utilities set it`);
+			sourceIssues.push(`${directory}/${file}: \`${match[0].trim()}\` overrides the locked line height — the type-scale utilities set it`);
 		}
 		for (const match of text.matchAll(/font-size\s*:\s*([^;}"']+)?/g)) {
 			const value = (match[1] ?? '').trim();
 			if (value.startsWith('var(') && steps.has(value.slice(4, -1))) continue;
-			issues.push(`${directory}/${file}: hand-written \`font-size: ${value || '…'}\` — sizes come from the §2.3 tokens`);
+			sourceIssues.push(`${directory}/${file}: hand-written \`font-size: ${value || '…'}\` — sizes come from the §2.3 tokens`);
 		}
 	}
 }
-const sourceFindings = issues.length - layerErrors.length;
-for (const issue of issues.slice(layerErrors.length)) console.error(`✗ ${issue}`);
-if (sourceFindings === 0) {
+for (const issue of sourceIssues) console.error(`✗ ${issue}`);
+if (sourceIssues.length === 0) {
 	console.log('✓ components carry no banned size utility, no leading-* override, no hand-written font-size');
 }
+issues.push(...layerErrors, ...sourceIssues);
 
 // 3. The rendered artifact: every shipped font-size is a --t-* reference (§2.10-3).
 const pages = builtPages(distDir);

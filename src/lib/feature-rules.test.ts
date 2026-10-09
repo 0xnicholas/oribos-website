@@ -5,7 +5,7 @@ import { featureIssues, featureKicker, featureScriptIssues, features } from './f
 const page = (html: string) => ({ path: 'index.html', html: `<html><body>${html}</body></html>` });
 
 const codeBlock = (code: string) =>
-	`<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;overflow-x: auto;" tabindex="0"><code>${code
+	`<pre class="astro-code astro-code-themes oribos-light oribos-dark" style="background-color:#fff;--shiki-dark-bg:#151513;overflow-x: auto;" tabindex="0"><code>${code
 		.split('\n')
 		.map((line) => `<span class="line">${line}</span>`)
 		.join('\n')}</code></pre>`;
@@ -89,7 +89,7 @@ test('each panel carries its §7.3 code card: files in order, code verbatim, ten
 	longer[1]!.files[0]!.code = `${longer[1]!.files[0]!.code}\nconst a = 1;\nconst b = 2;\nconst c = 3;`;
 	assert.match(featureIssues(page(section(longer))).join('\n'), /snippet is 11 lines/);
 
-	const singleTheme = page(section().replace(/\sgithub-light/g, ''));
+	const singleTheme = page(section().replace(/\soribos-light/g, ''));
 	assert.match(featureIssues(singleTheme)[0]!, /theme pair/);
 
 	const echoed = page(`${section()}<pre><code>${features[4]!.files[0]!.code}</code></pre>`);

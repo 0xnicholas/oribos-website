@@ -21,13 +21,13 @@
  *     [--spec <file>]
  */
 import path from 'node:path';
-import { builtPages, failGate, readText, shippedCss, startGate } from './lib/cli.mjs';
+import { builtPages, failGate, readText, shippedCss, shippedScripts, startGate } from './lib/cli.mjs';
 import {
 	colourTokens,
-	declarationsOf,
 	literalColorIssues,
 	parseLandingTokens,
 	parseSpecRevampTable,
+	rootDeclarations,
 	splitThemeRegions,
 	themeColorValues,
 	tokenDrift,
@@ -84,23 +84,19 @@ if (pages.length === 0) {
 }
 const rendered = shippedCss(distDir, pages);
 
-/** The `--name: value;` declarations of every `:root` block in one theme region, merged. */
-function renderedRoot(region) {
-	const values = {};
-	for (const match of region.matchAll(/:root[^{}]*\{([^{}]*)\}/g)) {
-		for (const [name, value] of declarationsOf(match[1] ?? '')) {
-			if (name in values) values[name] = `${values[name]} ; ${value}`;
-			else values[name] = value;
-		}
-	}
-	return values;
-}
-
+// The rendered tokens come out of the same `:root` reader the layer uses, so a §2.1 token
+// declared twice in the build is the same finding it is in the source (SPEC-revamp §2.1).
+// Other variables the pages inline (`--trace-green` once per page, Tailwind's own theme
+// block) are out of this gate's subject and are ignored name-wise, duplicates included.
+const colourOnly = (root) => ({
+	values: Object.fromEntries(Object.entries(root.values).filter(([name]) => colourTokens.includes(name))),
+	errors: root.errors.filter((error) => colourTokens.some((name) => error.startsWith(`${name} `))),
+});
 const renderedRegions = splitThemeRegions(rendered);
-const renderedTokens = {
-	light: renderedRoot(renderedRegions.light),
-	dark: renderedRoot(renderedRegions.dark),
-};
+const lightRoot = colourOnly(rootDeclarations(renderedRegions.light));
+const darkRoot = colourOnly(rootDeclarations(renderedRegions.dark));
+for (const error of [...lightRoot.errors, ...darkRoot.errors]) console.error(`✗ rendered CSS: ${error}`);
+const renderedTokens = { light: lightRoot.values, dark: darkRoot.values };
 /** `#fff` → `#ffffff`: the minifier shortens hex, the §2.1 table does not — compare longhand. */
 const expandHex = (value) =>
 	typeof value === 'string' ? value.replace(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i, '#$1$1$2$2$3$3') : value;
@@ -111,24 +107,30 @@ const longhand = (tokens) =>
 			Object.fromEntries(Object.entries(set).map(([name, value]) => [name, expandHex(value)])),
 		]),
 	);
-const renderedIssues = tokenDrift(longhand(renderedTokens), specTable.tokens, {
-	actualLabel: 'the rendered CSS in dist/',
-	expectedLabel: 'docs/SPEC-revamp.md §2.1',
-	slotsFor: () => colourTokens,
-});
+const renderedIssues = [
+	...lightRoot.errors.map((error) => `rendered CSS (light): ${error}`),
+	...darkRoot.errors.map((error) => `rendered CSS (dark): ${error}`),
+	...tokenDrift(longhand(renderedTokens), specTable.tokens, {
+		actualLabel: 'the rendered CSS in dist/',
+		expectedLabel: 'docs/SPEC-revamp.md §2.1',
+		slotsFor: () => colourTokens,
+	}),
+];
 for (const issue of renderedIssues) console.error(`✗ ${issue}`);
 if (renderedIssues.length === 0) {
 	console.log('✓ every rendered --* colour token in dist/ equals the §2.1 table, both themes');
 }
 issues.push(...renderedIssues);
 
-// `--sl-*` is the retired v1 namespace: zero residue anywhere the build ships (§2.1).
-const residue = [...(rendered.match(/--sl-[a-z0-9-]*/g) ?? [])];
-for (const name of new Set(residue)) console.error(`✗ \`${name}\` still ships in dist/ — the v1 namespace is retired`);
+// `--sl-*` is the retired v1 namespace: zero residue anywhere the build ships (§2.1) — the
+// stylesheets, the pages and their scripts, not just the token block.
+const shippedText = [rendered, ...pages.map((entry) => entry.html), ...shippedScripts(distDir, pages)].join('\n');
+const residue = [...new Set(shippedText.match(/--sl-[a-z0-9-]*/g) ?? [])];
+for (const name of residue) console.error(`✗ \`${name}\` still ships in dist/ — the v1 namespace is retired`);
 if (residue.length === 0) {
-	console.log('✓ the retired --sl-* namespace has zero residue in the built CSS');
+	console.log('✓ the retired --sl-* namespace has zero residue anywhere in dist/');
 }
-issues.push(...[...new Set(residue)].map((name) => `${name} still ships in dist/`));
+issues.push(...residue.map((name) => `${name} still ships in dist/`));
 
 // theme-color is each theme's resolved --bg (SPEC-revamp §2.8); read it back from the
 // build so the meta pair and the stylesheet cannot disagree.

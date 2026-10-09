@@ -22,7 +22,7 @@ import { LINKS } from './links.ts';
 const page = (html: string) => ({ path: 'index.html', html: `<html><body>${html}</body></html>` });
 
 const codeBlock = (code: string) =>
-	`<pre class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;overflow-x: auto;" tabindex="0"><code>${code
+	`<pre class="astro-code astro-code-themes oribos-light oribos-dark" style="background-color:#fff;--shiki-dark-bg:#151513;overflow-x: auto;" tabindex="0"><code>${code
 		.split('\n')
 		.map((line) => `<span class="line">${line}</span>`)
 		.join('\n')}</code></pre>`;

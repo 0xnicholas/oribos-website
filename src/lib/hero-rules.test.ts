@@ -26,7 +26,7 @@ import {
 import { LINKS } from './links.ts';
 
 const page = (html: string) => ({ path: 'index.html', html });
-const codeBlock = (code = heroSnippet, className = 'astro-code astro-code-themes github-light github-dark') =>
+const codeBlock = (code = heroSnippet, className = 'astro-code astro-code-themes oribos-light oribos-dark') =>
 	`<pre class="${className}" style="background-color:#fff;--shiki-dark-bg:#24292e;overflow-x: auto;" tabindex="0"><code>${code
 		.split('\n')
 		.map((line) => `<span class="line">${line}</span>`)
@@ -116,8 +116,8 @@ test('the hero code block is the §7.2 snippet in one dual-theme Shiki block', (
 	const edited = page(hero.replace('  execute: ({ city }) => ({ city, celsius: 18 }),', '  execute: () => ({ celsius: 18 }),'));
 	assert.match(heroCodeIssues(edited)[0]!, /not the §7.2 snippet verbatim/);
 
-	const singleTheme = page(hero.replace('github-light github-dark', 'github-dark'));
-	assert.match(heroCodeIssues(singleTheme)[0]!, /github-light/);
+	const singleTheme = page(hero.replace('oribos-light oribos-dark', 'oribos-dark'));
+	assert.match(heroCodeIssues(singleTheme)[0]!, /oribos-light/);
 });
 
 test('the trace keeps the §7.5 lanes, coordinates, values and tones', () => {
@@ -146,7 +146,7 @@ test('the final CTA is the shared copy, the GitHub action and a passive pill', (
 
 test('the shipped CSS switches the code surface; the trace green is declared once and trace-only', () => {
 	const css = `
-		.astro-code { padding: 1rem 1.15rem; font-size: 0.8125rem; }
+		.astro-code { padding: 1rem 1.25rem; font-size: var(--t-xs); }
 		@media (prefers-color-scheme: dark) { .astro-code, .astro-code span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; } }
 		:root { --trace-green: ${trailGreen.light}; }
 		@media (prefers-color-scheme: dark) { :root { --trace-green: ${trailGreen.dark}; } }
@@ -155,6 +155,12 @@ test('the shipped CSS switches the code surface; the trace green is declared onc
 	assert.deepEqual(trailIssues(css, [{ path: traceGreenDeclaration, text: css }]), []);
 
 	assert.match(shikiIssues('@media (prefers-color-scheme: dark) { .other { color: red } }')[0]!, /astro-code/);
+
+	// The retired github pair must not ship: `<Code />` falls back to it without the themes prop.
+	const custom = '<pre class="astro-code oribos-light oribos-dark">const a = 1;</pre>';
+	assert.deepEqual(shikiIssues(css, custom), []);
+	assert.match(shikiIssues(css, '<pre class="astro-code github-light github-dark">x</pre>').join('\n'), /retired `github-light`/);
+	assert.match(shikiIssues(css, '<pre class="astro-code">x</pre>').join('\n'), /does not carry the dual `oribos-light`/);
 	assert.match(trailIssues('.trace {}', [])[0]!, /missing the light trace green/);
 	// The literal lives in the one declaration file: a component restating it is a spread.
 	assert.match(

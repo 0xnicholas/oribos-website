@@ -103,8 +103,9 @@ export function splitThemeRegions(css: string): { light: string; dark: string } 
 	};
 }
 
-/** The declarations of every `:root { … }` block in a region, merged. */
-function rootDeclarations(region: string): { values: TokenSet; errors: string[] } {
+/** The declarations of every `:root { … }` block in a region, merged. Duplicates are returned
+ * as errors rather than silently overwritten — a token declared twice is a second copy. */
+export function rootDeclarations(region: string): { values: TokenSet; errors: string[] } {
 	const values: TokenSet = {};
 	const errors: string[] = [];
 
@@ -307,7 +308,7 @@ function isHex(value: string): boolean {
 }
 
 /** `hsl(36, 82%, 55%)` — the shape the trace green declares itself in (trace-ink.css). */
-export function parseHsl(value: string): { h: number; s: number; l: number } | null {
+function parseHsl(value: string): { h: number; s: number; l: number } | null {
 	const match = value
 		.trim()
 		.match(/^hsl\(\s*(\d+(?:\.\d+)?)(?:,|\s)\s*(\d+(?:\.\d+)?)%(?:,|\s)\s*(\d+(?:\.\d+)?)%\s*\)$/i);

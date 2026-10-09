@@ -228,7 +228,7 @@ body {
    hairline box frame, the xs mono step, horizontal scroll, no wrapping, no line numbers.
    Syntax colours come from the grayscale Shiki pair; only the frame takes the brand tokens. */
 .astro-code {
-	padding: 1rem 1.15rem;
+	padding: 1rem 1.25rem;
 	font-size: var(--t-xs);
 	line-height: var(--t-xs-lh);
 }

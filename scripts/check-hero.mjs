@@ -51,7 +51,7 @@ const checks = [
 	[heroCodeIssues(home), 'code: the §7.2 snippet verbatim in one `astro-code` dual-theme block'],
 	[traceIssues(home), `trace: the §7.5 meta line, ${traceRows.length} lanes with their coordinates and tones, the summary`],
 	[finalCtaIssues(home), 'final CTA: the §3.8 copy, the GitHub action and the passive pill'],
-	[shikiIssues(css), "Shiki: the `.astro-code` dark switch reads the block's `--shiki-*` pair"],
+	[shikiIssues(css, home.html), "Shiki: the `.astro-code` dark switch reads the block's `--shiki-*` pair, painted by the custom oribos pair (github retired)"],
 	[trailIssues(css, sources), 'trace green: declared once, consumed only by the trace-drawing components'],
 	[copyScriptIssues(scripts), 'copy: the shipped script writes the clipboard, shows `✓ copied` and resets'],
 ];

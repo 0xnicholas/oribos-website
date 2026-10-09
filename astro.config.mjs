@@ -11,9 +11,10 @@ import { SITE } from './src/lib/site.ts';
 // and robots.txt all name one origin; versions are pinned in package.json by hand, never
 // through `astro add`.
 
-// The Shiki pair (SPEC-revamp §2.6) is grayscale and derived from the shipped token layer —
-// reading `global.css` here keeps the code-block ground and every syntax gray a token value,
-// never a second literal.
+// The grayscale Shiki pair (SPEC-revamp §2.6) is derived from the shipped token layer. The
+// config loader runs outside Vite, so it reads the file directly; the `<Code />` call sites
+// take the same pair through `src/lib/shiki-css.ts` (which they must — `<Code />` does not
+// inherit this config).
 const { tokens: brandTokens, errors: tokenErrors } = parseLandingTokens(
 	readFileSync(new URL('./src/styles/global.css', import.meta.url), 'utf8'),
 );

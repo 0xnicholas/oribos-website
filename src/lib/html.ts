@@ -126,10 +126,11 @@ export function codeOf(html: string): string | null {
 	return codeBlocksOf(html)[0] ?? null;
 }
 
-/** SPEC §8.5: the classes every code block carries — the `astro-code` surface and its theme pair. */
-export const codeSurfaceClasses = ['astro-code', 'github-light', 'github-dark'] as const;
+/** SPEC-revamp §2.6: the classes every code block carries — the `astro-code` surface and the
+ * custom grayscale theme pair (`github-light` / `github-dark` are retired). */
+export const codeSurfaceClasses = ['astro-code', 'oribos-light', 'oribos-dark'] as const;
 
-/** The §8.5 code-surface classes a `<pre>` tag is missing, in `codeSurfaceClasses` order. */
+/** The §2.6 code-surface classes a `<pre>` tag is missing, in `codeSurfaceClasses` order. */
 export function missingCodeSurface(tag: string): string[] {
 	const className = attributeValue(tag, 'class') ?? '';
 	return codeSurfaceClasses.filter((expected) => !className.includes(expected));

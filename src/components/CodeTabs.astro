@@ -5,6 +5,7 @@
 // so the site keeps zero new dependencies. Without JS the first file stays visible and the
 // buttons do nothing.
 import { Code } from 'astro:components';
+import { codeThemes } from '../lib/shiki-css.ts';
 import Check from './icons/Check.astro';
 import Copy from './icons/Copy.astro';
 
@@ -17,6 +18,7 @@ export interface Props {
 }
 
 const { id, files, label } = Astro.props;
+const shikiThemes = codeThemes;
 if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`);
 ---
 <div class="overflow-hidden box" data-code-tabs>
@@ -58,7 +60,7 @@ if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`
 				hidden={index !== 0}
 				data-panel
 			>
-				<Code code={file.code} lang="ts" themes={{ light: 'github-light', dark: 'github-dark' }} />
+				<Code code={file.code} lang="ts" themes={shikiThemes} />
 			</div>
 		))
 	}
