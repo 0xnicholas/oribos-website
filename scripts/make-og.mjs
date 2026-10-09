@@ -8,11 +8,9 @@
  * The card carries the map #33 visual language (#36, #41): the neutral field with its 1px
  * hairline frame, the amber square as the wordmark's dot, self-hosted Inter (the file in
  * `public/fonts/`, embedded as a data URI at render time). The wordmark and the public tagline
- * still come out of `src/lib/brand.ts`, so the copy cannot drift from the site.
- *
- * The colours are stated here, not read from `src/styles/global.css`: the branch's token layer
- * is still the pre-revamp one, and the revamp (#40) replaces it wholesale. When the new token
- * layer lands, this card reads it again like its predecessor did.
+ * still come out of `src/lib/brand.ts`, so the copy cannot drift from the site; the palette is
+ * read from `src/styles/global.css` (the §2.1 token layer), so the card cannot drift from the
+ * site's colours either.
  *
  * It is deliberately outside `pnpm verify` and outside the dependency tree: no image library,
  * no build-time OG generation (SPEC §8.7-C keeps per-page OG out of this effort).
@@ -28,6 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pngSize } from '../src/lib/asset-rules.ts';
 import { publicTagline, wordmark } from '../src/lib/brand.ts';
+import { parseLandingTokens } from '../src/lib/brand-tokens.ts';
 import { parseArgs } from './lib/cli.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -37,11 +36,39 @@ if (errors.length > 0) {
 	process.exit(2);
 }
 
+// The token layer is the single source of the palette: every colour the card paints is read
+// from `src/styles/global.css` at run time (SPEC-revamp §2.8), so the card and the site
+// cannot disagree about a brand value.
+const tokenCss = readFileSync(path.join(repoRoot, 'src/styles/global.css'), 'utf8');
+const { tokens: brandTokens, errors: tokenErrors } = parseLandingTokens(tokenCss);
+if (tokenErrors.length > 0) {
+	console.error(`✗ src/styles/global.css is not a valid brand token layer:\n${tokenErrors.join('\n')}`);
+	process.exit(1);
+}
+
 // The map #33 set (#36): one neutral pair, the hairline, the amber — single hue, lightness
-// split per theme. `acc` matches the favicon tile of the same theme.
+// split per theme. `acc` matches the favicon tile of the same theme. `parseLandingTokens`
+// already errored on a missing slot, so the pick below cannot miss.
+const pick = (theme, name) => {
+	const value = brandTokens[theme][name];
+	if (value === undefined) throw new Error(`the ${theme} token block does not declare ${name}`);
+	return value;
+};
 const THEMES = {
-	dark: { bg: '#101010', ink: '#f2f1ee', ink2: '#b3b1aa', line: '#2a2925', acc: '#ea9f2e' },
-	light: { bg: '#ffffff', ink: '#161513', ink2: '#5f5f5c', line: '#e6e6e0', acc: '#9e630a' },
+	dark: {
+		bg: pick('dark', '--bg'),
+		ink: pick('dark', '--ink'),
+		ink2: pick('dark', '--ink2'),
+		line: pick('dark', '--line'),
+		acc: pick('dark', '--acc'),
+	},
+	light: {
+		bg: pick('light', '--bg'),
+		ink: pick('light', '--ink'),
+		ink2: pick('light', '--ink2'),
+		line: pick('light', '--line'),
+		acc: pick('light', '--acc'),
+	},
 };
 const themeName = options.theme ?? 'dark';
 const theme = THEMES[themeName];

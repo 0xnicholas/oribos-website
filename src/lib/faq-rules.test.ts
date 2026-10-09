@@ -12,10 +12,10 @@ import {
 const page = (html: string) => ({ path: 'index.html', html: `<html><body>${html}</body></html>` });
 
 const details = (item: FaqSpecItem) =>
-	`<details><summary class="cursor-pointer py-4 font-medium text-white hover:text-text-accent">${item.question}</summary><p class="pb-4 text-sm leading-relaxed text-gray-2">${item.answer}</p></details>`;
+	`<details><summary class="cursor-pointer py-4 font-semibold text-ink hover:text-acc">${item.question}</summary><p class="pb-4 text-base text-ink2">${item.answer}</p></details>`;
 
 const section = (items: readonly FaqSpecItem[] = faqItems) =>
-	`<section id="faq" data-faq class="scroll-mt-20 border-t border-gray-5 px-6 py-20"><div><h2 class="text-3xl font-semibold tracking-tight text-white">${faqHeading}</h2><div>${items.map(details).join('')}</div></div></section>`;
+	`<section id="faq" data-faq class="scroll-mt-20 border-t border-line px-6 py-20"><div><h2 class="text-3xl font-semibold tracking-tight text-ink">${faqHeading}</h2><div>${items.map(details).join('')}</div></div></section>`;
 
 test('a page with the FAQ passes every FAQ rule', () => {
 	assert.deepEqual(faqIssues(page(section())), []);
@@ -88,11 +88,11 @@ test('RAG and evals appear in question 7 alone — the honest answer (SPEC §9.2
 });
 
 test('the FAQ text wears the §5.5 audited roles on the page background', () => {
-	const badRole = page(section().replace('text-gray-2', 'text-gray-4'));
-	assert.match(faqIssues(badRole)[0]!, /FAQ section paints text with `text-gray-4`/);
+	const badRole = page(section().replace('text-ink2', 'text-acc-lo'));
+	assert.match(faqIssues(badRole)[0]!, /FAQ section paints text with `text-acc-lo`/);
 
-	const surface = page(section().replace('class="scroll-mt-20', 'class="bg-gray-7 scroll-mt-20'));
-	assert.match(faqIssues(surface)[0]!, /paints its own surface with `bg-gray-7`/);
+	const surface = page(section().replace('class="scroll-mt-20', 'class="bg-bg2 scroll-mt-20'));
+	assert.match(faqIssues(surface)[0]!, /paints its own surface with `bg-bg2`/);
 });
 
 test('every §3.7 answer is one to three sentences', () => {

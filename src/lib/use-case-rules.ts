@@ -14,7 +14,7 @@
  * hold their shape.
  */
 
-import { AA, contrastRatio, parseHsl, type Theme, type TokenSet } from './brand-tokens.ts';
+import { AA, contrastRatio, hslToHex, parseHex, type Theme, type TokenSet } from './brand-tokens.ts';
 import { colourClassesOf, colourUtilities } from './colour-rules.ts';
 import { trailGreen } from './hero-rules.ts';
 import { attributeValue, elementOf, linksOf, tagsOf, textOf } from './html.ts';
@@ -362,23 +362,22 @@ const claimFigures: readonly RegExp[] = [
 /**
  * The colour classes the cards and mocks render: the text roles and surfaces the mock pairs
  * below measure, plus the inert decorations (window dots, hairline borders, the streaming
- * cursor) that carry no text and need no pair of their own.
+ * cursor) that carry no text and need no pair of their own. `text-ink3` is muted meta —
+ * decorative mono labelling, deliberately outside AA (SPEC-revamp §2.1), never running text.
  */
 const mockColourClasses = new Set([
-	'text-white',
-	'text-gray-2',
-	'text-gray-3',
-	'text-text-accent',
-	'text-accent-high',
-	'text-text-invert',
-	'bg-gray-5',
-	'bg-gray-6',
-	'bg-gray-7',
-	'bg-accent',
-	'bg-accent-low',
-	'bg-bg-accent',
-	'border-gray-4',
-	'border-gray-5',
+	'text-ink',
+	'text-ink2',
+	'text-ink3',
+	'text-acc',
+	'text-acc-h',
+	'text-acc-inv',
+	'bg-ink3',
+	'bg-bg2',
+	'bg-acc',
+	'bg-acc-lo',
+	'border-line',
+	'border-acc',
 ]);
 
 /** The first surface class of a fragment, if it paints one. */
@@ -421,12 +420,12 @@ export function useCaseColourIssues(page: UseCasePage): string[] {
 		if (marker === -1) return;
 
 		const mock = card.slice(marker);
-		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-window'), ['rounded-xl', 'border-gray-5', 'bg-gray-7', 'dark:bg-gray-6'], `card ${index + 1}'s mock window`);
-		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-bubble'), ['bg-accent-low', 'text-accent-high'], `card ${index + 1}'s user bubble`);
-		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-badge'), ['bg-accent-low', 'text-accent-high'], `card ${index + 1}'s suspended badge`);
+		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-window'), ['box', 'bg-bg2'], `card ${index + 1}'s mock window`);
+		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-bubble'), ['bg-acc-lo', 'text-acc-h'], `card ${index + 1}'s user bubble`);
+		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-badge'), ['bg-acc-lo', 'text-acc-h'], `card ${index + 1}'s suspended badge`);
 		requireClasses(issues, page.path, openingTagOf(mock, 'data-mock-status'), ['mock-status'], `card ${index + 1}'s console status`);
-		requireClasses(issues, page.path, mock.match(/<span\b[^>]*\bdata-mock-action="approve"[^>]*>/i)?.[0] ?? null, ['bg-bg-accent', 'text-text-invert'], `card ${index + 1}'s Approve control`);
-		requireClasses(issues, page.path, mock.match(/<span\b[^>]*\bdata-mock-action="reject"[^>]*>/i)?.[0] ?? null, ['border-gray-5', 'text-gray-2'], `card ${index + 1}'s Reject control`);
+		requireClasses(issues, page.path, mock.match(/<span\b[^>]*\bdata-mock-action="approve"[^>]*>/i)?.[0] ?? null, ['bg-acc', 'text-acc-inv'], `card ${index + 1}'s Approve control`);
+		requireClasses(issues, page.path, mock.match(/<span\b[^>]*\bdata-mock-action="reject"[^>]*>/i)?.[0] ?? null, ['border-line', 'text-ink2'], `card ${index + 1}'s Reject control`);
 	});
 
 	for (const token of colourClassesOf(section)) {
@@ -451,54 +450,43 @@ function requireClasses(issues: string[], path: string, tag: string | null, requ
 
 /* ---------------------------------------------------------------- the mock AA audit */
 
-/** The surface the mock windows paint: `gray-7` in light, `gray-6` in dark (SPEC §3.5/§5.1). */
-const mockWindowSurface: Record<Theme, string> = { light: '--sl-color-gray-7', dark: '--sl-color-gray-6' };
-
-/** A token's resolved value: the derived roles alias the triplet, so follow one `var()`. */
-function resolveToken(tokens: TokenSet, name: string): string | undefined {
-	const value = tokens[name];
-	if (value === undefined) return undefined;
-	const alias = value.match(/^var\((--sl-[a-z0-9-]+)\)$/);
-	return alias === null ? value : tokens[alias[1]!];
-}
-
 /**
- * SPEC §3.5/§5.5: the pairs the cards and mocks actually render must clear AA in both themes —
- * body / muted / heading / accent text on the mock window surface, the accent chip pair (bubble
- * and badge), the inverted label on the accent button, and the trace console's status ink
- * (`src/lib/hero-rules.ts`'s trailGreen, SPEC §7.5 判定③).
+ * SPEC §3.5/§2.10: the pairs the cards and mocks actually render must clear AA in both themes —
+ * body / heading / accent text on the mock window surface, the accent chip pair (bubble and
+ * badge), the inverted label on the accent button, and the trace console's status ink
+ * (`src/lib/hero-rules.ts`'s trailGreen, SPEC §7.5 判定③). Muted meta (`--ink3`) is decorative
+ * labelling, deliberately unaudited (SPEC-revamp §2.1).
  */
 export function mockContrastIssues(tokens: Record<Theme, TokenSet>): string[] {
 	const issues: string[] = [];
 
 	for (const theme of ['light', 'dark'] as const) {
-		const surface = tokens[theme][mockWindowSurface[theme]];
+		const surface = tokens[theme]['--bg2'];
 		const pairs = [
-			{ label: 'body text on the mock window surface', fg: tokens[theme]['--sl-color-gray-2'], bg: surface },
-			{ label: 'muted text on the mock window surface', fg: tokens[theme]['--sl-color-gray-3'], bg: surface },
-			{ label: 'heading text on the mock window surface', fg: tokens[theme]['--sl-color-white'], bg: surface },
-			{ label: 'accent text on the mock window surface', fg: resolveToken(tokens[theme], '--sl-color-text-accent'), bg: surface },
-			{ label: 'accent chip label on accent-low', fg: tokens[theme]['--sl-color-accent-high'], bg: tokens[theme]['--sl-color-accent-low'] },
+			{ label: 'body text on the mock window surface', fg: tokens[theme]['--ink2'], bg: surface },
+			{ label: 'heading text on the mock window surface', fg: tokens[theme]['--ink'], bg: surface },
+			{ label: 'accent text on the mock window surface', fg: tokens[theme]['--acc'], bg: surface },
+			{ label: 'accent chip label on accent-low', fg: tokens[theme]['--acc-h'], bg: tokens[theme]['--acc-lo'] },
 			{
 				label: 'inverted label on the accent button',
-				fg: resolveToken(tokens[theme], '--sl-color-text-invert'),
-				bg: resolveToken(tokens[theme], '--sl-color-bg-accent'),
+				fg: tokens[theme]['--acc-inv'],
+				bg: tokens[theme]['--acc'],
 			},
-			{ label: 'trace status text on the mock window surface', fg: trailGreen[theme], bg: surface },
+			{ label: 'trace status text on the mock window surface', fg: hslToHex(trailGreen[theme]), bg: surface },
 		];
 
 		for (const { label, fg, bg } of pairs) {
 			if (fg === undefined || bg === undefined) {
-				issues.push(`${theme}: \`${label}\` needs tokens the §5.1 layer does not declare (SPEC §3.5/§5.5)`);
+				issues.push(`${theme}: \`${label}\` needs tokens the §2.1 layer does not declare (SPEC §3.5/§2.10)`);
 				continue;
 			}
-			if (parseHsl(fg) === null || parseHsl(bg) === null) {
+			if (parseHex(fg) === null || parseHex(bg) === null) {
 				issues.push(`${theme}: \`${label}\` resolves to a value the audit cannot measure (${fg} on ${bg})`);
 				continue;
 			}
 			const ratio = contrastRatio(fg, bg);
 			if (ratio < AA) {
-				issues.push(`${theme}: \`${label}\` is ${ratio.toFixed(2)}:1 — the mock pair sits below the ${AA}:1 floor (SPEC §3.5/§5.5)`);
+				issues.push(`${theme}: \`${label}\` is ${ratio.toFixed(2)}:1 — the mock pair sits below the ${AA}:1 floor (SPEC §3.5/§2.10)`);
 			}
 		}
 	}
@@ -520,8 +508,8 @@ export function focusRingIssues(css: string): string[] {
 		return ['the shipped CSS has no `:focus-visible` rule — the card links have no visible focus (SPEC §2.7)'];
 	}
 	const body = rule[1]!.replace(/\s+/g, ' ');
-	if (!/outline\s*:\s*2px solid var\(--sl-color-text-accent\)/.test(body)) {
-		issues.push('the shipped `:focus-visible` rule does not draw the 2px accent outline (SPEC §2.7)');
+	if (!/outline\s*:\s*2px solid var\(--acc\)/.test(body)) {
+		issues.push('the shipped `:focus-visible` rule does not draw the 2px accent outline (SPEC §2.5)');
 	}
 	if (!/outline-offset\s*:/.test(body)) {
 		issues.push('the shipped `:focus-visible` rule sets no outline offset — the ring hugs the letterforms (SPEC §2.7)');

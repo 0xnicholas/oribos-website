@@ -15,14 +15,14 @@ const spans = [
 ---
 <MockWindow>
 	<div class="p-4">
-		<p class="font-mono text-xs text-gray-3" data-mock-trace-head>trace 8b1e2f… · completed · 214ms</p>
+		<p class="font-mono text-xs text-ink3" data-mock-trace-head>trace 8b1e2f… · completed · 214ms</p>
 		<div class="mt-3 flex flex-col gap-2">
 			{
 				spans.map((span) => (
 					<div class="grid grid-cols-[1fr_auto_auto] items-center gap-3" data-mock-span>
-						<span class="truncate font-mono text-xs text-gray-2">{span.lane}</span>
+						<span class="truncate font-mono text-xs text-ink2">{span.lane}</span>
 						<span class="mock-status font-mono text-xs" data-mock-status>ok</span>
-						<span class="text-right font-mono text-xs text-gray-3" data-mock-duration>{span.value}</span>
+						<span class="text-right font-mono text-xs text-ink3" data-mock-duration>{span.value}</span>
 					</div>
 				))
 			}

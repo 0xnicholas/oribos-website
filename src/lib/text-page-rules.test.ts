@@ -20,36 +20,36 @@ const aboutHtml = (spec: AboutPageSpec, { closingGitHub = LINKS.github, closingI
 	`<main>
 		<section data-about-hero class="px-6 py-16">
 			<div class="mx-auto max-w-3xl">
-				<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">${spec.h1}</h1>
-				<p data-about-tagline class="mt-5 text-lg leading-relaxed text-gray-2">${spec.tagline}</p>
+				<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${spec.h1}</h1>
+				<p data-about-tagline class="mt-5 text-lg text-ink2">${spec.tagline}</p>
 			</div>
 		</section>
-		<section data-about-story class="border-t border-gray-5 px-6 py-20">
+		<section data-about-story class="border-t border-line px-6 py-20">
 			<div class="mx-auto max-w-3xl">
-				<h2 class="text-2xl font-semibold tracking-tight text-white">${spec.storyHeading}</h2>
-				${spec.story.map((paragraph) => `<p class="mt-4 leading-relaxed text-gray-2">${paragraph}</p>`).join('')}
+				<h2 class="text-2xl font-semibold tracking-tight text-ink">${spec.storyHeading}</h2>
+				${spec.story.map((paragraph) => `<p class="mt-4 text-ink2">${paragraph}</p>`).join('')}
 			</div>
 		</section>
-		<section data-about-behind class="border-t border-gray-5 px-6 py-20">
+		<section data-about-behind class="border-t border-line px-6 py-20">
 			<div class="mx-auto max-w-3xl">
-				<h2 class="text-2xl font-semibold tracking-tight text-white">${spec.behindHeading}</h2>
-				<p class="mt-4 leading-relaxed text-gray-2">Oribos is built in the open on GitHub and maintained by <a href="${LINKS.maintainer}" class="rounded-sm text-text-accent hover:underline">${maintainerLabel}</a>. There is no company behind it and no team page to read: the repository's issues are where questions, bug reports and disagreement land.</p>
-				<p class="mt-4 leading-relaxed text-gray-2">${spec.behind[1]}</p>
+				<h2 class="text-2xl font-semibold tracking-tight text-ink">${spec.behindHeading}</h2>
+				<p class="mt-4 text-ink2">Oribos is built in the open on GitHub and maintained by <a href="${LINKS.maintainer}" class="text-acc hover:underline">${maintainerLabel}</a>. There is no company behind it and no team page to read: the repository's issues are where questions, bug reports and disagreement land.</p>
+				<p class="mt-4 text-ink2">${spec.behind[1]}</p>
 			</div>
 		</section>
-		<section data-about-closing class="border-t border-gray-5 px-6 py-20">
+		<section data-about-closing class="border-t border-line px-6 py-20">
 			<div class="mx-auto max-w-3xl">
-				<h2 class="text-2xl font-semibold tracking-tight text-white">${spec.closing.lead}</h2>
-				<p class="mt-3 leading-relaxed text-gray-2">${spec.closing.sub}</p>
+				<h2 class="text-2xl font-semibold tracking-tight text-ink">${spec.closing.lead}</h2>
+				<p class="mt-3 text-ink2">${spec.closing.sub}</p>
 				<p class="mt-6 flex gap-4">
-					<a href="${closingGitHub}" class="rounded-sm font-medium text-text-accent hover:underline">GitHub</a>
-					<a href="${closingIssues}" class="rounded-sm font-medium text-text-accent hover:underline">Issues</a>
+					<a href="${closingGitHub}" class="font-semibold text-acc hover:underline">GitHub</a>
+					<a href="${closingIssues}" class="font-semibold text-acc hover:underline">Issues</a>
 				</p>
 			</div>
 		</section>
-		<section data-about-back class="border-t border-gray-5 px-6 py-12">
+		<section data-about-back class="border-t border-line px-6 py-12">
 			<div class="mx-auto max-w-3xl">
-				<a href="/" class="rounded-sm text-sm font-medium text-text-accent hover:underline">${backLinkText}</a>
+				<a href="/" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>
 			</div>
 		</section>
 	</main>`;
@@ -67,10 +67,10 @@ const legalHtml = (spec: LegalPageSpec, lastUpdated: string): string =>
 	`<main>
 		<section data-legal-page class="px-6 py-16">
 			<div class="mx-auto max-w-3xl">
-				<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">${spec.h1}</h1>
-				<p data-legal-updated class="mt-4 text-sm text-gray-3">Last updated: ${lastUpdated}</p>
+				<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${spec.h1}</h1>
+				<p data-legal-updated class="mt-4 text-xs text-ink3">Last updated: ${lastUpdated}</p>
 				<div data-legal-body class="mt-8 flex flex-col gap-4">
-					${spec.paragraphs.map((paragraph) => `<p class="leading-relaxed text-gray-2">${paragraph.replace('in the repository.', `in the <a href="${LINKS.issues}" class="rounded-sm text-text-accent hover:underline">repository</a>.`)}</p>`).join('')}
+					${spec.paragraphs.map((paragraph) => `<p class="text-ink2">${paragraph.replace('in the repository.', `in the <a href="${LINKS.issues}" class="text-acc hover:underline">repository</a>.`)}</p>`).join('')}
 				</div>
 			</div>
 		</section>
@@ -127,15 +127,15 @@ test('/about: Our story is the locked copy, in order', () => {
 	const swapped = {
 		...page,
 		html: page.html.replace(
-			`<p class="mt-4 leading-relaxed text-gray-2">${aboutSpec.story[0]}</p>`,
-			`<p class="mt-4 leading-relaxed text-gray-2">${aboutSpec.story[1]}</p>`,
+			`<p class="mt-4 text-ink2">${aboutSpec.story[0]}</p>`,
+			`<p class="mt-4 text-ink2">${aboutSpec.story[1]}</p>`,
 		),
 	};
 	assert.ok(aboutPageIssues(swapped).some((issue) => issue.includes('paragraph 1 is not the §4.1 copy verbatim')));
 });
 
 test('/about: the signature is one `@0xnicholas` link to the maintainer profile', () => {
-	const unlinked = aboutPageIssues(mutateAbout(`<a href="${LINKS.maintainer}" class="rounded-sm text-text-accent hover:underline">${maintainerLabel}</a>`, maintainerLabel));
+	const unlinked = aboutPageIssues(mutateAbout(`<a href="${LINKS.maintainer}" class="text-acc hover:underline">${maintainerLabel}</a>`, maintainerLabel));
 	assert.ok(unlinked.some((issue) => issue.includes('the signature is not one `@0xnicholas` link')));
 
 	const elsewhere = aboutPageIssues(mutateAbout(`href="${LINKS.maintainer}"`, `href="${LINKS.github}"`));
@@ -150,8 +150,8 @@ test('/about: the invitation band carries the GitHub · Issues pair, exactly two
 	const extra = {
 		...page,
 		html: page.html.replace(
-			`<a href="${LINKS.issues}" class="rounded-sm font-medium text-text-accent hover:underline">Issues</a>`,
-			`<a href="${LINKS.issues}" class="rounded-sm font-medium text-text-accent hover:underline">Issues</a> <a href="${LINKS.docs}" class="rounded-sm font-medium text-text-accent hover:underline">Docs</a>`,
+			`<a href="${LINKS.issues}" class="font-semibold text-acc hover:underline">Issues</a>`,
+			`<a href="${LINKS.issues}" class="font-semibold text-acc hover:underline">Issues</a> <a href="${LINKS.docs}" class="font-semibold text-acc hover:underline">Docs</a>`,
 		),
 	};
 	const issues = aboutPageIssues(extra);
@@ -159,7 +159,7 @@ test('/about: the invitation band carries the GitHub · Issues pair, exactly two
 });
 
 test('/about: the page ends with one `← Home` link', () => {
-	const missing = aboutPageIssues(mutateAbout(`<a href="/" class="rounded-sm text-sm font-medium text-text-accent hover:underline">${backLinkText}</a>`, ''));
+	const missing = aboutPageIssues(mutateAbout(`<a href="/" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>`, ''));
 	assert.ok(missing.some((issue) => issue.includes('does not end with one `← Home` link')));
 
 	const retext = aboutPageIssues(mutateAbout(backLinkText, '← Back'));
@@ -197,7 +197,7 @@ test('/about: no mailto and no external link beyond the handle, GitHub and Issue
 	const mailto = aboutPageIssues(mutateAbout(`href="${LINKS.maintainer}"`, 'href="mailto:hello@oribos.dev"'));
 	assert.ok(mailto.some((issue) => issue.includes('no email surface')));
 
-	const docs = aboutPageIssues(mutateAbout(`<a href="${LINKS.github}" class="rounded-sm font-medium text-text-accent hover:underline">GitHub</a>`, `<a href="https://github.com/0xnicholas/oribos-website" class="rounded-sm font-medium text-text-accent hover:underline">GitHub</a>`));
+	const docs = aboutPageIssues(mutateAbout(`<a href="${LINKS.github}" class="font-semibold text-acc hover:underline">GitHub</a>`, `<a href="https://github.com/0xnicholas/oribos-website" class="font-semibold text-acc hover:underline">GitHub</a>`));
 	assert.ok(docs.some((issue) => issue.includes("/about's own links are the handle, GitHub and Issues")));
 });
 
@@ -235,7 +235,7 @@ test('legal: the paragraphs sit in their own `data-legal-body` container', () =>
 });
 
 test('legal: the `Last updated` line is present, static-shaped and shared', () => {
-	const missing = legalPageIssues(mutateLegal(privacySpec, '<p data-legal-updated class="mt-4 text-sm text-gray-3">Last updated: October 3, 2026</p>', ''), privacySpec);
+	const missing = legalPageIssues(mutateLegal(privacySpec, '<p data-legal-updated class="mt-4 text-xs text-ink3">Last updated: October 3, 2026</p>', ''), privacySpec);
 	assert.ok(missing.some((issue) => issue.includes('no `Last updated` line')));
 
 	const dynamic = legalPageIssues(legalPage(privacySpec, '2026-10-03'), privacySpec);

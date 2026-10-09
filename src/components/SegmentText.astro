@@ -17,7 +17,7 @@ const { segments } = Astro.props;
 		'text' in segment ? (
 			segment.text
 		) : (
-			<a href={LINKS[segment.link.key]} class="rounded-sm text-text-accent hover:underline">{segment.link.label}</a>
+			<a href={LINKS[segment.link.key]} class="text-acc hover:underline">{segment.link.label}</a>
 		),
 	)
 }

@@ -23,10 +23,10 @@ export interface Props {
 const { heading, sub, cards } = Astro.props;
 const mocks = { chat: MockChat, thread: MockThread, console: MockTraceConsole };
 ---
-<section id="use-cases" data-use-cases class="scroll-mt-20 border-t border-gray-5 px-6 py-20">
-	<div class="mx-auto max-w-5xl">
-		<h2 class="mx-auto max-w-3xl text-center text-3xl font-semibold tracking-tight text-white">{heading}</h2>
-		<p class="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-gray-3">{sub}</p>
+<section id="use-cases" data-use-cases class="scroll-mt-20 border-t border-line py-24">
+	<div class="wrap">
+		<h2 class="mx-auto max-w-3xl text-center text-3xl font-semibold tracking-tight text-ink">{heading}</h2>
+		<p class="mx-auto mt-4 max-w-2xl text-center text-ink3">{sub}</p>
 		<ul class="mt-10 grid gap-6 md:grid-cols-3">
 			{
 				cards.map((card) => {
@@ -35,19 +35,19 @@ const mocks = { chat: MockChat, thread: MockThread, console: MockTraceConsole };
 						<li
 							data-use-case-card
 							data-mock={card.mock}
-							class="group relative flex flex-col overflow-hidden rounded-xl border border-gray-5 transition-colors hover:border-gray-4"
+							class="group relative flex flex-col overflow-hidden box transition-colors hover:border-acc"
 						>
 							<div class="flex flex-1 flex-col gap-2 p-5 pb-4">
 								<h3 class="text-lg font-semibold tracking-tight">
 									<a
 										href={card.route}
 										data-card-link
-										class="rounded-sm text-white after:absolute after:inset-0 after:content-[''] group-hover:text-text-accent hover:text-text-accent"
+										class="text-ink after:absolute after:inset-0 after:content-[''] group-hover:text-acc hover:text-acc"
 									>
 										{card.title}
 									</a>
 								</h3>
-								<p class="text-sm leading-relaxed text-gray-2">{card.claim}</p>
+								<p class="text-base text-ink2">{card.claim}</p>
 							</div>
 							<div class="px-4 pb-4">
 								<Mock />

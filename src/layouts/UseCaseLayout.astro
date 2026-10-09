@@ -35,26 +35,26 @@ if (!finalCta || faq.length !== 9) {
 ---
 <MarketingLayout title={title} description={description}>
 	<UseCaseArt />
-	<section data-use-case-hero class="px-6 py-16">
+	<section data-use-case-hero class="px-6 py-18">
 		<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-			<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{h1}</h1>
-			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg leading-relaxed text-gray-2">{tagline}</p>
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg text-ink2">{tagline}</p>
 		</div>
 	</section>
-	<section data-scenarios class="border-t border-gray-5 px-6 py-20">
-		<div class="mx-auto max-w-5xl">
+	<section data-scenarios class="border-t border-line py-24">
+		<div class="wrap">
 			<ul class="grid gap-6 md:grid-cols-3">
 				{
 					scenarios.map((scenario) => (
-						<li data-scenario-card class="flex flex-col gap-3 rounded-xl border border-gray-5 p-5">
-							<h3 class="text-lg font-semibold tracking-tight text-white">{scenario.name}</h3>
-							<p class="text-sm leading-relaxed text-gray-2">{scenario.text}</p>
-							<p data-scenario-packages class="mt-auto pt-2 text-sm leading-relaxed text-gray-3">
+						<li data-scenario-card class="flex flex-col gap-3 box p-5">
+							<h3 class="text-lg font-semibold tracking-tight text-ink">{scenario.name}</h3>
+							<p class="text-base text-ink2">{scenario.text}</p>
+							<p data-scenario-packages class="mt-auto pt-2 text-base text-ink3">
 								{'→ '}
 								{scenario.packages.map((name, index) => (
 									<>
 										{index > 0 && ' · '}
-										<code class="whitespace-nowrap rounded-md border border-gray-5 bg-gray-7 px-1.5 py-0.5 font-mono text-xs text-gray-2 dark:bg-gray-6">
+										<code class="whitespace-nowrap box bg-bg2 px-1.5 py-0.5 font-mono text-xs text-ink2">
 											{name}
 										</code>
 									</>
@@ -68,9 +68,9 @@ if (!finalCta || faq.length !== 9) {
 	</section>
 	<FinalCta heading={finalCta.data.heading} sub={finalCta.data.sub} />
 	<FaqList items={faq.map((entry) => entry.data)} />
-	<section data-use-case-back class="border-t border-gray-5 px-6 py-12">
-		<div class="mx-auto max-w-5xl">
-			<a href="/#use-cases" class="rounded-sm text-sm font-medium text-text-accent hover:underline">← All use cases</a>
+	<section data-use-case-back class="border-t border-line py-12">
+		<div class="wrap">
+			<a href="/#use-cases" class="text-base font-semibold text-acc hover:underline">← All use cases</a>
 		</div>
 	</section>
 </MarketingLayout>

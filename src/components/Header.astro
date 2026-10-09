@@ -8,18 +8,18 @@ import { useCaseItems } from '../lib/navigation.ts';
 import Chevron from './icons/Chevron.astro';
 import Menu from './icons/Menu.astro';
 
-const navLink = 'rounded-sm text-sm text-gray-2 transition-colors hover:text-white';
+const navLink = 'text-base text-ink2 transition-colors hover:text-ink';
 const trigger = `flex items-center gap-1 ${navLink}`;
-const pill = 'rounded-full bg-accent-low px-3 py-1 text-xs font-medium text-accent-high';
+const pill = 'bg-acc-lo px-3 py-1 text-xs font-semibold text-acc-h';
 // The release-status badge is a §6.2 switch point: stated once so the publishing flip is one
 // edit here, not two. The shell gate keeps its own copy (src/lib/shell-rules.ts), so the page
 // and its gate cannot agree by construction.
 const pillLabel = 'coming soon';
-const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
+const itemLink = 'block px-3 py-2 transition-colors hover:bg-bg2';
 ---
 <header id="site-header" class="z-50">
-	<div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
-		<a href="/" class="rounded-sm text-lg font-semibold tracking-tight text-white">Oribos</a>
+	<div class="wrap flex items-center justify-between gap-6 py-4">
+		<a href="/" class="text-lg font-semibold tracking-tight text-ink">Oribos</a>
 
 		<nav class="hidden items-center gap-6 md:flex" aria-label="Main">
 			<div class="relative">
@@ -28,12 +28,12 @@ const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
 					<Chevron />
 				</button>
 				<div id="use-cases-menu" hidden class="absolute left-0 top-full w-72 pt-2">
-					<ul class="rounded-lg border border-gray-5 bg-black p-2 shadow-lg">
+					<ul class="box bg-bg p-2">
 						{useCaseItems.map((item) => (
 							<li>
 								<a href={item.href} class={itemLink}>
-									<span class="block text-sm font-medium text-white">{item.label}</span>
-									<span class="block text-sm text-gray-2">{item.description}</span>
+									<span class="block text-base font-semibold text-ink">{item.label}</span>
+									<span class="block text-base text-ink2">{item.description}</span>
 								</a>
 							</li>
 						))}
@@ -47,7 +47,7 @@ const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
 
 		<button
 			type="button"
-			class="rounded-sm text-gray-2 hover:text-white md:hidden"
+			class="text-ink2 hover:text-ink md:hidden"
 			aria-expanded="false"
 			aria-controls="site-menu"
 			aria-label="Menu"
@@ -56,11 +56,11 @@ const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
 		</button>
 	</div>
 
-	<div id="site-menu" hidden class="border-t border-gray-5 bg-black md:hidden">
-		<nav class="mx-auto flex max-w-6xl flex-col gap-1 px-6 py-4" aria-label="Menu">
+	<div id="site-menu" hidden class="border-t border-line bg-bg md:hidden">
+		<nav class="wrap flex flex-col gap-1 py-4" aria-label="Menu">
 			<button
 				type="button"
-				class="flex w-full items-center justify-between rounded-sm py-2 text-sm text-gray-2 hover:text-white"
+				class="flex w-full items-center justify-between py-2 text-base text-ink2 hover:text-ink"
 				aria-expanded="false"
 				aria-controls="mobile-use-cases"
 			>
@@ -70,14 +70,14 @@ const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
 			<ul id="mobile-use-cases" hidden class="flex flex-col gap-1 pb-2">
 				{useCaseItems.map((item) => (
 					<li>
-						<a href={item.href} class="block rounded-md px-3 py-2 text-sm text-gray-2 hover:bg-gray-6 hover:text-white">
+						<a href={item.href} class="block px-3 py-2 text-base text-ink2 hover:bg-bg2 hover:text-ink">
 							{item.label}
 						</a>
 					</li>
 				))}
 			</ul>
-			<a href={LINKS.docs} class="rounded-sm py-2 text-sm text-gray-2 hover:text-white">Docs</a>
-			<a href={LINKS.github} class="rounded-sm py-2 text-sm text-gray-2 hover:text-white">GitHub</a>
+			<a href={LINKS.docs} class="py-2 text-base text-ink2 hover:text-ink">Docs</a>
+			<a href={LINKS.github} class="py-2 text-base text-ink2 hover:text-ink">GitHub</a>
 			<span class={`${pill} mt-2 self-start`}>{pillLabel}</span>
 		</nav>
 	</div>
@@ -96,14 +96,14 @@ const itemLink = 'block rounded-md px-3 py-2 transition-colors hover:bg-gray-6';
 	}
 
 	#site-header.is-scrolled {
-		background-color: color-mix(in srgb, var(--sl-color-black) 82%, transparent);
+		background-color: color-mix(in srgb, var(--bg) 82%, transparent);
 		-webkit-backdrop-filter: blur(12px);
 		backdrop-filter: blur(12px);
 	}
 
 	@media (prefers-reduced-transparency: reduce) {
 		#site-header.is-scrolled {
-			background-color: var(--sl-color-black);
+			background-color: var(--bg);
 			-webkit-backdrop-filter: none;
 			backdrop-filter: none;
 		}

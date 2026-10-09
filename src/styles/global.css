@@ -1,92 +1,144 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 
-/* Brand token layer (SPEC §5.1) — the values are the oribos-docs authoritative set
-   (brand-visual.md §2.2) verbatim; a change here is a docs-spec change, not a tweak.
-   Light is the default and dark follows the OS only (SPEC §5.4): no manual switch, no
-   theme cookie, no localStorage, no `.dark` class. Unlayered on purpose — the token
-   declarations outrank Tailwind's layered ones.
+/* Explicit sources: the utilities come from the site's markup only. Automatic detection
+   would also scan scripts and docs, where a gate's regex or a spec table naming a class
+   (`text-sm` in the type-scale gate) would make Tailwind ship that utility without any
+   component asking for it. */
+@source '../components';
+@source '../layouts';
+@source '../pages';
 
-   `scripts/check-tokens.mjs` reads this file: the §5.1 table of docs/SPEC.md is compared
-   value by value, and in a checkout that has oribos-docs beside it, the same table is
-   compared against the docs site's own `src/styles/global.css`. */
+/* Brand token layer (SPEC-revamp §2.1/§2.3) — this file is the marketing site's own brand
+   token source of truth. The hex values are the normative §2.1 table verbatim; the hsl
+   reading in a spec comment is a derivation note, not a second value. Light is the default
+   and dark follows the OS only (SPEC-revamp §2.7): no manual switch, no theme cookie, no
+   localStorage, no `.dark` class. Unlayered on purpose — the token declarations outrank
+   Tailwind's layered ones.
+
+   `scripts/check-tokens.mjs` reads this file and the built CSS: every `--*` colour token is
+   compared against the §2.1 table in `docs/SPEC-revamp.md`, and no colour literal may exist
+   outside these blocks. */
+
+/* Self-hosted Inter (SPEC-revamp §2.4): one variable-weight latin subset, no CDN, no second
+   family. Weights on the page are 400 / 600 only (SPEC-revamp §2.3); the 100–900 axis is
+   declared so both come from the same file. The mono stack stays the system's. */
+@font-face {
+	font-family: 'InterVar';
+	src: url('/fonts/inter-latin-wght-normal.woff2') format('woff2');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
-	--sl-color-white: hsl(30, 14%, 12%);
-	--sl-color-gray-1: hsl(35, 15%, 16%);
-	--sl-color-gray-2: hsl(35, 12%, 24%);
-	--sl-color-gray-3: hsl(35, 10%, 38%);
-	--sl-color-gray-4: hsl(35, 10%, 55%);
-	--sl-color-gray-5: hsl(35, 15%, 80%);
-	--sl-color-gray-6: hsl(35, 20%, 93%);
-	--sl-color-gray-7: hsl(35, 30%, 98%);
-	--sl-color-black: hsl(36, 40%, 99%);
-	--sl-color-accent-low: hsl(38, 85%, 90%);
-	--sl-color-accent: hsl(36, 88%, 33%);
-	--sl-color-accent-high: hsl(36, 84%, 23%);
+	/* §2.1 colour tokens (light) — hex is normative */
+	--bg: #ffffff; /* page ground */
+	--bg2: #fafaf8; /* secondary surface (cards / bands) */
+	--ink: #161513; /* body & heading ink (warm near-black) */
+	--ink2: #5f5f5c; /* secondary text */
+	--ink3: #98988f; /* muted meta / mono labels */
+	--line: #e6e6e0; /* hairline (1px boxes, rules) */
+	--acc: #9e630a; /* amber accent = hsl(36,88%,33%) */
+	--acc-h: #7a4c07; /* hover, deepened */
+	--acc-lo: #f4e8d3; /* accent ground (low-saturation amber) */
+	--acc-inv: #ffffff; /* inverted label on accent ground */
+	--code-bg: #fafaf8; /* code block ground */
 
-	/* Derived roles (SPEC §5.1): landing has no Starlight, so it materializes the upstream
-	   mapping — always as a reference to the triplet, never as a value of its own. */
-	--sl-color-text-accent: var(--sl-color-accent);
-	--sl-color-text-invert: var(--sl-color-black);
-	--sl-color-bg-accent: var(--sl-color-accent);
-
-	/* Font slots stay open for the brand font, one replacement (SPEC §5.2); the site ships
-	   no font file and reaches no CDN. */
-	--sl-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--sl-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	/* §2.3 type scale (1:1.333, locked) — sizes in px, line heights on the 4px discipline */
+	--t-xs: 13px;
+	--t-xs-lh: 20px;
+	--t-base: 16px;
+	--t-base-lh: 24px;
+	--t-lg: 21px;
+	--t-lg-lh: 28px;
+	--t-xl: 28px;
+	--t-xl-lh: 36px;
+	--t-2xl: 38px;
+	--t-2xl-lh: 44px;
+	--t-3xl: 50px;
+	--t-3xl-lh: 56px;
+	--t-4xl: 67px;
+	--t-4xl-lh: 72px;
+	--t-5xl: 89px;
+	--t-5xl-lh: 96px;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--sl-color-white: hsl(35, 15%, 97%);
-		--sl-color-gray-1: hsl(35, 12%, 92%);
-		--sl-color-gray-2: hsl(35, 8%, 77%);
-		--sl-color-gray-3: hsl(35, 7%, 58%);
-		--sl-color-gray-4: hsl(35, 7%, 38%);
-		--sl-color-gray-5: hsl(35, 8%, 24%);
-		--sl-color-gray-6: hsl(35, 10%, 16%);
-		--sl-color-black: hsl(30, 12%, 10%);
-		--sl-color-accent-low: hsl(36, 45%, 20%);
-		--sl-color-accent: hsl(36, 82%, 55%);
-		--sl-color-accent-high: hsl(38, 72%, 78%);
-
-		--sl-color-text-accent: var(--sl-color-accent-high);
-		--sl-color-text-invert: var(--sl-color-accent-low);
-		--sl-color-bg-accent: var(--sl-color-accent-high);
+		/* §2.1 colour tokens (dark) — Carbon-style value swap, roles unchanged */
+		--bg: #101010;
+		--bg2: #171716;
+		--ink: #f2f1ee;
+		--ink2: #b3b1aa;
+		--ink3: #74726b;
+		--line: #2a2925;
+		--acc: #ea9f2e; /* = hsl(36,82%,55%) */
+		--acc-h: #f5b456; /* hover, brightened */
+		--acc-lo: #3a2c14;
+		--acc-inv: #101010;
+		--code-bg: #151513;
 	}
 }
 
-/* Tailwind aliases (SPEC §5.1): every utility maps back to a `--sl-color-*` variable, so
-   a second copy of a literal colour cannot appear in a component. */
+/* Tailwind aliases (SPEC-revamp §2.1): every utility maps back to a `--*` variable, so a
+   second copy of a literal colour cannot appear in a component. The type-scale aliases put
+   the eight locked steps under the text-* utilities (§2.3) — no other font size ships. */
 @theme inline {
-	--color-white: var(--sl-color-white);
-	--color-gray-1: var(--sl-color-gray-1);
-	--color-gray-2: var(--sl-color-gray-2);
-	--color-gray-3: var(--sl-color-gray-3);
-	--color-gray-4: var(--sl-color-gray-4);
-	--color-gray-5: var(--sl-color-gray-5);
-	--color-gray-6: var(--sl-color-gray-6);
-	--color-gray-7: var(--sl-color-gray-7);
-	--color-black: var(--sl-color-black);
-	--color-accent: var(--sl-color-accent);
-	--color-accent-low: var(--sl-color-accent-low);
-	--color-accent-high: var(--sl-color-accent-high);
-	--color-text-accent: var(--sl-color-text-accent);
-	--color-text-invert: var(--sl-color-text-invert);
-	--color-bg-accent: var(--sl-color-bg-accent);
+	--color-bg: var(--bg);
+	--color-bg2: var(--bg2);
+	--color-ink: var(--ink);
+	--color-ink2: var(--ink2);
+	--color-ink3: var(--ink3);
+	--color-line: var(--line);
+	--color-acc: var(--acc);
+	--color-acc-h: var(--acc-h);
+	--color-acc-lo: var(--acc-lo);
+	--color-acc-inv: var(--acc-inv);
+	--color-code-bg: var(--code-bg);
 
-	--font-sans: var(--sl-font);
-	--font-mono: var(--sl-font-mono);
+	--font-sans: 'InterVar', system-ui, -apple-system, sans-serif;
+	--font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+	--text-xs: var(--t-xs);
+	--text-xs--line-height: var(--t-xs-lh);
+	--text-base: var(--t-base);
+	--text-base--line-height: var(--t-base-lh);
+	--text-lg: var(--t-lg);
+	--text-lg--line-height: var(--t-lg-lh);
+	--text-xl: var(--t-xl);
+	--text-xl--line-height: var(--t-xl-lh);
+	--text-2xl: var(--t-2xl);
+	--text-2xl--line-height: var(--t-2xl-lh);
+	--text-3xl: var(--t-3xl);
+	--text-3xl--line-height: var(--t-3xl-lh);
+	--text-4xl: var(--t-4xl);
+	--text-4xl--line-height: var(--t-4xl-lh);
+	--text-5xl: var(--t-5xl);
+	--text-5xl--line-height: var(--t-5xl-lh);
 }
 
-/* Keyboard focus (SPEC §2.7): one visible ring for every interactive element, in the theme's
-   own link colour. Stated once here — components do not restyle focus. */
+/* Body base (SPEC-revamp §2.3): 16/24 is the rhythm datum every other step is measured from. */
+body {
+	font-size: var(--t-base);
+	line-height: var(--t-base-lh);
+}
+
+/* Derived, never hand-written per component: selection is the accent pair (§2.1). */
+::selection {
+	background-color: var(--acc);
+	color: var(--acc-inv);
+}
+
+/* Keyboard focus (SPEC-revamp §2.5): 2px accent outline, 2px offset — the one visible ring
+   for every interactive element. Stated once here; components do not restyle focus. */
 :where(a[href], button, summary, [tabindex]):focus-visible {
-	outline: 2px solid var(--sl-color-text-accent);
+	outline: 2px solid var(--acc);
 	outline-offset: 2px;
 }
 
-/* Reduced motion (SPEC §2.7): nothing smooth, nothing fading, whatever a later section asks
-   for. The OS preference wins site-wide, so no component has to remember this. */
+/* Reduced motion (SPEC-revamp §2.5): interactions are colour/opacity transitions only, so
+   there is nothing to damp — but the OS preference still wins site-wide if anything moves. */
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
@@ -101,48 +153,89 @@
 	}
 }
 
-/* The CTA button pair (SPEC §3.1/§3.8): the hero and the final CTA share one look. The primary
-   fills with the accent pair the AA audit already covers (inverted label on accent); the ghost
-   is a quiet outline. Colour comes from the tokens only. */
+/* Grid primitives (SPEC-revamp §2.2): 1200px container, 4 columns / 16px gutter on mobile,
+   12 columns / 32px gutter from the desktop breakpoint up. Spacing elsewhere comes from
+   Tailwind's --spacing scale — these two classes are the only hand-written layout constants. */
+.wrap {
+	width: 100%;
+	max-width: 1200px;
+	margin-inline: auto;
+	padding-inline: 16px;
+}
+
+@media (min-width: 768px) {
+	.wrap {
+		padding-inline: 32px;
+	}
+}
+
+.cols {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 16px;
+}
+
+@media (min-width: 768px) {
+	.cols {
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 32px;
+	}
+}
+
+/* The boxed module (SPEC-revamp §2.2): a 1px hairline box, zero radius, zero shadow — the
+   one container language for cards, code blocks, product windows and mocks. */
+.box {
+	border: 1px solid var(--line);
+}
+
+/* The CTA button pair (SPEC-revamp §2.5): interactions change colour only. The primary fills
+   with the accent pair the AA audit covers (inverted label on accent); the ghost is a quiet
+   hairline outline. Type is the base step at weight 600 (§2.3). */
 .btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	border-radius: 0.5rem;
-	padding: 0.55rem 1rem;
-	font-size: 0.875rem;
-	font-weight: 500;
-	line-height: 1.25rem;
+	padding: 0.75rem 1.5rem;
+	font-size: var(--t-base);
+	font-weight: 600;
+	line-height: var(--t-base-lh);
+	transition:
+		background-color 0.12s,
+		color 0.12s,
+		border-color 0.12s;
 }
 
 .btn-primary {
-	background-color: var(--sl-color-bg-accent);
-	color: var(--sl-color-text-invert);
+	background-color: var(--acc);
+	color: var(--acc-inv);
+}
+
+.btn-primary:hover {
+	background-color: var(--acc-h);
 }
 
 .btn-ghost {
-	border: 1px solid var(--sl-color-gray-5);
-	color: var(--sl-color-gray-2);
+	border: 1px solid var(--line);
+	color: var(--ink);
 }
 
 .btn-ghost:hover {
-	color: var(--sl-color-white);
+	border-color: var(--acc);
+	color: var(--acc);
 }
 
-/* Code surface (SPEC §8.5): every block on the site is one `.astro-code` shape — same padding
-   and type scale, horizontal scroll, no wrapping, no line numbers. Syntax colours come from
-   the Shiki theme pair; only the block's frame takes the brand tokens. */
+/* Code surface (SPEC-revamp §2.6): every block on the site is one `.astro-code` shape — the
+   hairline box frame, the xs mono step, horizontal scroll, no wrapping, no line numbers.
+   Syntax colours come from the grayscale Shiki pair; only the frame takes the brand tokens. */
 .astro-code {
 	padding: 1rem 1.15rem;
-	font-size: 0.8125rem;
-	line-height: 1.6;
+	font-size: var(--t-xs);
+	line-height: var(--t-xs-lh);
 }
 
-/* Shiki dual themes (SPEC §8.5): the block ships both themes as `--shiki-*` custom properties
-   (the shape astro@7.3.5 emits for <Code /> and for markdown alike), and the OS preference
-   picks one — the same `prefers-color-scheme` switch as the token layer, nothing else. The
-   §8.5 note names an `--astro-code-*` prefix; the pinned Astro emits `--shiki-*`, and the code
-   follows the tool that ships, so a SPEC sentence is the thing to amend if that matters. */
+/* Shiki dual themes (SPEC-revamp §2.6): the block ships both themes as `--shiki-*` custom
+   properties, and the OS preference picks one — the same `prefers-color-scheme` switch as
+   the token layer, nothing else. */
 @media (prefers-color-scheme: dark) {
 	.astro-code,
 	.astro-code span {
@@ -153,4 +246,3 @@
 		text-decoration: var(--shiki-dark-text-decoration) !important;
 	}
 }
-

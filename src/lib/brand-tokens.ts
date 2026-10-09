@@ -1,80 +1,58 @@
 /**
- * The brand token layer's only reader, and the rules the CI gates run over it (SPEC §5.1/§5.5).
- * `src/styles/global.css` is the single source of truth for the warm-wood palette; the contrast
- * audit (`scripts/check-contrast.mjs`), the drift audit (`scripts/check-tokens.mjs`) and the
- * `theme-color` pair all go through this module, so the gates and the shipped page cannot
- * disagree about what a token means.
+ * The brand token layer's only reader, and the rules the CI gates run over it (SPEC-revamp
+ * §2.1/§2.3/§2.10). `src/styles/global.css` is the marketing site's own token source of truth;
+ * the contrast audit (`scripts/check-contrast.mjs`), the drift audit (`scripts/check-tokens.mjs`)
+ * and the `theme-color` pair all go through this module, so the gates and the shipped page
+ * cannot disagree about what a token means.
  *
- * Two contracts the spec pins and this module enforces:
+ * Contracts this module enforces:
  *
- *  1. **The §5.1 table is complete and byte-identical.** A missing slot is an error, not a
- *     silent fallback; a value that drifts from the oribos-docs authority is drift, not a
- *     tweak. The derived roles (`--sl-color-text-accent` / `-text-invert` / `-bg-accent`) are
- *     the exception to "do not hand-write": landing has no Starlight, so §5.1 materializes the
- *     upstream mapping — as a reference to the accent triplet, never as a value of its own.
- *  2. **AA holds.** §5.5 reduces the palette to 8 rendered pairs × 2 themes; each pair is
- *     checked against WCAG AA (4.5:1) with the contrast maths below.
+ *  1. **The §2.1 table is complete and byte-identical.** A missing slot is an error, not a
+ *     silent fallback; a value that drifts from the table in `docs/SPEC-revamp.md` is drift,
+ *     not a tweak. The same holds for the §2.3 type scale: eight steps, line heights on the
+ *     4px discipline.
+ *  2. **AA holds.** §2.10 reduces the palette to 8 rendered pairs × 2 themes; each pair is
+ *     checked against WCAG AA (4.5:1). `--ink3` is deliberately below AA — muted meta is
+ *     decorative mono labelling (§2.1/§2.3), never running text, so no pair of the audit
+ *     reads on it.
  */
 
 export type Theme = 'light' | 'dark';
-/** Token name → declared value, e.g. `--sl-color-accent` → `hsl(36, 82%, 55%)`. */
+/** Token name → declared value, e.g. `--acc` → `#9e630a`. */
 export type TokenSet = Record<string, string>;
 
-/** The slots §5.1 hands over per theme; light adds `--sl-color-gray-7` (no dark slot). */
-export const requiredTokens = {
-	light: [
-		'--sl-color-white',
-		'--sl-color-gray-1',
-		'--sl-color-gray-2',
-		'--sl-color-gray-3',
-		'--sl-color-gray-4',
-		'--sl-color-gray-5',
-		'--sl-color-gray-6',
-		'--sl-color-gray-7',
-		'--sl-color-black',
-		'--sl-color-accent-low',
-		'--sl-color-accent',
-		'--sl-color-accent-high',
-	],
-	dark: [
-		'--sl-color-white',
-		'--sl-color-gray-1',
-		'--sl-color-gray-2',
-		'--sl-color-gray-3',
-		'--sl-color-gray-4',
-		'--sl-color-gray-5',
-		'--sl-color-gray-6',
-		'--sl-color-black',
-		'--sl-color-accent-low',
-		'--sl-color-accent',
-		'--sl-color-accent-high',
-	],
-} as const satisfies Record<Theme, readonly string[]>;
-
-/** The three roles §5.1 materializes on landing. */
-export const derivedRoles = [
-	'--sl-color-text-accent',
-	'--sl-color-text-invert',
-	'--sl-color-bg-accent',
+/** The §2.1 colour slots — the same eleven in both themes. */
+export const colourTokens = [
+	'--bg',
+	'--bg2',
+	'--ink',
+	'--ink2',
+	'--ink3',
+	'--line',
+	'--acc',
+	'--acc-h',
+	'--acc-lo',
+	'--acc-inv',
+	'--code-bg',
 ] as const;
-export type DerivedRole = (typeof derivedRoles)[number];
+export type ColourToken = (typeof colourTokens)[number];
 
-/** The token each derived role must alias, per theme. */
-export const derivedRoleSources: Record<Theme, Record<DerivedRole, string>> = {
-	light: {
-		'--sl-color-text-accent': '--sl-color-accent',
-		'--sl-color-text-invert': '--sl-color-black',
-		'--sl-color-bg-accent': '--sl-color-accent',
-	},
-	dark: {
-		'--sl-color-text-accent': '--sl-color-accent-high',
-		'--sl-color-text-invert': '--sl-color-accent-low',
-		'--sl-color-bg-accent': '--sl-color-accent-high',
-	},
+/** The §2.3 type-scale steps, in order, each a size token plus its line-height token. */
+export const typeScaleSteps = ['xs', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl'] as const;
+export type TypeScaleStep = (typeof typeScaleSteps)[number];
+export type TypeScaleTable = Record<TypeScaleStep, { size: string; lineHeight: string }>;
+
+/** The §2.3 table as this build is constructed from — sizes in px, line heights 4px multiples. */
+export const typeScale: TypeScaleTable = {
+	xs: { size: '13px', lineHeight: '20px' },
+	base: { size: '16px', lineHeight: '24px' },
+	lg: { size: '21px', lineHeight: '28px' },
+	xl: { size: '28px', lineHeight: '36px' },
+	'2xl': { size: '38px', lineHeight: '44px' },
+	'3xl': { size: '50px', lineHeight: '56px' },
+	'4xl': { size: '67px', lineHeight: '72px' },
+	'5xl': { size: '89px', lineHeight: '96px' },
 };
-
-/** The font slots §5.2 keeps open — declared, but never pointing at a file or a host. */
-export const fontSlots = ['--sl-font', '--sl-font-mono'] as const;
 
 /* ---------------------------------------------------------------- reading the layer */
 
@@ -83,9 +61,10 @@ export function stripComments(css: string): string {
 	return css.replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
-/** Every `--name: value;` declaration of a block body, in document order. */
+/** Every `--name: value;` declaration of a block body, in document order. The trailing
+ * semicolon is optional — CSS minifiers drop the last one before a closing brace. */
 export function declarationsOf(body: string): Array<[string, string]> {
-	return [...body.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/gi)].map((match) => [
+	return [...body.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;{}]+);?/gi)].map((match) => [
 		match[1]!,
 		match[2]!.trim(),
 	]);
@@ -111,8 +90,8 @@ function blockAfter(css: string, prelude: RegExp): { body: string; start: number
 }
 
 /**
- * The two theme regions of `src/styles/global.css`: light is the default on `:root`, dark
- * lives inside `@media (prefers-color-scheme: dark)` (SPEC §5.4 — the OS is the only switch).
+ * The two theme regions of a token stylesheet: light is the default on `:root`, dark lives
+ * inside `@media (prefers-color-scheme: dark)` (SPEC-revamp §2.7 — the OS is the only switch).
  */
 export function splitThemeRegions(css: string): { light: string; dark: string } {
 	const stripped = stripComments(css);
@@ -131,7 +110,6 @@ function rootDeclarations(region: string): { values: TokenSet; errors: string[] 
 
 	for (const match of region.matchAll(/:root\s*\{([^{}]*)\}/g)) {
 		for (const [name, value] of declarationsOf(match[1]!)) {
-			if (!name.startsWith('--sl-color-') && !(fontSlots as readonly string[]).includes(name)) continue;
 			if (name in values) {
 				errors.push(`${name} is declared twice in the same theme block`);
 				continue;
@@ -144,117 +122,97 @@ function rootDeclarations(region: string): { values: TokenSet; errors: string[] 
 }
 
 /**
- * Read the landing token layer. `light` is the default region, `dark` the media block; the
- * result is the set of `--sl-color-*` values plus the font slots, per theme.
+ * Read the shipped token layer. `light` is the default region, `dark` the media block. The
+ * result carries the eleven §2.1 colour slots per theme plus the §2.3 type-scale tokens,
+ * which are theme-independent and live in the light region only.
  */
 export function parseLandingTokens(css: string): { tokens: Record<Theme, TokenSet>; errors: string[] } {
 	const regions = splitThemeRegions(css);
 	const tokens: Record<Theme, TokenSet> = { light: {}, dark: {} };
 	const errors: string[] = [];
 
+	const typeTokenNames = new Set<string>(
+		typeScaleSteps.flatMap((step) => [`--t-${step}`, `--t-${step}-lh`]),
+	);
+	const allowed = new Set<string>([...colourTokens, ...typeTokenNames]);
+
+	const lightRoots = rootDeclarations(regions.light);
+	const typeDeclarations = lightRoots.values;
+
 	for (const theme of ['light', 'dark'] as const) {
-		const parsed = rootDeclarations(regions[theme]);
-		tokens[theme] = parsed.values;
+		const parsed = theme === 'light' ? lightRoots : rootDeclarations(regions.dark);
 		errors.push(...parsed.errors.map((error) => `${theme}: ${error}`));
 
-		const allowed = new Set<string>([...requiredTokens[theme], ...derivedRoles, ...fontSlots]);
+		for (const [name, value] of Object.entries(parsed.values)) {
+			if ((colourTokens as readonly string[]).includes(name)) {
+				tokens[theme][name] = value;
+			} else if (theme === 'dark') {
+				errors.push(`${name} in the dark block — dark swaps §2.1 values only; anything else belongs on \`:root\``);
+			}
+		}
 
-		for (const name of requiredTokens[theme]) {
-			if (!(name in tokens[theme])) errors.push(`the ${theme} token block is missing ${name} (SPEC §5.1)`);
-		}
-		for (const name of derivedRoles) {
-			const value = tokens[theme][name];
-			if (value === undefined) {
-				errors.push(`the ${theme} token block is missing the derived role ${name} (SPEC §5.1)`);
-			} else if (value !== `var(${derivedRoleSources[theme][name]})`) {
-				errors.push(
-					`${name} must be \`var(${derivedRoleSources[theme][name]})\` in ${theme}, found \`${value}\` — derived roles alias the triplet, never a value of their own (SPEC §5.1)`,
-				);
+		for (const name of colourTokens) {
+			if (!(name in tokens[theme])) {
+				errors.push(`the ${theme} token block is missing ${name} (SPEC-revamp §2.1)`);
+			} else if (!isHex(tokens[theme][name]!)) {
+				errors.push(`${name} in the ${theme} token block is not a #rrggbb hex value: \`${tokens[theme][name]}\``);
 			}
 		}
-		for (const [name, value] of Object.entries(tokens[theme])) {
-			if (!allowed.has(name)) {
-				errors.push(`${name} is not part of the §5.1 token set — landing invents no slots`);
-			} else if (
-				name.startsWith('--sl-color-') &&
-				!(derivedRoles as readonly string[]).includes(name) &&
-				parseHsl(value) === null
-			) {
-				errors.push(`${name} in the ${theme} token block is not an hsl() triplet: \`${value}\``);
-			}
+	}
+
+	for (const name of [...Object.keys(lightRoots.values), ...Object.keys(rootDeclarations(regions.dark).values)]) {
+		if (!allowed.has(name)) {
+			errors.push(`${name} is not part of the §2.1/§2.3 token set — the layer invents no slots`);
 		}
-		for (const slot of fontSlots) {
-			const value = tokens[theme][slot];
-			if (value !== undefined && /url\(|@|https?:/i.test(value)) {
-				errors.push(`${slot} points at a file or a host (\`${value}\`) — the site ships the system stack (SPEC §5.2)`);
-			}
+	}
+
+	// The type scale is declared once, on `:root`; a dark re-declaration would be a second copy.
+	for (const step of typeScaleSteps) {
+		const size = typeDeclarations[`--t-${step}`];
+		const lineHeight = typeDeclarations[`--t-${step}-lh`];
+		if (size === undefined || lineHeight === undefined) {
+			errors.push(`the token layer is missing --t-${step} / --t-${step}-lh (SPEC-revamp §2.3)`);
+			continue;
 		}
+		if (size !== typeScale[step].size || lineHeight !== typeScale[step].lineHeight) {
+			errors.push(
+				`--t-${step} is \`${size}/${lineHeight}\`, the §2.3 table locks \`${typeScale[step].size}/${typeScale[step].lineHeight}\``,
+			);
+		}
+	}
+	if (regions.dark.includes('--t-')) {
+		errors.push('the type scale is re-declared inside the dark block — eight steps, declared once');
 	}
 
 	return { tokens, errors };
 }
 
-/* ---------------------------------------------------------------- the other two readers */
-
-/** The §5.1 token table as written in `docs/SPEC.md` — the table this build is constructed from. */
-export function parseSpecTable(markdown: string): { tokens: Record<Theme, TokenSet>; errors: string[] } {
-	const block = [...markdown.matchAll(/```css\s*\n([\s\S]*?)```/g)]
-		.map((match) => match[1]!)
-		.find((body) => body.includes('--sl-color-accent-high'));
-
-	if (block === undefined) {
-		return { tokens: { light: {}, dark: {} }, errors: ['docs/SPEC.md carries no ```css token table (SPEC §5.1)'] };
-	}
-
-	const darkIndex = block.search(/\/\*\s*dark/);
-	const lightIndex = block.search(/\/\*\s*light/);
-	if (darkIndex === -1 || lightIndex === -1 || darkIndex > lightIndex) {
-		return {
-			tokens: { light: {}, dark: {} },
-			errors: [`the §5.1 token table must mark its two blocks with \`/* dark */\` and \`/* light */\``],
-		};
-	}
-
-	const sections: Record<Theme, string> = {
-		dark: block.slice(darkIndex, lightIndex),
-		light: block.slice(lightIndex),
-	};
-
-	const tokens: Record<Theme, TokenSet> = { light: {}, dark: {} };
-	for (const theme of ['light', 'dark'] as const) {
-		for (const [name, value] of declarationsOf(sections[theme])) {
-			if (name.startsWith('--sl-color-')) tokens[theme][name] = value;
-		}
-	}
-
-	return { tokens, errors: [] };
-}
+/* ---------------------------------------------------------------- the spec tables */
 
 /**
- * The oribos-docs token layer, when the checkout is beside this one: `:root` is Starlight's
- * dark default and `:root[data-theme='light']` is the light block (the same shape the docs
- * repo's own `scripts/check-contrast.mjs` parses).
+ * The §2.1 token table as written in `docs/SPEC-revamp.md` — the corpus this build is
+ * constructed from. Hex is normative there; any hsl note rides in a comment, which is
+ * stripped before parsing.
  */
-export function parseDocsStylesheet(css: string): { tokens: Record<Theme, TokenSet>; errors: string[] } {
-	const stripped = stripComments(css);
+export function parseSpecRevampTable(markdown: string): { tokens: Record<Theme, TokenSet>; errors: string[] } {
+	const block = [...markdown.matchAll(/```css\s*\n([\s\S]*?)```/g)]
+		.map((match) => match[1]!)
+		.find((body) => body.includes('--acc:'));
+
+	if (block === undefined) {
+		return { tokens: { light: {}, dark: {} }, errors: ['docs/SPEC-revamp.md carries no ```css §2.1 token table'] };
+	}
+
+	const regions = splitThemeRegions(block);
 	const tokens: Record<Theme, TokenSet> = { light: {}, dark: {} };
 	const errors: string[] = [];
 
-	const dark = blockAfter(stripped, /(?:^|[};\s]):root\s*\{/);
-	if (dark === null) {
-		errors.push('the docs stylesheet declares no `:root` (dark) token block');
-	} else {
-		for (const [name, value] of declarationsOf(dark.body)) {
-			if (name.startsWith('--sl-color-')) tokens.dark[name] = value;
+	for (const theme of ['light', 'dark'] as const) {
+		for (const [name, value] of declarationsOf(regions[theme])) {
+			if ((colourTokens as readonly string[]).includes(name)) tokens[theme][name] = value;
 		}
-	}
-
-	const light = blockAfter(stripped, /:root\[data-theme=(['"])light\1\]\s*\{/);
-	if (light === null) {
-		errors.push('the docs stylesheet declares no `:root[data-theme=\'light\']` token block');
-	} else {
-		for (const [name, value] of declarationsOf(light.body)) {
-			if (name.startsWith('--sl-color-')) tokens.light[name] = value;
+		for (const name of colourTokens) {
+			if (!(name in tokens[theme])) errors.push(`the §2.1 ${theme} block is missing ${name}`);
 		}
 	}
 
@@ -265,8 +223,7 @@ export function parseDocsStylesheet(css: string): { tokens: Record<Theme, TokenS
 
 /**
  * Per-slot value drift between two token sets, as human-readable lines. `slotsFor` scopes the
- * comparison: the §5.1 table holds the colour slots only, so the landing's derived roles and
- * font slots are compared against their own rules, not against a table that never had them.
+ * comparison to the colour slots; the type scale is validated against its own table above.
  */
 export function tokenDrift(
 	actual: Record<Theme, TokenSet>,
@@ -302,7 +259,7 @@ export function tokenDrift(
 
 /**
  * Colour literals outside the token blocks, and `@theme` aliases that do not point back at a
- * token (SPEC §5.1: Tailwind only aliases `var(--sl-color-*)` — no second copy of a value).
+ * token (SPEC-revamp §2.1: Tailwind only aliases `var(--*)` — no second copy of a value).
  */
 export function literalColorIssues(css: string): string[] {
 	const issues: string[] = [];
@@ -311,17 +268,18 @@ export function literalColorIssues(css: string): string[] {
 	const remainder = regions.light.replace(/:root\s*\{[^{}]*\}/g, '');
 
 	for (const match of remainder.matchAll(/#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla|oklch|oklab|lch|lab|color)\s*\(/gi)) {
-		issues.push(`\`${match[0]}\` outside the token blocks — colours are declared once, as §5.1 tokens`);
+		issues.push(`\`${match[0]}\` outside the token blocks — colours are declared once, as §2.1 tokens`);
 	}
 
 	for (const match of remainder.matchAll(/@theme([^{]*)\{([^{}]*)\}/g)) {
 		const modifier = match[1]!.trim();
 		if (modifier !== 'inline') {
-			issues.push(`\`@theme${modifier ? ` ${modifier}` : ''}\` — the alias block is \`@theme inline\` (SPEC §5.1)`);
+			issues.push(`\`@theme${modifier ? ` ${modifier}` : ''}\` — the alias block is \`@theme inline\` (SPEC-revamp §2.1)`);
 		}
 		for (const [name, value] of declarationsOf(match[2]!)) {
-			if (!/^var\(--sl-[a-z0-9-]+\)$/.test(value)) {
-				issues.push(`\`${name}: ${value}\` — a Tailwind alias must be a \`var(--sl-*)\` reference (SPEC §5.1)`);
+			if (!name.startsWith('--color-')) continue;
+			if (!/^var\(--[a-z0-9-]+\)$/.test(value)) {
+				issues.push(`\`${name}: ${value}\` — a Tailwind colour alias must be a \`var(--*)\` reference (SPEC-revamp §2.1)`);
 			}
 		}
 	}
@@ -331,10 +289,25 @@ export function literalColorIssues(css: string): string[] {
 
 /* ---------------------------------------------------------------- colour maths */
 
-export type Hsl = { h: number; s: number; l: number };
+export type Rgb = { r: number; g: number; b: number };
 
-/** `hsl(36, 82%, 55%)` and the comma-free modern form; the §5.1 table uses the former. */
-export function parseHsl(value: string): Hsl | null {
+/** `#rrggbb` — the normative shape of every §2.1 value. */
+export function parseHex(value: string): Rgb | null {
+	const match = value.trim().match(/^#([0-9a-f]{6})$/i);
+	if (!match) return null;
+	return {
+		r: parseInt(match[1]!.slice(0, 2), 16),
+		g: parseInt(match[1]!.slice(2, 4), 16),
+		b: parseInt(match[1]!.slice(4, 6), 16),
+	};
+}
+
+function isHex(value: string): boolean {
+	return parseHex(value) !== null;
+}
+
+/** `hsl(36, 82%, 55%)` — the shape the trace green declares itself in (trace-ink.css). */
+export function parseHsl(value: string): { h: number; s: number; l: number } | null {
 	const match = value
 		.trim()
 		.match(/^hsl\(\s*(\d+(?:\.\d+)?)(?:,|\s)\s*(\d+(?:\.\d+)?)%(?:,|\s)\s*(\d+(?:\.\d+)?)%\s*\)$/i);
@@ -342,7 +315,7 @@ export function parseHsl(value: string): Hsl | null {
 	return { h: Number(match[1]), s: Number(match[2]), l: Number(match[3]) };
 }
 
-function rgbChannels({ h, s, l }: Hsl): [number, number, number] {
+function hslRgb({ h, s, l }: { h: number; s: number; l: number }): [number, number, number] {
 	const saturation = s / 100;
 	const lightness = l / 100;
 	const k = (n: number) => (n + h / 30) % 12;
@@ -351,57 +324,35 @@ function rgbChannels({ h, s, l }: Hsl): [number, number, number] {
 	return [f(0), f(8), f(4)].map((channel) => Math.round(channel * 255)) as [number, number, number];
 }
 
-/** WCAG 2.1 relative luminance of an `hsl()` value, computed on the 8-bit channels. */
-export function relativeLuminance(value: string): number {
+/** `#rrggbb` of an `hsl()` value — bridges the trace green into the hex-only audit maths. */
+export function hslToHex(value: string): string {
 	const hsl = parseHsl(value);
 	if (hsl === null) throw new Error(`not an hsl() value: ${value}`);
-	const [r, g, b] = rgbChannels(hsl).map((channel) => {
+	return `#${hslRgb(hsl)
+		.map((channel) => channel.toString(16).padStart(2, '0'))
+		.join('')}`;
+}
+
+function luminanceOf(value: string): number {
+	const rgb = parseHex(value);
+	if (rgb === null) throw new Error(`not a #rrggbb value: ${value}`);
+	const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((channel) => {
 		const c = channel / 255;
 		return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 	});
 	return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
 }
 
-/** WCAG 2.1 contrast ratio between two `hsl()` values. */
+/** WCAG 2.1 contrast ratio between two `#rrggbb` values. */
 export function contrastRatio(a: string, b: string): number {
-	const [first, second] = [relativeLuminance(a), relativeLuminance(b)];
+	const [first, second] = [luminanceOf(a), luminanceOf(b)];
 	const [high, low] = first > second ? [first, second] : [second, first];
 	return (high + 0.05) / (low + 0.05);
 }
 
-/** `#rrggbb` of an `hsl()` value — the shape `theme-color` meta tags need (SPEC §5.3). */
-export function hslToHex(value: string): string {
-	const hsl = parseHsl(value);
-	if (hsl === null) throw new Error(`not an hsl() value: ${value}`);
-	return `#${rgbChannels(hsl)
-		.map((channel) => channel.toString(16).padStart(2, '0'))
-		.join('')}`;
-}
-
 /* ---------------------------------------------------------------- the AA audit */
 
-/**
- * The role map the audit renders: Starlight's own mapping read at the docs site (#19 there),
- * with the docs' sidebar face becoming the landing's nav/footer face (SPEC §5.5). The landing
- * derives its three roles as `var(…)` references, so each is resolved against the theme's own
- * tokens before it is measured — the audit reads what the browser would compute.
- */
-function renderingRoles(theme: Theme, tokens: TokenSet) {
-	const resolve = (value: string | undefined): string | undefined => {
-		const match = value?.match(/^var\((--sl-[a-z0-9-]+)\)$/);
-		return match ? tokens[match[1]!] : value;
-	};
-
-	return {
-		page: tokens['--sl-color-black']!,
-		surface: theme === 'dark' ? tokens['--sl-color-gray-6']! : tokens['--sl-color-gray-7']!,
-		link: resolve(tokens['--sl-color-text-accent']),
-		invert: resolve(tokens['--sl-color-text-invert']),
-		accentBackground: resolve(tokens['--sl-color-bg-accent']),
-	};
-}
-
-/** WCAG AA for normal text; §5.5 audits exactly these rendered pairs, and the slice gates reuse it. */
+/** WCAG AA for normal text; §2.10 audits exactly these rendered pairs, and the slice gates reuse it. */
 export const AA = 4.5;
 
 export type AuditRow = {
@@ -414,33 +365,36 @@ export type AuditRow = {
 	pass: boolean;
 };
 
-/** The 8 pairs §5.5 enumerates — body / headings / link × page & nav-footer, chip, button, muted. */
-function auditPairs(theme: Theme, tokens: TokenSet) {
-	const role = renderingRoles(theme, tokens);
+/**
+ * The 8 pairs §2.10 enumerates per theme — body and secondary text × page & secondary
+ * surface, the accent link × both, the accent hover state, and the inverted button label.
+ * `--ink3` is muted meta labelling, deliberately outside AA (§2.1), so no pair reads on it.
+ */
+function auditPairs(tokens: TokenSet) {
 	return [
-		{ label: 'body text on page background', fg: tokens['--sl-color-gray-2']!, bg: role.page },
-		{ label: 'body text on nav/footer surface', fg: tokens['--sl-color-gray-2']!, bg: role.surface },
-		{ label: 'headings on page background', fg: tokens['--sl-color-white']!, bg: role.page },
-		{ label: 'accent link on page background', fg: role.link, bg: role.page },
-		{ label: 'accent link on nav/footer surface', fg: role.link, bg: role.surface },
-		{ label: 'accent text on accent-low chip', fg: tokens['--sl-color-accent-high']!, bg: tokens['--sl-color-accent-low']! },
-		{ label: 'inverted label on accent button', fg: role.invert, bg: role.accentBackground },
-		{ label: 'muted meta text on page background', fg: tokens['--sl-color-gray-3']!, bg: role.page },
+		{ label: 'body text on page background', fg: tokens['--ink']!, bg: tokens['--bg']! },
+		{ label: 'body text on secondary surface', fg: tokens['--ink']!, bg: tokens['--bg2']! },
+		{ label: 'secondary text on page background', fg: tokens['--ink2']!, bg: tokens['--bg']! },
+		{ label: 'secondary text on secondary surface', fg: tokens['--ink2']!, bg: tokens['--bg2']! },
+		{ label: 'accent link on page background', fg: tokens['--acc']!, bg: tokens['--bg']! },
+		{ label: 'accent link on secondary surface', fg: tokens['--acc']!, bg: tokens['--bg2']! },
+		{ label: 'accent hover on page background', fg: tokens['--acc-h']!, bg: tokens['--bg']! },
+		{ label: 'inverted label on accent button', fg: tokens['--acc-inv']!, bg: tokens['--acc']! },
 	];
 }
 
-/** Run §5.5 over both themes: 8 pairs × 2 themes = the 16 checks the CI gate reports. */
+/** Run §2.10 over both themes: 8 pairs × 2 themes = the 16 checks the CI gate reports. */
 export function auditTokens(tokens: Record<Theme, TokenSet>): { rows: AuditRow[]; errors: string[] } {
 	const rows: AuditRow[] = [];
 	const errors: string[] = [];
 
 	for (const theme of ['light', 'dark'] as const) {
-		for (const { label, fg, bg } of auditPairs(theme, tokens[theme])) {
+		for (const { label, fg, bg } of auditPairs(tokens[theme])) {
 			if (typeof fg !== 'string' || typeof bg !== 'string') {
 				errors.push(`${theme}: \`${label}\` needs tokens the ${theme} block does not declare`);
 				continue;
 			}
-			if (parseHsl(fg) === null || parseHsl(bg) === null) {
+			if (parseHex(fg) === null || parseHex(bg) === null) {
 				errors.push(`${theme}: \`${label}\` resolves to a value the audit cannot measure (fg ${fg}, bg ${bg})`);
 				continue;
 			}
@@ -452,10 +406,10 @@ export function auditTokens(tokens: Record<Theme, TokenSet>): { rows: AuditRow[]
 	return { rows, errors };
 }
 
-/** The two `theme-color` values of §5.3: each theme's resolved `--sl-color-black`. */
+/** The two `theme-color` values (SPEC-revamp §2.8): each theme's resolved `--bg`. */
 export function themeColorValues(tokens: Record<Theme, TokenSet>): Record<Theme, string> {
 	return {
-		light: hslToHex(tokens.light['--sl-color-black']!),
-		dark: hslToHex(tokens.dark['--sl-color-black']!),
+		light: tokens.light['--bg']!,
+		dark: tokens.dark['--bg']!,
 	};
 }

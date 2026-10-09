@@ -1,6 +1,6 @@
 /**
  * The use-case pages (SPEC §4.3) over the built site: the shared header art — one abstract
- * warm-paper banner with amber orbit / span geometry, no copy, no logo, painted with the brand
+ * neutral banner with amber orbit / span geometry, no copy, no logo, painted with the brand
  * tokens and identical on every use-case page — then the skeleton in order: H1 (the home card's
  * title) + tagline, the three scenario cards (name, 2–3 sentences, the `→` package line with
  * every package its own inline-code chip), the shared final CTA, the global FAQ ×9 and the
@@ -20,7 +20,7 @@
  * gate checks the pages the build has and reports the rest as pending, like the shell gate.
  */
 
-import { AA, contrastRatio, parseHsl, type Theme, type TokenSet } from './brand-tokens.ts';
+import { AA, contrastRatio, parseHex, type Theme, type TokenSet } from './brand-tokens.ts';
 import { sectionColourIssues } from './colour-rules.ts';
 import { redLineRules, ruleMatches } from './copy-rules.ts';
 import { attributeValue, attributesOf, elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
@@ -197,15 +197,15 @@ function artIssues(page: ScenarioPage): string[] {
 
 	const paints = [...art.matchAll(/\b(?:fill|stroke)\s*=\s*"([^"]*)"/gi)].map((match) => match[1]!);
 	for (const paint of paints) {
-		if (paint !== 'none' && !/^var\(--sl-color-[a-z0-9-]+\)$/.test(paint)) {
-			issues.push(`${page.path}: the header art paints with \`${paint}\` — the brand tokens are the palette (SPEC §4.3/§5.1)`);
+		if (paint !== 'none' && !/^var\(--(?:bg2?|ink[23]?|line|acc(?:-h|-lo|-inv)?|code-bg)\)$/.test(paint)) {
+			issues.push(`${page.path}: the header art paints with \`${paint}\` — the brand tokens are the palette (SPEC §4.3/§2.1)`);
 		}
 	}
-	if (!paints.some((paint) => /^var\(--sl-color-accent/.test(paint))) {
+	if (!paints.some((paint) => /^var\(--acc\)$/.test(paint))) {
 		issues.push(`${page.path}: the header art has no amber geometry — the orbit / span shapes are the accent (SPEC §4.3)`);
 	}
-	if (!paints.some((paint) => /^var\(--sl-color-(?:gray-[1-7]|black)\)$/.test(paint))) {
-		issues.push(`${page.path}: the header art has no warm-paper base (SPEC §4.3)`);
+	if (!paints.some((paint) => paint === 'var(--bg2)' || paint === 'var(--bg)')) {
+		issues.push(`${page.path}: the header art has no neutral base (SPEC §4.3)`);
 	}
 
 	return issues;
@@ -368,9 +368,9 @@ export function useCaseReleaseRegions(page: ScenarioPage): string[] {
 /* ---------------------------------------------------------------- the colours */
 
 /**
- * SPEC §5.5 over the page's own sections: they read on the page background in the audited
- * roles, like the home bands. The package chips wear the mock-window pair (`gray-7` light,
- * `gray-6` dark), which the AA audit below measures.
+ * SPEC §2.10 over the page's own sections: they read on the page background in the audited
+ * roles, like the home bands. The package chips wear the secondary surface (`--bg2`), the
+ * same surface pair the AA audit measures.
  */
 export function useCaseColourIssues(page: ScenarioPage): string[] {
 	return sectionColourIssues(page, [
@@ -391,27 +391,26 @@ export function sharedArtIssues(pages: readonly ScenarioPage[]): string[] {
 }
 
 /**
- * SPEC §4.3/§5.5: the package chips' rendered pair — body ink on the mock-window surface —
- * clears AA in both themes, the same pair the home mocks' audit measures.
+ * SPEC §4.3/§2.10: the package chips' rendered pair — secondary ink on the secondary surface
+ * — clears AA in both themes, the same pair the token audit measures.
  */
 export function scenarioContrastIssues(tokens: Record<Theme, TokenSet>): string[] {
-	const chipSurface: Record<Theme, string> = { light: '--sl-color-gray-7', dark: '--sl-color-gray-6' };
 	const issues: string[] = [];
 
 	for (const theme of ['light', 'dark'] as const) {
-		const fg = tokens[theme]['--sl-color-gray-2'];
-		const bg = tokens[theme][chipSurface[theme]];
+		const fg = tokens[theme]['--ink2'];
+		const bg = tokens[theme]['--bg2'];
 		if (fg === undefined || bg === undefined) {
-			issues.push(`${theme}: the package chip pair needs tokens the §5.1 layer does not declare (SPEC §4.3/§5.5)`);
+			issues.push(`${theme}: the package chip pair needs tokens the §2.1 layer does not declare (SPEC §4.3/§2.10)`);
 			continue;
 		}
-		if (parseHsl(fg) === null || parseHsl(bg) === null) {
+		if (parseHex(fg) === null || parseHex(bg) === null) {
 			issues.push(`${theme}: the package chip pair resolves to a value the audit cannot measure (${fg} on ${bg})`);
 			continue;
 		}
 		const ratio = contrastRatio(fg, bg);
 		if (ratio < AA) {
-			issues.push(`${theme}: package chip text on its surface is ${ratio.toFixed(2)}:1 — below the ${AA}:1 floor (SPEC §4.3/§5.5)`);
+			issues.push(`${theme}: package chip text on its surface is ${ratio.toFixed(2)}:1 — below the ${AA}:1 floor (SPEC §4.3/§2.10)`);
 		}
 	}
 

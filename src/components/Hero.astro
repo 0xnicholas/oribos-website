@@ -20,10 +20,10 @@ export interface Props {
 
 const { h1, sub, file, code, trace } = Astro.props;
 ---
-<section class="px-6 py-20" data-hero>
+<section class="py-24" data-hero>
 	<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-		<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{h1}</h1>
-		<p class="mt-5 max-w-2xl text-lg leading-relaxed text-gray-2">{sub}</p>
+		<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+		<p class="mt-5 max-w-2xl text-lg text-ink2">{sub}</p>
 		<div class="mt-8 flex flex-wrap items-center justify-center gap-3">
 			<a href={LINKS.github} class="btn btn-primary"><Star />GitHub</a>
 			<button type="button" class="btn btn-ghost" data-copy-quick-start>
@@ -33,20 +33,20 @@ const { h1, sub, file, code, trace } = Astro.props;
 		</div>
 	</div>
 
-	<div class="mx-auto mt-12 max-w-5xl overflow-hidden rounded-xl border border-gray-5 bg-gray-7 dark:bg-gray-6" data-window>
-		<div class="flex items-center gap-3 border-b border-gray-5 px-4 py-2.5" data-window-bar>
+	<div class="wrap mt-12 box bg-bg2 overflow-hidden" data-window>
+		<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-window-bar>
 			<span class="flex gap-1.5" aria-hidden="true">
-				<i class="size-2.5 rounded-full bg-gray-5"></i>
-				<i class="size-2.5 rounded-full bg-gray-5"></i>
-				<i class="size-2.5 rounded-full bg-gray-5"></i>
+				<i class="size-2.5 rounded-full bg-ink3"></i>
+				<i class="size-2.5 rounded-full bg-ink3"></i>
+				<i class="size-2.5 rounded-full bg-ink3"></i>
 			</span>
-			<span class="font-mono text-xs text-gray-2" data-file-tab>{file}</span>
-			<span class="ml-auto rounded-full border border-gray-5 px-2.5 py-0.5 font-mono text-xs text-gray-3" data-trace-badge>
+			<span class="font-mono text-xs text-ink2" data-file-tab>{file}</span>
+			<span class="ml-auto box px-2.5 py-0.5 font-mono text-xs text-ink3" data-trace-badge>
 				trace
 			</span>
 		</div>
 		<div class="grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-			<div class="overflow-x-auto border-b border-gray-5 p-4 md:border-r md:border-b-0" data-hero-code>
+			<div class="overflow-x-auto border-b border-line p-4 md:border-r md:border-b-0" data-hero-code>
 				<Code code={code} lang="ts" themes={{ light: 'github-light', dark: 'github-dark' }} />
 			</div>
 			<div class="overflow-x-auto p-4">

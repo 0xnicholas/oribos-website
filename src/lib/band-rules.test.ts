@@ -37,13 +37,13 @@ const observabilitySection = (overrides: Partial<Record<string, string>> = {}) =
 		code: observabilitySnippet,
 		...overrides,
 	};
-	return `<section id="observability" data-observability class="scroll-mt-20 border-t border-gray-5 px-6 py-20">
-	<p class="text-sm font-medium tracking-wide text-text-accent">${copy.kicker}</p>
-	<h2 class="mt-3 text-3xl font-semibold tracking-tight text-white">${copy.claim}</h2>
-	<p class="mt-4 max-w-3xl leading-relaxed text-gray-2">${copy.lead}</p>
-	<h3 class="mt-10 text-lg font-semibold tracking-tight text-white">${copy.codeClaim}</h3>
-	<div class="mt-4"><div class="rounded-lg border border-gray-5" data-code-tabs>
-		<div role="tablist"><button type="button" role="tab" aria-selected="true" class="text-gray-3 hover:text-white aria-selected:bg-gray-6 aria-selected:text-white">${copy.file}</button></div>
+	return `<section id="observability" data-observability class="scroll-mt-20 border-t border-line px-6 py-20">
+	<p class="text-base font-semibold tracking-wide text-acc">${copy.kicker}</p>
+	<h2 class="mt-3 text-3xl font-semibold tracking-tight text-ink">${copy.claim}</h2>
+	<p class="mt-4 max-w-3xl text-ink2">${copy.lead}</p>
+	<h3 class="mt-10 text-lg font-semibold tracking-tight text-ink">${copy.codeClaim}</h3>
+	<div class="mt-4"><div class="box" data-code-tabs>
+		<div role="tablist"><button type="button" role="tab" aria-selected="true" class="text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink">${copy.file}</button></div>
 		${codeBlock(copy.code)}
 	</div></div>
 </section>`;
@@ -51,16 +51,16 @@ const observabilitySection = (overrides: Partial<Record<string, string>> = {}) =
 
 const socialProofSection = (overrides: Partial<Record<string, string>> = {}) => {
 	const copy = { kicker: socialProofKicker, line: socialProofLine, ...overrides };
-	return `<section id="social-proof" data-social-proof class="scroll-mt-20 border-t border-gray-5 px-6 py-16">
-	<p class="text-sm font-medium tracking-wide text-text-accent">${copy.kicker}</p>
-	<p class="mt-4 text-sm leading-relaxed text-gray-3">${copy.line}</p>
+	return `<section id="social-proof" data-social-proof class="scroll-mt-20 border-t border-line px-6 py-16">
+	<p class="text-base font-semibold tracking-wide text-acc">${copy.kicker}</p>
+	<p class="mt-4 text-base text-ink3">${copy.line}</p>
 </section>`;
 };
 
 const resourcesSection = (links: readonly { label: string; key: 'docs' | 'examples' | 'architecture' }[] = resourceLinks) =>
-	`<section id="resources" data-resources class="scroll-mt-20 border-t border-gray-5 px-6 py-10">
-	<p class="font-medium tracking-wide text-text-accent">${resourcesKicker}</p>
-	<ul>${links.map((link) => `<li><a href="${LINKS[link.key]}" class="text-gray-2 hover:text-white">${link.label}</a></li>`).join('')}</ul>
+	`<section id="resources" data-resources class="scroll-mt-20 border-t border-line px-6 py-10">
+	<p class="font-semibold tracking-wide text-acc">${resourcesKicker}</p>
+	<ul>${links.map((link) => `<li><a href="${LINKS[link.key]}" class="text-ink2 hover:text-ink">${link.label}</a></li>`).join('')}</ul>
 </section>`;
 
 const bands = (
@@ -91,7 +91,7 @@ test('the observability band is #observability with the §3.3 copy in order', ()
 
 	const reordered = bands(
 		observabilitySection()
-			.replace(`<p class="text-sm font-medium tracking-wide text-text-accent">${observabilityKicker}</p>\n\t<h2`, `<h2`)
+			.replace(`<p class="text-base font-semibold tracking-wide text-acc">${observabilityKicker}</p>\n\t<h2`, `<h2`)
 			.replace('</h2>', `</h2><p>${observabilityKicker}</p>`),
 	);
 	assert.match(observabilityIssues(reordered).join('\n'), /out of order/);
@@ -143,8 +143,8 @@ test('the social-proof band is #social-proof: the §3.4 kicker, one muted line, 
 	const quote = bands('', socialProofSection().replace('</section>', '<blockquote>They ship fast.</blockquote></section>'));
 	assert.match(socialProofIssues(quote).join('\n'), /<blockquote>/);
 
-	const unmuted = bands('', socialProofSection().replace('text-gray-3', 'text-gray-4'));
-	assert.match(socialProofIssues(unmuted).join('\n'), /not muted in `text-gray-3`/);
+	const unmuted = bands('', socialProofSection().replace('text-ink3', 'text-acc-lo'));
+	assert.match(socialProofIssues(unmuted).join('\n'), /not muted in `text-ink3`/);
 });
 
 test('the resources strip is #resources: three verbatim links from the links constants', () => {
@@ -178,11 +178,11 @@ test('the resources strip is #resources: three verbatim links from the links con
 });
 
 test('the three bands paint with the roles §5.5 audits on the page background', () => {
-	const badRole = bands('', socialProofSection().replace('text-gray-3', 'text-gray-4'));
-	assert.match(bandColorIssues(badRole)[0]!, /social-proof band paints text with `text-gray-4`/);
+	const badRole = bands('', socialProofSection().replace('text-ink3', 'text-acc-lo'));
+	assert.match(bandColorIssues(badRole)[0]!, /social-proof band paints text with `text-acc-lo`/);
 
-	const surfless = bands(observabilitySection().replace('class="scroll-mt-20', 'class="bg-gray-7 scroll-mt-20'));
-	assert.match(bandColorIssues(surfless)[0]!, /paints its own surface with `bg-gray-7`/);
+	const surfless = bands(observabilitySection().replace('class="scroll-mt-20', 'class="bg-bg2 scroll-mt-20'));
+	assert.match(bandColorIssues(surfless)[0]!, /paints its own surface with `bg-bg2`/);
 });
 
 test('the three bands state no counting-style figures in their copy', () => {

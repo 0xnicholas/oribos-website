@@ -21,47 +21,47 @@ const globalCss = readFileSync(new URL('../styles/global.css', import.meta.url),
 
 const page = (html: string) => ({ path: 'index.html', html: `<html><body>${html}</body></html>` });
 
-const dots = `<span class="flex gap-1.5" aria-hidden="true"><i class="size-2.5 rounded-full bg-gray-5"></i><i class="size-2.5 rounded-full bg-gray-5"></i><i class="size-2.5 rounded-full bg-gray-5"></i></span>`;
+const dots = `<span class="flex gap-1.5" aria-hidden="true"><i class="size-2.5 rounded-full bg-ink3"></i><i class="size-2.5 rounded-full bg-ink3"></i><i class="size-2.5 rounded-full bg-ink3"></i></span>`;
 
 const windowFrame = (body: string) => `
-	<div class="overflow-hidden rounded-xl border border-gray-5 bg-gray-7 dark:bg-gray-6" data-mock-window>
-		<div class="flex items-center gap-3 border-b border-gray-5 px-4 py-2.5" data-mock-bar>${dots}</div>
+	<div class="box overflow-hidden bg-bg2" data-mock-window>
+		<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-mock-bar>${dots}</div>
 		${body}
 	</div>`;
 
 const mockChat = windowFrame(`
 	<div class="flex flex-col gap-3 p-4">
-		<p class="ml-auto w-fit max-w-[85%] rounded-lg bg-accent-low px-3 py-2 text-sm text-accent-high" data-mock-bubble="user">Where is my order?</p>
-		<span class="flex w-fit items-center gap-1.5 rounded-md border border-gray-5 px-2 py-1 font-mono text-xs text-gray-2" data-mock-tool><i class="size-1.5 rounded-[2px] bg-accent" aria-hidden="true"></i>lookupOrder</span>
-		<p class="max-w-[85%] text-sm leading-relaxed text-gray-2" data-mock-reply>It shipped this morning — arriving tomorrow.<span class="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 rounded-[1px] bg-accent" data-mock-cursor aria-hidden="true"></span></p>
+		<p class="ml-auto w-fit max-w-[85%] bg-acc-lo px-3 py-2 text-base text-acc-h" data-mock-bubble="user">Where is my order?</p>
+		<span class="flex w-fit items-center gap-1.5 border border-line px-2 py-1 font-mono text-xs text-ink2" data-mock-tool><i class="size-1.5 bg-acc" aria-hidden="true"></i>lookupOrder</span>
+		<p class="max-w-[85%] text-base text-ink2" data-mock-reply>It shipped this morning — arriving tomorrow.<span class="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 bg-acc" data-mock-cursor aria-hidden="true"></span></p>
 	</div>`);
 
 const mockThread = windowFrame(`
-	<div class="flex flex-col gap-3 p-4 text-sm">
-		<p class="text-gray-3"><span class="font-mono text-xs text-text-accent">@ops</span> — Customer asked again about order A-4471.</p>
-		<p class="text-gray-2"><span class="font-mono text-xs text-text-accent">@agent</span> — The refund is ready — I've paused before sending it.</p>
-		<div class="rounded-lg border border-gray-5 p-3" data-mock-approval>
+	<div class="flex flex-col gap-3 p-4 text-base">
+		<p class="text-ink3"><span class="font-mono text-xs text-acc">@ops</span> — Customer asked again about order A-4471.</p>
+		<p class="text-ink2"><span class="font-mono text-xs text-acc">@agent</span> — The refund is ready — I've paused before sending it.</p>
+		<div class="box p-3" data-mock-approval>
 			<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-				<p class="font-medium text-white">Refund order A-4471</p>
-				<span class="ml-auto rounded-full bg-accent-low px-2 py-0.5 font-mono text-xs text-accent-high" data-mock-badge>suspended</span>
+				<p class="font-semibold text-ink">Refund order A-4471</p>
+				<span class="ml-auto bg-acc-lo px-2 py-0.5 font-mono text-xs text-acc-h" data-mock-badge>suspended</span>
 			</div>
 			<div class="mt-3 flex gap-2">
-				<span class="rounded-md bg-bg-accent px-2.5 py-1 text-xs font-medium text-text-invert" data-mock-action="approve">Approve</span>
-				<span class="rounded-md border border-gray-5 px-2.5 py-1 text-xs font-medium text-gray-2" data-mock-action="reject">Reject</span>
+				<span class="bg-acc px-2.5 py-1 text-xs font-semibold text-acc-inv" data-mock-action="approve">Approve</span>
+				<span class="border border-line px-2.5 py-1 text-xs font-semibold text-ink2" data-mock-action="reject">Reject</span>
 			</div>
 		</div>
 	</div>`);
 
 const consoleRow = (lane: string, value: string) => `
 		<div class="grid grid-cols-[1fr_auto_auto] items-center gap-3" data-mock-span>
-			<span class="truncate font-mono text-xs text-gray-2">${lane}</span>
+			<span class="truncate font-mono text-xs text-ink2">${lane}</span>
 			<span class="mock-status font-mono text-xs" data-mock-status>${consoleStatus}</span>
-			<span class="text-right font-mono text-xs text-gray-3" data-mock-duration>${value}</span>
+			<span class="text-right font-mono text-xs text-ink3" data-mock-duration>${value}</span>
 		</div>`;
 
 const mockConsole = windowFrame(`
 	<div class="p-4">
-		<p class="font-mono text-xs text-gray-3" data-mock-trace-head>trace 8b1e2f… · completed · 214ms</p>
+		<p class="font-mono text-xs text-ink3" data-mock-trace-head>trace 8b1e2f… · completed · 214ms</p>
 		<div class="mt-3 flex flex-col gap-2">
 			${consoleRow('agent-run', '214ms')}
 			${consoleRow('agent-step #1', '172ms')}
@@ -74,18 +74,18 @@ const mockConsole = windowFrame(`
 const mockOf = { chat: mockChat, thread: mockThread, console: mockConsole } as const;
 
 const section = (cards: readonly UseCaseCardSpec[] = useCaseCards, intro = { heading: useCaseIntroHeading, sub: useCaseIntroSub }) => `
-<section id="use-cases" data-use-cases class="scroll-mt-20 border-t border-gray-5 px-6 py-20">
+<section id="use-cases" data-use-cases class="scroll-mt-20 border-t border-line px-6 py-20">
 	<div class="mx-auto max-w-5xl">
-		<h2 class="text-center text-3xl font-semibold tracking-tight text-white">${intro.heading}</h2>
-		<p class="mx-auto mt-3 max-w-2xl text-center leading-relaxed text-gray-3">${intro.sub}</p>
+		<h2 class="text-center text-3xl font-semibold tracking-tight text-ink">${intro.heading}</h2>
+		<p class="mx-auto mt-3 max-w-2xl text-center text-ink3">${intro.sub}</p>
 		<ul class="mt-10 grid gap-6 md:grid-cols-3">
 			${cards
 				.map(
 					(card) => `
-			<li data-use-case-card data-mock="${card.mock}" class="group relative flex flex-col overflow-hidden rounded-xl border border-gray-5 transition-colors hover:border-gray-4">
+			<li data-use-case-card data-mock="${card.mock}" class="group relative flex flex-col overflow-hidden box transition-colors hover:border-acc">
 				<div class="flex flex-1 flex-col gap-2 p-5 pb-4">
-					<h3 class="text-lg font-semibold tracking-tight"><a href="${card.route}" data-card-link class="rounded-sm text-white after:absolute after:inset-0 after:content-[''] group-hover:text-text-accent hover:text-text-accent">${card.title}</a></h3>
-					<p class="text-sm leading-relaxed text-gray-2">${card.claim}</p>
+					<h3 class="text-lg font-semibold tracking-tight"><a href="${card.route}" data-card-link class="text-ink after:absolute after:inset-0 after:content-[''] group-hover:text-acc hover:text-acc">${card.title}</a></h3>
+					<p class="text-base text-ink2">${card.claim}</p>
 				</div>
 				<div class="px-4 pb-4">${mockOf[card.mock]}</div>
 			</li>`,
@@ -153,7 +153,7 @@ test('the chat mock shows a bubble, a streaming reply and a tool chip', () => {
 	const otherTool = page(section().replace(chatToolChip, 'weather'));
 	assert.match(useCaseIssues(otherTool).join('\n'), /tool chip reads `weather`, expected `lookupOrder`/);
 
-	const noDots = page(section().replace('<i class="size-2.5 rounded-full bg-gray-5"></i>', ''));
+	const noDots = page(section().replace('<i class="size-2.5 rounded-full bg-ink3"></i>', ''));
 	assert.match(useCaseIssues(noDots).join('\n'), /card 1: the mock window bar carries 2 dots, expected three/);
 });
 
@@ -222,21 +222,21 @@ test('figures stay decorative: none in the copy, none that read as a size or a c
 });
 
 test('text and surfaces come only from the measured roles, paired as audited', () => {
-	const offRole = page(section().replace('text-sm leading-relaxed text-gray-2', 'text-sm leading-relaxed text-gray-4'));
-	assert.match(useCaseColourIssues(offRole)[0]!, /`text-gray-4`/);
+	const offRole = page(section().replace('text-base text-ink2', 'text-base text-acc-lo'));
+	assert.match(useCaseColourIssues(offRole)[0]!, /`text-acc-lo`/);
 
-	const cardSurface = page(section().replace('class="group relative flex flex-col', 'class="group relative flex flex-col bg-gray-6'));
-	assert.match(useCaseColourIssues(cardSurface)[0]!, /card 1 paints its own surface with `bg-gray-6`/);
+	const cardSurface = page(section().replace('class="group relative flex flex-col', 'class="group relative flex flex-col bg-bg2'));
+	assert.match(useCaseColourIssues(cardSurface)[0]!, /card 1 paints its own surface with `bg-bg2`/);
 
 	const loudBubble = page(
-		section().replace('rounded-lg bg-accent-low px-3 py-2 text-sm text-accent-high', 'rounded-lg bg-accent-low px-3 py-2 text-sm text-text-invert'),
+		section().replace('bg-acc-lo px-3 py-2 text-base text-acc-h', 'bg-acc-lo px-3 py-2 text-base text-acc-inv'),
 	);
-	assert.match(useCaseColourIssues(loudBubble).join('\n'), /does not wear `text-accent-high`/);
+	assert.match(useCaseColourIssues(loudBubble).join('\n'), /does not wear `text-acc-h`/);
 
 	const ghostApprove = page(
-		section().replace('bg-bg-accent px-2.5 py-1 text-xs font-medium text-text-invert', 'bg-bg-accent px-2.5 py-1 text-xs font-medium text-white'),
+		section().replace('bg-acc px-2.5 py-1 text-xs font-semibold text-acc-inv', 'bg-acc px-2.5 py-1 text-xs font-semibold text-ink'),
 	);
-	assert.match(useCaseColourIssues(ghostApprove).join('\n'), /does not wear `text-text-invert`/);
+	assert.match(useCaseColourIssues(ghostApprove).join('\n'), /does not wear `text-acc-inv`/);
 
 	const noStatusInk = page(section().replace('class="mock-status font-mono text-xs"', 'class="font-mono text-xs"'));
 	assert.match(useCaseColourIssues(noStatusInk).join('\n'), /does not wear `mock-status`/);
@@ -249,21 +249,21 @@ test('the mock pairs clear AA on the shipped token layer, both themes', () => {
 	assert.deepEqual(errors, []);
 	assert.deepEqual(mockContrastIssues(tokens), []);
 
-	const dimmed = { ...tokens, light: { ...tokens.light, '--sl-color-gray-3': 'hsl(35, 10%, 80%)' } };
+	const dimmed = { ...tokens, light: { ...tokens.light, '--ink2': '#a0a09c' } };
 	const muted = mockContrastIssues(dimmed);
 	assert.equal(muted.length, 1);
-	assert.match(muted[0]!, /muted text on the mock window surface/);
+	assert.match(muted[0]!, /body text on the mock window surface/);
 
-	const missing = { light: tokens.light, dark: { ...tokens.dark, '--sl-color-gray-6': undefined as unknown as string } };
+	const missing = { light: tokens.light, dark: { ...tokens.dark, '--bg2': undefined as unknown as string } };
 	assert.ok(mockContrastIssues(missing).some((issue) => issue.includes('needs tokens')));
 });
 
 test('the card links keep the site-wide visible focus ring', () => {
 	assert.deepEqual(
-		focusRingIssues(':where(a[href], button):focus-visible { outline: 2px solid var(--sl-color-text-accent); outline-offset: 2px; }'),
+		focusRingIssues(':where(a[href], button):focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }'),
 		[],
 	);
 	assert.match(focusRingIssues('a { color: red }')[0]!, /no `:focus-visible` rule/);
 	assert.match(focusRingIssues(':focus-visible { outline: none }').join('\n'), /2px accent outline/);
-	assert.match(focusRingIssues(':focus-visible { outline: 2px solid var(--sl-color-text-accent) }').join('\n'), /outline offset/);
+	assert.match(focusRingIssues(':focus-visible { outline: 2px solid var(--acc) }').join('\n'), /outline offset/);
 });

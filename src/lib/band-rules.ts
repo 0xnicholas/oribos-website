@@ -224,8 +224,8 @@ export function socialProofIssues(page: BandPage): string[] {
 	}
 
 	const lineTag = paragraphs[1]?.tag;
-	if (lineTag !== undefined && !/\btext-gray-3\b/.test(attributeValue(lineTag, 'class') ?? '')) {
-		issues.push(`${page.path}: the social-proof line is not muted in \`text-gray-3\` — the §5.5 audited muted role (SPEC §3.4/§5.5)`);
+	if (lineTag !== undefined && !/\btext-ink3\b/.test(attributeValue(lineTag, 'class') ?? '')) {
+		issues.push(`${page.path}: the social-proof line is not muted in \`text-ink3\` — the muted-meta role (SPEC §3.4/§2.1)`);
 	}
 
 	// SPEC §3.4: no fabricated logo wall, quote, rating, count or CTA — no such element at all.

@@ -11,14 +11,14 @@ export interface Props {
 
 const { kicker, links } = Astro.props;
 ---
-<section id="resources" data-resources class="scroll-mt-20 border-t border-gray-5 px-6 py-10">
-	<div class="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-		<p class="font-medium tracking-wide text-text-accent">{kicker}</p>
+<section id="resources" data-resources class="scroll-mt-20 border-t border-line py-12">
+	<div class="wrap flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base">
+		<p class="font-semibold tracking-wide text-acc">{kicker}</p>
 		<ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
 			{
 				links.map((link) => (
 					<li>
-						<a href={LINKS[link.key]} class="rounded-sm text-gray-2 hover:text-white">{link.label}</a>
+						<a href={LINKS[link.key]} class="text-ink2 hover:text-ink">{link.label}</a>
 					</li>
 				))
 			}

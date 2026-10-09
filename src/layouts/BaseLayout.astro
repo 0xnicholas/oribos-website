@@ -12,7 +12,7 @@ export interface Props {
 
 const { title, description } = Astro.props;
 
-// The `theme-color` pair is each theme's resolved `--sl-color-black` (SPEC §5.3), read out of
+// The `theme-color` pair is each theme's resolved `--bg` (SPEC-revamp §2.8), read out of
 // the token layer at build time — the value is never written here a second time.
 const parsed = parseLandingTokens(tokenCss);
 if (parsed.errors.length > 0) {
@@ -33,6 +33,7 @@ const ogImage = new URL('/og.png', SITE.origin).href;
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
 		<title>{title}</title>
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonical} />
@@ -51,7 +52,7 @@ const ogImage = new URL('/og.png', SITE.origin).href;
 		<meta name="theme-color" media="(prefers-color-scheme: dark)" content={themeColor.dark} />
 		<slot name="head" />
 	</head>
-	<body class="bg-black font-sans text-gray-2">
+	<body class="bg-bg font-sans text-ink">
 		<slot />
 	</body>
 </html>

@@ -16,14 +16,14 @@ export interface Props {
 const { title, description, h1, lastUpdated, paragraphs } = Astro.props;
 ---
 <MarketingLayout title={title} description={description}>
-	<section data-legal-page class="px-6 py-16">
+	<section data-legal-page class="px-6 py-18">
 		<div class="mx-auto max-w-3xl">
-			<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{h1}</h1>
-			<p data-legal-updated class="mt-4 text-sm text-gray-3">Last updated: {lastUpdated}</p>
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+			<p data-legal-updated class="mt-4 text-base text-ink3">Last updated: {lastUpdated}</p>
 			<div data-legal-body class="mt-8 flex flex-col gap-4">
 				{
 					paragraphs.map((segments) => (
-						<p class="leading-relaxed text-gray-2">
+						<p class="text-ink2">
 							<SegmentText segments={segments} />
 						</p>
 					))

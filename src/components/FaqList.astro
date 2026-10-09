@@ -15,15 +15,15 @@ export interface Props {
 const { items } = Astro.props;
 const heading = 'Frequently asked questions';
 ---
-<section id="faq" data-faq class="scroll-mt-20 border-t border-gray-5 px-6 py-20">
+<section id="faq" data-faq class="scroll-mt-20 border-t border-line px-6 py-24">
 	<div class="mx-auto max-w-3xl">
-		<h2 class="text-3xl font-semibold tracking-tight text-white">{heading}</h2>
-		<div class="mt-8 divide-y divide-gray-5 border-y border-gray-5">
+		<h2 class="text-3xl font-semibold tracking-tight text-ink">{heading}</h2>
+		<div class="mt-8 divide-y divide-line border-y border-line">
 			{
 				items.map((item) => (
 					<details>
-						<summary class="cursor-pointer py-4 font-medium text-white hover:text-text-accent">{item.question}</summary>
-						<p class="pb-4 text-sm leading-relaxed text-gray-2">{item.answer}</p>
+						<summary class="cursor-pointer py-4 font-semibold text-ink hover:text-acc">{item.question}</summary>
+						<p class="pb-4 text-base text-ink2">{item.answer}</p>
 					</details>
 				))
 			}

@@ -22,11 +22,11 @@ export interface Props {
 const { features } = Astro.props;
 const kicker = "What's in the box";
 const tabClass =
-	'scroll-mt-32 rounded-full border border-gray-5 px-4 py-1.5 text-sm font-medium text-gray-3 transition-colors hover:text-white aria-selected:border-accent aria-selected:bg-accent-low aria-selected:text-accent-high';
+	'scroll-mt-32 box px-4 py-1.5 text-base font-semibold text-ink3 transition-colors hover:text-ink aria-selected:border-acc aria-selected:bg-acc-lo aria-selected:text-acc-h';
 ---
-<section id="features" data-features class="scroll-mt-20 border-t border-gray-5 px-6 py-20">
-	<div class="mx-auto max-w-5xl">
-		<p class="text-center text-sm font-medium tracking-wide text-text-accent">{kicker}</p>
+<section id="features" data-features class="scroll-mt-20 border-t border-line py-24">
+	<div class="wrap">
+		<p class="text-center text-base font-semibold tracking-wide text-acc">{kicker}</p>
 		<div class="mt-6 flex flex-wrap justify-center gap-2" role="tablist" aria-label={kicker}>
 			{
 				features.map((feature, index) => (
@@ -53,13 +53,13 @@ const tabClass =
 					aria-labelledby={feature.id}
 					hidden={index !== 0}
 					data-feature-panel
-					class="mt-8 rounded-xl border border-gray-5 bg-gray-7 p-6 sm:p-8 dark:bg-gray-6"
+					class="mt-8 box bg-bg2 p-6 sm:p-8"
 				>
-					<h3 class="text-2xl font-semibold tracking-tight text-white">{feature.claim}</h3>
+					<h3 class="text-2xl font-semibold tracking-tight text-ink">{feature.claim}</h3>
 					<ul class="mt-4 space-y-2.5">
 						{feature.bullets.map((bullet) => (
-							<li class="text-sm leading-relaxed text-gray-2">
-								<strong class="font-medium text-gray-1">{bullet.lead}</strong> — {bullet.text}
+							<li class="text-base text-ink2">
+								<strong class="font-semibold text-ink">{bullet.lead}</strong> — {bullet.text}
 							</li>
 						))}
 					</ul>

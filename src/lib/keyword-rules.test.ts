@@ -25,10 +25,10 @@ const spec = keywordPages[0]!;
 const titleOf = (route: string): string => registered.find((page) => page.route === route)!.title;
 
 const sectionHtml = (section: KeywordSectionSpec) =>
-	`<article data-keyword-section><h2 class="text-2xl font-semibold tracking-tight text-white">${section.heading}</h2><p class="mt-3 leading-relaxed text-gray-2">${section.body}</p></article>`;
+	`<article data-keyword-section><h2 class="text-2xl font-semibold tracking-tight text-ink">${section.heading}</h2><p class="mt-3 text-ink2">${section.body}</p></article>`;
 
 const faqHtml = (item: KeywordFaqSpec) =>
-	`<details><summary class="cursor-pointer py-4 font-medium text-white hover:text-text-accent">${item.question}</summary><p class="pb-4 text-sm leading-relaxed text-gray-2">${item.answer}</p></details>`;
+	`<details><summary class="cursor-pointer py-4 font-semibold text-ink hover:text-acc">${item.question}</summary><p class="pb-4 text-base text-ink2">${item.answer}</p></details>`;
 
 const page = (entry: KeywordPageSpec = spec): KeywordPage => ({
 	path: `${entry.route.slice(1)}index.html`,
@@ -42,27 +42,27 @@ const page = (entry: KeywordPageSpec = spec): KeywordPage => ({
 	<main>
 		<section data-keyword-hero class="px-6 py-16">
 			<div class="mx-auto max-w-3xl">
-				<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">${entry.h1}</h1>
+				<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${entry.h1}</h1>
 			</div>
 		</section>
-		<section data-keyword-sections class="border-t border-gray-5 px-6 py-20">
+		<section data-keyword-sections class="border-t border-line px-6 py-20">
 			<div class="mx-auto flex max-w-3xl flex-col gap-12">
 				${entry.sections.map(sectionHtml).join('')}
-				<p data-keyword-learn-more class="leading-relaxed"><a href="${learnMoreLinks[entry.slug].pre}" class="rounded-sm font-medium text-text-accent hover:underline">${learnMoreText}</a></p>
+				<p data-keyword-learn-more><a href="${learnMoreLinks[entry.slug].pre}" class="font-semibold text-acc hover:underline">${learnMoreText}</a></p>
 			</div>
 		</section>
-		<section data-page-faq class="border-t border-gray-5 px-6 py-20">
+		<section data-page-faq class="border-t border-line px-6 py-20">
 			<div class="mx-auto max-w-3xl">
-				<h2 class="text-3xl font-semibold tracking-tight text-white">${pageFaqHeading}</h2>
-				<div class="mt-8 divide-y divide-gray-5 border-y border-gray-5">
+				<h2 class="text-3xl font-semibold tracking-tight text-ink">${pageFaqHeading}</h2>
+				<div class="mt-8 divide-y divide-line border-y border-line">
 					${entry.faq.map(faqHtml).join('')}
 				</div>
 			</div>
 		</section>
-		<section id="get-started" class="border-t border-gray-5 px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
-		<section data-keyword-back class="border-t border-gray-5 px-6 py-12">
+		<section id="get-started" class="border-t border-line px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
+		<section data-keyword-back class="border-t border-line px-6 py-12">
 			<div class="mx-auto max-w-3xl">
-				<a href="${entry.backAnchor}" class="rounded-sm text-sm font-medium text-text-accent hover:underline">${backLinkText}</a>
+				<a href="${entry.backAnchor}" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>
 			</div>
 		</section>
 	</main>
@@ -232,12 +232,12 @@ test("the page's own copy carries no release status", () => {
 
 test('the page sections wear the §5.5 audited roles on the page background', () => {
 	const badRole = page();
-	badRole.html = badRole.html.replace('mt-3 leading-relaxed text-gray-2', 'mt-3 leading-relaxed text-gray-4');
-	assert.match(keywordColourIssues(badRole).join('\n'), /argument sections paints text with `text-gray-4`/);
+	badRole.html = badRole.html.replace('mt-3 text-ink2', 'mt-3 text-acc-lo');
+	assert.match(keywordColourIssues(badRole).join('\n'), /argument sections paints text with `text-acc-lo`/);
 
 	const surface = page();
-	surface.html = surface.html.replace('data-keyword-sections class="', 'data-keyword-sections class="bg-gray-7 ');
-	assert.match(keywordColourIssues(surface).join('\n'), /argument sections paints its own surface with `bg-gray-7`/);
+	surface.html = surface.html.replace('data-keyword-sections class="', 'data-keyword-sections class="bg-bg2 ');
+	assert.match(keywordColourIssues(surface).join('\n'), /argument sections paints its own surface with `bg-bg2`/);
 });
 
 test('the registry holds the §4.4 locks: four pages, their shapes, their sentence discipline', () => {

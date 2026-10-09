@@ -19,8 +19,8 @@ export interface Props {
 const { id, files, label } = Astro.props;
 if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`);
 ---
-<div class="overflow-hidden rounded-lg border border-gray-5" data-code-tabs>
-	<div class="flex items-center gap-1 border-b border-gray-5 px-2 py-1.5">
+<div class="overflow-hidden box" data-code-tabs>
+	<div class="flex items-center gap-1 border-b border-line px-2 py-1.5">
 		<div class="flex items-center gap-1" role="tablist" aria-label={label ?? files[0]!.file}>
 			{
 				files.map((file, index) => (
@@ -31,7 +31,7 @@ if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`
 						aria-controls={`${id}-panel-${index}`}
 						aria-selected={index === 0 ? 'true' : 'false'}
 						tabindex={index === 0 ? 0 : -1}
-						class="rounded-sm px-2.5 py-1 font-mono text-xs text-gray-3 hover:text-white aria-selected:bg-gray-6 aria-selected:text-white"
+						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink"
 					>
 						{file.file}
 					</button>
@@ -43,7 +43,7 @@ if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`
 			type="button"
 			data-copy
 			aria-label={`Copy ${files[0]!.file}`}
-			class="rounded-sm p-1.5 text-gray-3 hover:text-white"
+			class="p-1.5 text-ink3 hover:text-ink"
 		>
 			<Copy data-copy-icon />
 			<Check data-copied-icon hidden />

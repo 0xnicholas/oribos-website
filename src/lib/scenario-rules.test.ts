@@ -27,10 +27,10 @@ const title = `${spec.h1} — Oribos`;
 const art = `
 	<figure data-use-case-art aria-hidden="true">
 		<svg viewBox="0 0 1600 600" class="block h-auto w-full">
-			<rect width="1600" height="600" fill="var(--sl-color-gray-6)" />
-			<circle cx="800" cy="300" r="96" fill="none" stroke="var(--sl-color-gray-5)" stroke-width="1.5" />
-			<path d="M 959.5 225.6 A 176 176 0 0 1 874.4 459.5" fill="none" stroke="var(--sl-color-accent)" stroke-width="4" stroke-linecap="round" />
-			<circle cx="800" cy="300" r="8" fill="var(--sl-color-accent)" />
+			<rect width="1600" height="600" fill="var(--bg2)" />
+			<circle cx="800" cy="300" r="96" fill="none" stroke="var(--line)" stroke-width="1.5" />
+			<path d="M 959.5 225.6 A 176 176 0 0 1 874.4 459.5" fill="none" stroke="var(--acc)" stroke-width="4" stroke-linecap="round" />
+			<circle cx="800" cy="300" r="8" fill="var(--acc)" />
 		</svg>
 	</figure>`;
 
@@ -38,15 +38,15 @@ const packagesHtml = (packages: readonly string[]) =>
 	`→ ${packages
 		.map(
 			(name) =>
-				`<code class="whitespace-nowrap rounded-md border border-gray-5 bg-gray-7 px-1.5 py-0.5 font-mono text-xs text-gray-2 dark:bg-gray-6">${name}</code>`,
+				`<code class="box whitespace-nowrap bg-bg2 px-1.5 py-0.5 font-mono text-xs text-ink2">${name}</code>`,
 		)
 		.join(' · ')}`;
 
 const cardHtml = (card: ScenarioCardSpec) => `
-			<li data-scenario-card class="flex flex-col gap-3 rounded-xl border border-gray-5 p-5">
-				<h3 class="text-lg font-semibold tracking-tight text-white">${card.name}</h3>
-				<p class="text-sm leading-relaxed text-gray-2">${card.text}</p>
-				<p data-scenario-packages class="mt-auto pt-2 text-sm leading-relaxed text-gray-3">${packagesHtml(card.packages)}</p>
+			<li data-scenario-card class="box flex flex-col gap-3 p-5">
+				<h3 class="text-lg font-semibold tracking-tight text-ink">${card.name}</h3>
+				<p class="text-base text-ink2">${card.text}</p>
+				<p data-scenario-packages class="mt-auto pt-2 text-xs text-ink3">${packagesHtml(card.packages)}</p>
 			</li>`;
 
 const page = (entry: UseCasePageSpec = spec, options: { art?: string } = {}): ScenarioPage => ({
@@ -60,22 +60,22 @@ const page = (entry: UseCasePageSpec = spec, options: { art?: string } = {}): Sc
 	${options.art ?? art}
 	<section data-use-case-hero class="px-6 py-16">
 		<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-			<h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">${entry.h1}</h1>
-			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg leading-relaxed text-gray-2">${entry.tagline}</p>
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${entry.h1}</h1>
+			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg text-ink2">${entry.tagline}</p>
 		</div>
 	</section>
-	<section data-scenarios class="border-t border-gray-5 px-6 py-20">
+	<section data-scenarios class="border-t border-line px-6 py-20">
 		<div class="mx-auto max-w-5xl">
 			<ul class="grid gap-6 md:grid-cols-3">
 				${entry.scenarios.map(cardHtml).join('')}
 			</ul>
 		</div>
 	</section>
-	<section id="get-started" class="border-t border-gray-5 px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
-	<section id="faq" data-faq class="border-t border-gray-5 px-6 py-20"><h2>Frequently asked questions</h2></section>
-	<section data-use-case-back class="border-t border-gray-5 px-6 py-12">
+	<section id="get-started" class="border-t border-line px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
+	<section id="faq" data-faq class="border-t border-line px-6 py-20"><h2>Frequently asked questions</h2></section>
+	<section data-use-case-back class="border-t border-line px-6 py-12">
 		<div class="mx-auto max-w-5xl">
-			<a href="${backLinkHref}" class="rounded-sm text-sm font-medium text-text-accent hover:underline">${backLinkText}</a>
+			<a href="${backLinkHref}" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>
 		</div>
 	</section>
 </body></html>`,
@@ -142,10 +142,10 @@ test('the shared art is one decorative banner, painted with the brand tokens', (
 	const captioned = page(spec, { art: art.replace('</svg>', '<text x="10" y="10">Oribos</text></svg>') });
 	assert.match(useCasePageIssues(captioned, spec).join('\n'), /carries <text>/);
 
-	const literal = page(spec, { art: art.replace('var(--sl-color-accent)" stroke-width="4"', '#9e630a" stroke-width="4"') });
+	const literal = page(spec, { art: art.replace('var(--acc)" stroke-width="4"', '#9e630a" stroke-width="4"') });
 	assert.match(useCasePageIssues(literal, spec).join('\n'), /paints with `#9e630a`/);
 
-	const pale = page(spec, { art: art.replaceAll('var(--sl-color-accent)', 'var(--sl-color-gray-4)') });
+	const pale = page(spec, { art: art.replaceAll('var(--acc)', 'var(--line)') });
 	assert.match(useCasePageIssues(pale, spec).join('\n'), /no amber geometry/);
 
 	const drifted = page(spec, { art: art.replace('r="96"', 'r="100"') });
@@ -228,15 +228,15 @@ test('the scenario prose holds the vocabulary, the red lines and the package sco
 	assert.match(useCasePageIssues(counted, spec).join('\n'), /`five fields`/);
 });
 
-test('text comes only from the §5.5 audited roles on the page background', () => {
+test('text comes only from the audited roles on the page background', () => {
 	const offRole = page();
-	offRole.html = offRole.html.replace('text-sm leading-relaxed text-gray-2', 'text-sm leading-relaxed text-gray-4');
-	assert.match(useCaseColourIssues(offRole).join('\n'), /`text-gray-4`/);
+	offRole.html = offRole.html.replace('text-base text-ink2', 'text-base text-acc-lo');
+	assert.match(useCaseColourIssues(offRole).join('\n'), /`text-acc-lo`/);
 
 	const surfaced = page();
 	surfaced.html = surfaced.html.replace(
-		'class="border-t border-gray-5 px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
-		'class="border-t border-gray-5 bg-gray-6 px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
+		'class="border-t border-line px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
+		'class="border-t border-line bg-bg2 px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
 	);
 	assert.match(useCaseColourIssues(surfaced).join('\n'), /paints its own surface/);
 });
@@ -246,7 +246,7 @@ test('the package chip pair clears AA on the shipped token layer, both themes', 
 	assert.deepEqual(errors, []);
 	assert.deepEqual(scenarioContrastIssues(tokens), []);
 
-	const dimmed = { ...tokens, light: { ...tokens.light, '--sl-color-gray-2': 'hsl(35, 10%, 80%)' } };
+	const dimmed = { ...tokens, light: { ...tokens.light, '--ink2': '#a0a09c' } };
 	const muted = scenarioContrastIssues(dimmed);
 	assert.equal(muted.length, 1);
 	assert.match(muted[0]!, /light: package chip text on its surface/);

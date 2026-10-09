@@ -207,8 +207,8 @@ test('the page title is the registry title, verbatim', () => {
 test('the shell behaviours the spec pins are in the shipped CSS', () => {
 	const css = `
 		#site-header { position: sticky; top: 0; }
-		#site-header.is-scrolled { backdrop-filter: blur(12px); background-color: color-mix(in srgb, var(--sl-color-black) 82%, transparent); }
-		@media (prefers-reduced-transparency: reduce) { #site-header.is-scrolled { background-color: var(--sl-color-black); backdrop-filter: none; } }
+		#site-header.is-scrolled { backdrop-filter: blur(12px); background-color: color-mix(in srgb, var(--bg) 82%, transparent); }
+		@media (prefers-reduced-transparency: reduce) { #site-header.is-scrolled { background-color: var(--bg); backdrop-filter: none; } }
 		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 	`;
 	assert.deepEqual(shellCssIssues(css), []);
