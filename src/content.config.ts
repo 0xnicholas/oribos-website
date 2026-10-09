@@ -9,11 +9,11 @@
  *   - `agentPrompt`   — the chip CTA's visible face and its hidden payload (SPEC-revamp §4.3),
  *                       rendered by the hero and the final CTA from this one entry
  *   - `features`      — the home feature tabs, one entry per tab (SPEC §3.2/§7.3)
+ *   - `facts`         — the architecture facts band's four cells (SPEC-revamp §3.2 【终稿·勿改】)
  *   - `observability` — the observability band's copy and card claim (SPEC §3.3)
- *   - `socialProof`   — the social-proof placeholder band's copy (SPEC §3.4)
  *   - `useCaseIntro`  — the use-case cards' section intro (SPEC §3.5)
  *   - `useCases`      — the three use-case cards plus each use-case page's copy (SPEC §3.5/§4.3)
- *   - `resources`     — the resources strip's kicker and its three links (SPEC §3.6)
+ *   - `resources`     — the resources band's kicker and its three cards (SPEC-revamp §3.6)
  *   - `faq`           — the global FAQ ×9, shared by the home and use-case pages (SPEC §3.7)
  *   - `keywordPages`  — the keyword pages' H1, sections, `Learn more` key, in-page FAQ and back
  *                       anchor (SPEC §4.4), one JSON per page
@@ -88,12 +88,13 @@ const observability = defineCollection({
 	}),
 });
 
-const socialProof = defineCollection({
-	loader: glob({ pattern: '*.json', base: './src/content/social-proof' }),
+const facts = defineCollection({
+	loader: glob({ pattern: '*.json', base: './src/content/facts' }),
 	schema: z.object({
-		/** SPEC §3.4: the placeholder band is a kicker and one muted line — nothing else. */
-		kicker: z.string(),
-		line: z.string(),
+		/** The fact's place in the strip (SPEC-revamp §3.2: one row of four, mobile 2×2). */
+		order: z.number().int(),
+		/** The fact, verbatim (SPEC-revamp §3.2 【终稿·勿改】) — an approved §9.1 absolute. */
+		text: z.string(),
 	}),
 });
 
@@ -142,9 +143,18 @@ const useCases = defineCollection({
 const resources = defineCollection({
 	loader: glob({ pattern: '*.json', base: './src/content/resources' }),
 	schema: z.object({
-		/** SPEC §3.6: the strip's kicker, then exactly three links by their `links.ts` key. */
+		/** SPEC-revamp §3.6: the band's kicker, then exactly three cards by their `links.ts` key. */
 		kicker: z.string(),
-		links: z.array(z.object({ label: z.string(), key: z.enum([...resourceLinkKeys]) })).length(3),
+		links: z
+			.array(
+				z.object({
+					label: z.string(),
+					key: z.enum([...resourceLinkKeys]),
+					/** The card's one-line description (SPEC-revamp §3.6 【终稿·勿改】). */
+					description: z.string(),
+				}),
+			)
+			.length(3),
 	}),
 });
 
@@ -265,8 +275,8 @@ export const collections = {
 	finalCta,
 	agentPrompt,
 	features,
+	facts,
 	observability,
-	socialProof,
 	useCaseIntro,
 	useCases,
 	resources,

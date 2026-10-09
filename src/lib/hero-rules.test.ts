@@ -17,6 +17,7 @@ import {
 	heroIssues,
 	heroSnippet,
 	heroSub,
+	heroWindowBarMeta,
 	heroWindowIssues,
 	retiredHeroCta,
 	shikiIssues,
@@ -63,11 +64,14 @@ const hero = `
 	<div data-window>
 		<div data-window-bar>
 			<span aria-hidden="true"><i></i><i></i><i></i></span>
-			<span data-file-tab>${heroFile}</span>
-			<span data-trace-badge>trace</span>
+			<div role="tablist">
+				<button type="button" role="tab" aria-selected="true">${heroFile}</button>
+				<button type="button" role="tab" aria-selected="false">trace</button>
+			</div>
+			<span data-window-meta>${heroWindowBarMeta}</span>
 		</div>
 		<div data-hero-code>${codeBlock()}</div>
-		<div>
+		<div hidden>
 			<div data-trace>
 				<p>${traceMeta}</p>
 				<ul>
@@ -142,12 +146,18 @@ test('the chip CTA carries the §4.3 face verbatim and the one hidden payload', 
 	assert.match(heroIssues(noPayload).join('\n'), /payload definition\(s\)|no hidden payload/);
 });
 
-test('the window bar is dots + the file tab + the trace badge, never a session title', () => {
-	const title = page(hero.replace(`<span data-file-tab>${heroFile}</span>`, '<span>assistant — weather.ts</span>'));
-	assert.match(heroWindowIssues(title)[0]!, /session title|file tab/);
+test('the window bar is dots + the agent.ts/trace tabs + the run meta, never a session title', () => {
+	const title = page(hero.replace(/<div role="tablist">[\s\S]*?<\/div>/, '<span>assistant — weather.ts</span>'));
+	assert.match(heroWindowIssues(title)[0]!, /session title|window tabs/);
 
 	const twoDots = page(hero.replace('<i></i><i></i><i></i>', '<i></i><i></i>'));
 	assert.match(heroWindowIssues(twoDots)[0]!, /window dots/);
+
+	const wrongTabs = page(hero.replace('>trace</button>', '>waterfall</button>'));
+	assert.match(heroWindowIssues(wrongTabs).join('\n'), /expected \[agent\.ts, trace\]/);
+
+	const otherMeta = page(hero.replace(heroWindowBarMeta, 'trace · a run'));
+	assert.match(heroWindowIssues(otherMeta).join('\n'), /window bar meta reads/);
 });
 
 test('the hero code block is the §7.2 snippet in one dual-theme Shiki block', () => {
@@ -218,7 +228,7 @@ test('the shipped CSS switches the code surface; the trace green is declared onc
 	);
 	// …but a component that merely repaints with it is a spread as well.
 	assert.match(
-		trailIssues(css, [{ path: 'src/components/SocialProof.astro', text: '.x { color: var(--trace-green) }' }])[0]!,
+		trailIssues(css, [{ path: 'src/components/FactsBand.astro', text: '.x { color: var(--trace-green) }' }])[0]!,
 		/trace green/,
 	);
 	// The minifier may ship the hex form instead of the spec's hsl().

@@ -5,9 +5,10 @@
  * collections that render them, so the page and its gate cannot agree by construction.
  */
 
-import { attributeValue, codeOf, decodeEntities, elementOf, linksOf, missingCodeSurface, occurrences, textOf } from './html.ts';
+import { attributeValue, codeOf, decodeEntities, elementOf, linksOf, missingCodeSurface, occurrences, tagsOf, textOf } from './html.ts';
 import { hslToHex } from './brand-tokens.ts';
 import { LINKS } from './links.ts';
+import { windowBarMeta } from './trace-meta.ts';
 
 export type HeroPage = { path: string; html: string };
 
@@ -20,9 +21,9 @@ export const ctaGithub = 'GitHub';
 export const retiredHeroCta = 'Copy quick start';
 /** SPEC-revamp §4.3: the copy button's success state. */
 export const copiedLabel = '✓ copied';
-/** SPEC §3.1: the window's file tab and badge. */
+/** SPEC §3.1: the window's file tab and trace tab — one pane visible at a time. */
 export const heroFile = 'agent.ts';
-export const heroBadge = 'trace';
+export const heroTraceTab = 'trace';
 
 /** SPEC-revamp §4.3 【终稿·勿改】: the chip CTA's visible face — one constant per text slot. */
 export const agentPromptTag = 'agent prompt — self-contained';
@@ -77,6 +78,9 @@ export const traceRows = [
 	{ lane: 'finish stop', left: 92, width: 8, value: 'stop', tone: 'accent' },
 ] as const;
 export const traceSummary = "chunk.type === 'text-delta' — every span from the same run";
+
+/** The hero window bar's meta line: the §7.5 capture shortened to trace id · model · duration. */
+export const heroWindowBarMeta = windowBarMeta(traceMeta);
 
 /** SPEC-revamp §4.5: the shared final CTA — the H2 from the v1 spec, the new published-state sub. */
 export const finalCtaHeading = 'Build ultralight AI agents.';
@@ -185,11 +189,22 @@ export function heroIssues(page: HeroPage): string[] {
 	return issues;
 }
 
-/** SPEC §3.1: the window bar is dots + the file tab + the trace badge — never a session title. */
+/**
+ * SPEC-revamp §3.1: the window bar is dots + the `agent.ts` / `trace` tabs + the run's meta line
+ * (trace id · model · duration) — never a session title. The copy button rides in the bar and
+ * copies the visible file, so it stays outside this shape's copy assertions.
+ */
 export function heroWindowIssues(page: HeroPage): string[] {
 	const hero = elementOf(page.html, 'section', 'data-hero') ?? page.html;
-	const bar = elementOf(hero, 'div', 'data-window-bar');
-	if (bar === null) return [`${page.path}: the hero has no product window bar (SPEC §3.1)`];
+	// The bar nests a tablist `div`, so the shallow element reader would cut it early — the bar is
+	// the run from its opening tag to the first tab panel.
+	const barStart = hero.search(/<div\b[^>]*\bdata-window-bar(?![\w-])/i);
+	const barEnd = ['role="tabpanel"', 'data-hero-code', 'data-hero-trace']
+		.map((marker) => hero.indexOf(marker))
+		.filter((index) => index >= 0)
+		.sort((a, b) => a - b)[0];
+	const bar = barStart >= 0 && barEnd > barStart ? hero.slice(barStart, barEnd) : null;
+	if (bar === null) return [`${page.path}: the hero has no product window bar (SPEC-revamp §3.1)`];
 
 	const issues: string[] = [];
 	const dots = [...bar.matchAll(/<i\b/gi)].length;
@@ -197,18 +212,23 @@ export function heroWindowIssues(page: HeroPage): string[] {
 		issues.push(`${page.path}: the window bar has ${dots} window dots, expected three (SPEC §3.1)`);
 	}
 
-	const fileTab = elementOf(bar, 'span', 'data-file-tab');
-	if (fileTab === null || textOf(fileTab) !== heroFile) {
-		issues.push(`${page.path}: the window bar has no \`${heroFile}\` file tab (SPEC §3.1)`);
+	const tabs = [...bar.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)]
+		.filter((match) => attributeValue(match[0].slice(0, match[0].indexOf('>') + 1), 'role') === 'tab')
+		.map((match) => textOf(match[0]));
+	if (tabs.join(',') !== `${heroFile},${heroTraceTab}`) {
+		issues.push(`${page.path}: the window tabs are [${tabs.join(', ')}], expected [${heroFile}, ${heroTraceTab}] — one pane at a time (SPEC-revamp §3.1)`);
 	}
-	const badge = elementOf(bar, 'span', 'data-trace-badge');
-	if (badge === null || textOf(badge) !== heroBadge) {
-		issues.push(`${page.path}: the window bar has no \`${heroBadge}\` badge (SPEC §3.1)`);
+
+	const meta = elementOf(bar, 'span', 'data-window-meta');
+	if (meta === null || textOf(meta) !== heroWindowBarMeta) {
+		issues.push(
+			`${page.path}: the window bar meta reads \`${meta === null ? 'nothing' : textOf(meta)}\`, expected \`${heroWindowBarMeta}\` — trace id · model · duration (SPEC-revamp §3.1)`,
+		);
 	}
 
 	const barText = textOf(bar);
 	if (/—/.test(barText) || /assistant/i.test(barText) || /\.ts\b/.test(barText.replace(heroFile, ''))) {
-		issues.push(`${page.path}: the window bar reads \`${barText}\` — a file tab and a badge, not a session title (SPEC §3.1)`);
+		issues.push(`${page.path}: the window bar reads \`${barText}\` — tabs and a meta line, not a session title (SPEC-revamp §3.1)`);
 	}
 
 	return issues;

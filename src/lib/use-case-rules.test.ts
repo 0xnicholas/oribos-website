@@ -83,11 +83,11 @@ const section = (cards: readonly UseCaseCardSpec[] = useCaseCards, intro = { hea
 				.map(
 					(card) => `
 			<li data-use-case-card data-mock="${card.mock}" class="group relative flex flex-col overflow-hidden box transition-colors hover:border-acc">
-				<div class="flex flex-1 flex-col gap-2 p-5 pb-4">
+				<div class="p-4 pb-0">${mockOf[card.mock]}</div>
+				<div class="flex flex-1 flex-col gap-2 p-5" data-card-copy>
 					<h3 class="text-lg font-semibold tracking-tight"><a href="${card.route}" data-card-link class="text-ink after:absolute after:inset-0 after:content-[''] group-hover:text-acc hover:text-acc">${card.title}</a></h3>
 					<p class="text-base text-ink2">${card.claim}</p>
 				</div>
-				<div class="px-4 pb-4">${mockOf[card.mock]}</div>
 			</li>`,
 				)
 				.join('')}
@@ -123,7 +123,7 @@ test('the three cards carry the verbatim title and claim, in order', () => {
 	assert.match(useCaseIssues(retitled).join('\n'), /card 1's title link reads `Chat agents`, expected `In-product agents`/);
 
 	const reclaimed = page(section().replace(useCaseCards[1]!.claim, 'Busywork, handled.'));
-	assert.match(useCaseIssues(reclaimed).join('\n'), /card 2 reads/);
+	assert.match(useCaseIssues(reclaimed).join('\n'), /card 2's copy reads/);
 
 	const misrouted = page(section().replace('href="/operations-agents/"', 'href="/about/"'));
 	assert.match(useCaseIssues(misrouted).join('\n'), /card 2 links to `\/about\/`, expected `\/operations-agents\/`/);

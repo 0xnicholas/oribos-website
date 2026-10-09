@@ -1,8 +1,9 @@
 /**
- * The home use-case cards (SPEC §3.5) over the built page: the `#use-cases` section with its
- * verbatim intro, the three cards — title as the card's only link, claim verbatim, each targeting
- * its use-case page, clickable as a whole — and the three host-interface mocks: an in-app chat
- * panel, a team thread with the approval gate, and a trace console. The mock rules hold the
+ * The home use-case cards (SPEC-revamp §3.5) over the built page: the `#use-cases` section with
+ * its verbatim intro, the three cards — the host-interface mock leading the card face, the copy
+ * retreating under it to the title (the card's only link, stretching over the whole card) plus
+ * its one verbatim claim, each card targeting its use-case page — and the three mocks: an in-app
+ * chat panel, a team thread with the approval gate, and a trace console. The mock rules hold the
  * generic-UI line (no image, no logo, no fake control, no real name), keep the figures decorative
  * (no size, count or star claim even in the mock data), restrict every colour to the roles the
  * mock pairs measure, audit those pairs against the shipped token layer in both themes, and keep
@@ -159,6 +160,12 @@ function mockStartOf(card: string): number {
 	return marker === -1 ? -1 : card.lastIndexOf('<', marker);
 }
 
+/** The card's copy block: the title + claim region under the mock, by its marker. */
+function copyStartOf(card: string): number {
+	const marker = card.search(/<div\b[^>]*\bdata-card-copy\b[^>]*>/i);
+	return marker === -1 ? -1 : marker;
+}
+
 /** One card: its mock kind, its single stretched link, its copy and its mock window. */
 function cardIssues(path: string, card: string, expected: UseCaseCardSpec, index: number): string[] {
 	const issues: string[] = [];
@@ -199,9 +206,16 @@ function cardIssues(path: string, card: string, expected: UseCaseCardSpec, index
 		issues.push(`${path}: ${label} carries no mock window (SPEC §3.5)`);
 		return issues;
 	}
-	const copy = textOf(card.slice(0, mockIndex));
-	if (copy !== `${expected.title} ${expected.claim}`) {
-		issues.push(`${path}: ${label} reads \`${copy}\` before its mock, expected \`${expected.title} ${expected.claim}\` (SPEC §3.5)`);
+
+	// SPEC-revamp §3.5: the mock leads the card; the copy retreats to a title + one claim below it.
+	const copyIndex = copyStartOf(card);
+	if (copyIndex === -1 || copyIndex < mockIndex) {
+		issues.push(`${path}: ${label}'s copy does not sit under its mock — the mock is the card's body (SPEC-revamp §3.5)`);
+	} else {
+		const copy = textOf(card.slice(copyIndex));
+		if (copy !== `${expected.title} ${expected.claim}`) {
+			issues.push(`${path}: ${label}'s copy reads \`${copy}\`, expected \`${expected.title} ${expected.claim}\` (SPEC §3.5)`);
+		}
 	}
 
 	const mock = card.slice(mockIndex);
@@ -326,8 +340,10 @@ export function useCaseCountingIssues(page: UseCasePage): string[] {
 	const intro = firstCard === -1 ? section : section.slice(0, firstCard);
 	const copyParts = [textOf(intro)];
 	for (const card of useCaseCardsOf(section)) {
-		const marker = mockStartOf(card);
-		copyParts.push(textOf(marker === -1 ? card : card.slice(0, marker)));
+		// The copy is the card's `data-card-copy` block (title + claim); the mock's figures are
+		// decorative, and a missing copy block is already a structure finding above.
+		const copyIndex = copyStartOf(card);
+		if (copyIndex !== -1) copyParts.push(textOf(card.slice(copyIndex)));
 	}
 	const digit = copyParts.join(' ').match(/\d[\d,.]*/);
 	if (digit !== null) {
@@ -412,11 +428,18 @@ export function useCaseColourIssues(page: UseCasePage): string[] {
 	}
 
 	useCaseCardsOf(section).forEach((card, index) => {
-		const marker = mockStartOf(card);
-		const found = surfaceIn(marker === -1 ? card : card.slice(0, marker));
+		// The copy block under the mock reads on the page background; the mock window carries the
+		// card's one surface (`bg-bg2`, asserted below). The card's own opening tag is in the scan —
+		// a surface on the `<li>` paints the whole card, mock included.
+		const copyIndex = copyStartOf(card);
+		const opening = card.slice(0, card.indexOf('>') + 1);
+		const region = copyIndex === -1 ? `${opening}${card.slice(0, mockStartOf(card))}` : `${opening}${card.slice(copyIndex)}`;
+		const found = surfaceIn(region);
 		if (found !== null) {
 			issues.push(`${page.path}: card ${index + 1} paints its own surface with \`${found}\` — the mock window is the card's only surface (SPEC §3.5/§5.5)`);
 		}
+
+		const marker = mockStartOf(card);
 		if (marker === -1) return;
 
 		const mock = card.slice(marker);

@@ -11,11 +11,10 @@ export type TraceRow = {
 	tone: 'accent' | 'tool';
 };
 
-export interface Props {
-	meta: string;
-	rows: readonly TraceRow[];
-	summary: string;
-}
+/** One run capture (SPEC §7.5) — the hero window and the observability band render the same one. */
+export type TraceData = { meta: string; rows: readonly TraceRow[]; summary: string };
+
+export interface Props extends TraceData {}
 
 const { meta, rows, summary } = Astro.props;
 ---

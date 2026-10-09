@@ -1,0 +1,49 @@
+---
+// The architecture facts band (SPEC-revamp §3.2): one row of four mono cells — the copy from the
+// `facts` collection, verbatim. The hairline runs between the cells only; the band has no kicker,
+// no heading, and no anchor of its own (nothing on the site links to it). Mobile folds to 2×2.
+export interface Props {
+	facts: readonly { text: string }[];
+}
+
+const { facts } = Astro.props;
+---
+<section class="border-t border-line py-12" data-facts>
+	<div class="wrap">
+		<ul class="facts grid grid-cols-2 md:grid-cols-4">
+			{
+				facts.map((fact) => (
+					<li class="px-4 py-3 font-mono text-xs text-ink2 first:pl-0">{fact.text}</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	/* The cell separators: hairline between cells — vertical on both layouts, horizontal between
+	   the two rows on mobile only. The leading column of each layout carries no left rule. */
+	.facts li {
+		border-left: 1px solid var(--line);
+	}
+
+	.facts li:nth-child(odd) {
+		border-left: 0;
+	}
+
+	@media (max-width: 767px) {
+		.facts li:nth-child(n + 3) {
+			border-top: 1px solid var(--line);
+		}
+	}
+
+	@media (min-width: 768px) {
+		.facts li:nth-child(odd) {
+			border-left: 1px solid var(--line);
+		}
+
+		.facts li:first-child {
+			border-left: 0;
+		}
+	}
+</style>

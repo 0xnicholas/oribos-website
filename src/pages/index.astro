@@ -1,17 +1,17 @@
 ---
-// The home page: hero → feature tabs → the observability band → the social-proof placeholder →
-// the use-case cards → the resources strip → the global FAQ ×9 → the shared final CTA. Section
-// order is fixed by SPEC §3. The feature snippets pass through `fillVersion`, so the MCP card's
-// `version` field is the one version constant (SPEC-revamp §4.6).
+// The home page (SPEC-revamp §3, the nine-zone order): hero → the architecture facts band →
+// feature tabs ×5 → the observability trio → the use-case cards → the resources cards → the
+// global FAQ ×9 → the shared final CTA. The feature snippets pass through `fillVersion`, so the
+// MCP card's `version` field is the one version constant (SPEC-revamp §4.6).
 import { getCollection, getEntry } from 'astro:content';
 import FaqList from '../components/FaqList.astro';
+import FactsBand from '../components/FactsBand.astro';
 import FeatureTabs from '../components/FeatureTabs.astro';
 import FinalCta from '../components/FinalCta.astro';
 import Hero from '../components/Hero.astro';
 import MarketingLayout from '../layouts/MarketingLayout.astro';
 import Observability from '../components/Observability.astro';
 import ResourcesStrip from '../components/ResourcesStrip.astro';
-import SocialProof from '../components/SocialProof.astro';
 import UseCaseCards from '../components/UseCaseCards.astro';
 import { fillVersion } from '../lib/version.ts';
 
@@ -21,7 +21,7 @@ const appSnippet = await getEntry('snippets', 'app');
 const trace = await getEntry('traces', 'hero');
 const finalCta = await getEntry('finalCta', 'default');
 const observability = await getEntry('observability', 'home');
-const socialProof = await getEntry('socialProof', 'default');
+const facts = (await getCollection('facts')).sort((a, b) => a.data.order - b.data.order);
 const useCaseIntro = await getEntry('useCaseIntro', 'default');
 const resources = await getEntry('resources', 'default');
 const features = (await getCollection('features')).sort((a, b) => a.data.order - b.data.order);
@@ -34,16 +34,14 @@ if (
 	!trace ||
 	!finalCta ||
 	!observability ||
-	!socialProof ||
 	!useCaseIntro ||
 	!resources ||
+	facts.length !== 4 ||
 	features.length !== 5 ||
 	useCases.length !== 3 ||
 	faq.length !== 9
 ) {
-	throw new Error(
-		'the home page needs its content entries (SPEC §3.1 / §3.2 / §3.3 / §3.4 / §3.5 / §3.6 / §3.7 / §3.8 / §7.2 / §7.4 / §7.5)',
-	);
+	throw new Error('the home page needs its content entries (SPEC-revamp §3.1–§3.8)');
 }
 ---
 <MarketingLayout
@@ -57,13 +55,14 @@ if (
 		code={snippet.data.code}
 		trace={trace.data}
 	/>
-		<FeatureTabs
-			features={features.map((entry) => ({
-				id: entry.id,
-				...entry.data,
-				files: entry.data.files.map((file) => ({ ...file, code: fillVersion(file.code) })),
-			}))}
-		/>
+	<FactsBand facts={facts.map((entry) => entry.data)} />
+	<FeatureTabs
+		features={features.map((entry) => ({
+			id: entry.id,
+			...entry.data,
+			files: entry.data.files.map((file) => ({ ...file, code: fillVersion(file.code) })),
+		}))}
+	/>
 	<Observability
 		kicker={observability.data.kicker}
 		claim={observability.data.claim}
@@ -71,8 +70,8 @@ if (
 		codeClaim={observability.data.codeClaim}
 		file={appSnippet.data.file}
 		code={appSnippet.data.code}
+		trace={trace.data}
 	/>
-	<SocialProof kicker={socialProof.data.kicker} line={socialProof.data.line} />
 	<UseCaseCards
 		heading={useCaseIntro.data.heading}
 		sub={useCaseIntro.data.sub}

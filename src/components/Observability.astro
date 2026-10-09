@@ -1,8 +1,11 @@
 ---
-// The observability band (SPEC §3.3): kicker → H2 claim → lead, then the §7.4 `app.ts` code card —
-// one file with its copy button, spanning the band. No mock image, and no claim about exports:
-// the band says what is traced and what stays zero-overhead, nothing more.
+// The observability band (SPEC-revamp §3.4): the kicker, the H2 claim and the lead from the
+// `observability` collection, then the three-piece group — the §7.4 `app.ts` code card, the
+// hero window's trace waterfall (the same component and the same run, rendered again here) and
+// the span type list: structured mono entries, never a terminal output block. One code card;
+// the density sits in the site's own artifacts.
 import CodeTabs from './CodeTabs.astro';
+import TraceWaterfall, { type TraceData } from './TraceWaterfall.astro';
 
 export interface Props {
 	kicker: string;
@@ -11,18 +14,40 @@ export interface Props {
 	codeClaim: string;
 	file: string;
 	code: string;
+	trace: TraceData;
 }
 
-const { kicker, claim, lead, codeClaim, file, code } = Astro.props;
+const { kicker, claim, lead, codeClaim, file, code, trace } = Astro.props;
+/** SPEC-revamp §3.4: the span kinds a run opens, in the list's order. */
+const spanTypes = ['agent run', 'model step', 'tool call', 'workflow step', 'memory recall · save'];
 ---
 <section id="observability" data-observability class="scroll-mt-20 border-t border-line py-24">
 	<div class="wrap">
 		<p class="text-base font-semibold tracking-wide text-acc">{kicker}</p>
-		<h2 class="mt-3 text-3xl font-semibold tracking-tight text-ink">{claim}</h2>
-		<p class="mt-4 max-w-3xl text-ink2">{lead}</p>
-		<h3 class="mt-10 text-lg font-semibold tracking-tight text-ink">{codeClaim}</h3>
-		<div class="mt-4">
-			<CodeTabs id="observability-app" files={[{ file, code }]} />
+		<h2 class="mt-3 text-2xl font-semibold tracking-tight text-ink">{claim}</h2>
+		<p class="mt-4 max-w-3xl text-lg text-ink2">{lead}</p>
+		<div class="mt-12 grid items-start gap-6 lg:grid-cols-2">
+			<div>
+				<h3 class="text-xl font-semibold tracking-tight text-ink">{codeClaim}</h3>
+				<div class="mt-4">
+					<CodeTabs id="observability-app" files={[{ file, code }]} />
+				</div>
+			</div>
+			<div class="overflow-x-auto box p-4">
+				<TraceWaterfall meta={trace.meta} rows={trace.rows} summary={trace.summary} />
+			</div>
+		</div>
+		<div class="mt-6 box px-4 py-3">
+			<ul class="flex flex-wrap items-center gap-x-6 gap-y-2" data-span-list>
+				{
+					spanTypes.map((type) => (
+						<li class="flex items-center gap-2 font-mono text-xs text-ink2">
+							<i class="size-1.5 bg-acc" aria-hidden="true" />
+							{type}
+						</li>
+					))
+				}
+			</ul>
 		</div>
 	</div>
 </section>

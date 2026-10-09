@@ -3,15 +3,18 @@
 	"links": [
 		{
 			"label": "Docs",
-			"key": "docs"
+			"key": "docs",
+			"description": "Concepts and reference for every subsystem — agents, tools, memory, workflows, observability."
 		},
 		{
 			"label": "Examples",
-			"key": "examples"
+			"key": "examples",
+			"description": "Working examples from the repository — copy one and start building."
 		},
 		{
 			"label": "Architecture",
-			"key": "architecture"
+			"key": "architecture",
+			"description": "How the framework stays ultralight — architecture decisions and the CI byte budget mechanism."
 		}
 	]
 }

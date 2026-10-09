@@ -1,9 +1,10 @@
 /**
- * The home page's three bands between the feature tabs and the final CTA (SPEC §3.3 observability,
- * §3.4 social proof, §3.6 resources, §7.4): each band's anchor and its verbatim copy, the one
- * observability code card and the resources strip's three links — plus the two rules the three
- * share: no counting-style figures (§9.2), and text painted only in the roles §5.5 audits on the
- * page background.
+ * The home page's bands (SPEC-revamp §3.2 facts, §3.3 observability, §3.6 resources, §7.4) and
+ * the §3 nine-zone section order: each band's anchor and its verbatim copy, the observability
+ * trio (the one code card, the trace waterfall reused from the hero, the span type list), the
+ * resources cards' descriptions, and the two rules the bands share: no counting-style figures
+ * (§9.2), and text painted only in the roles §5.5 audits on the page background. The social-proof
+ * band is abolished (SPEC-revamp §3.2): a relic check keeps it from coming back.
  *
  * Like the hero and feature rules, the strings here are the spec's copy — deliberately not read
  * from the content collections that render them, so the page and its gate cannot agree by
@@ -11,10 +12,19 @@
  */
 
 import { sectionColourIssues } from './colour-rules.ts';
+import { traceMeta, traceRows } from './hero-rules.ts';
 import { attributeValue, codeBlocksOf, elementOf, linksOf, missingCodeSurface, occurrences, tagsOf, textOf, times } from './html.ts';
 import { LINKS, type ResourceLinkKey } from './links.ts';
 
 export type BandPage = { path: string; html: string };
+
+/** SPEC-revamp §3.2 【终稿·勿改】: the architecture facts band's four cells, in order. */
+export const factsStrip = [
+	'0 runtime dependencies',
+	'Every subsystem a subpath export',
+	'No database, no queue, no long-running process',
+	'Size is a checked property',
+] as const;
 
 /** SPEC §3.3 【终稿·勿改】: the observability band's kicker, H2 claim, lead and card claim. */
 export const observabilityKicker = 'Observability';
@@ -22,6 +32,8 @@ export const observabilityClaim = 'Every run traced. OTLP when you want it.';
 export const observabilityLead =
 	'Agent runs, model steps, tool calls, workflow steps, memory recall and save — traced by default. Built-in console and memory exporters; @oribos/otlp maps Oribos spans to the GenAI semantic conventions. A standalone agent with no tracer stays zero-overhead.';
 export const observabilityCardClaim = 'One tracer, distributed by the composition root.';
+/** SPEC-revamp §3.4: the span type list — structured mono entries, not a terminal output block. */
+export const spanTypes = ['agent run', 'model step', 'tool call', 'workflow step', 'memory recall · save'] as const;
 /** SPEC §3.3/§7.1/§7.4: the card's single file, its snippet, and the observability line cap. */
 export const observabilityFile = 'app.ts';
 export const maxBandLines = 10;
@@ -35,30 +47,44 @@ const app = createApp({
 
 const agent = app.agent({ name, instructions, model });   // one tracer, every agent`;
 
-/** SPEC §3.4: the placeholder band's copy (owner-tunable, rendered as written). */
-export const socialProofKicker = 'In the open';
-export const socialProofLine =
-	'No logos, no quotes, no numbers yet — Oribos is new. When there are real stories to tell, they will live here.';
-
-/** SPEC §3.6: the resources strip's kicker and its three links (labels verbatim). */
+/** SPEC-revamp §3.6: the resources band's kicker and its three cards — labels, targets and the
+ * one-line descriptions (【终稿·勿改】). No changelog flow, no Releases card. */
 export const resourcesKicker = 'Go deeper';
-export type BandResourceLink = { label: string; key: ResourceLinkKey };
-export const resourceLinks: readonly BandResourceLink[] = [
-	{ label: 'Docs', key: 'docs' },
-	{ label: 'Examples', key: 'examples' },
-	{ label: 'Architecture', key: 'architecture' },
+export type BandResourceLink = { label: string; key: ResourceLinkKey; description: string };
+export const resourceCards: readonly BandResourceLink[] = [
+	{
+		label: 'Docs',
+		key: 'docs',
+		description: 'Concepts and reference for every subsystem — agents, tools, memory, workflows, observability.',
+	},
+	{ label: 'Examples', key: 'examples', description: 'Working examples from the repository — copy one and start building.' },
+	{
+		label: 'Architecture',
+		key: 'architecture',
+		description: 'How the framework stays ultralight — architecture decisions and the CI byte budget mechanism.',
+	},
 ];
+
+/** SPEC-revamp §3: the home page's fixed nine-zone reading order, hero to final CTA. */
+export const homeSectionOrder = [
+	{ marker: 'data-hero', label: 'hero' },
+	{ marker: 'data-facts', label: 'facts band' },
+	{ marker: 'data-features', label: 'feature tabs' },
+	{ marker: 'data-observability', label: 'observability band' },
+	{ marker: 'data-use-cases', label: 'use-case cards' },
+	{ marker: 'data-resources', label: 'resources band' },
+	{ marker: 'data-faq', label: 'FAQ' },
+	{ marker: 'id="get-started"', label: 'final CTA' },
+] as const;
 
 /* ---------------------------------------------------------------- reading the page */
 
-const bands = [
-	{ marker: 'data-observability', label: 'observability' },
-	{ marker: 'data-social-proof', label: 'social-proof' },
-	{ marker: 'data-resources', label: 'resources' },
-] as const;
-
-/** The three bands as §5.5 sections — the colour scan's names include the noun. */
-const bandSections = bands.map(({ marker, label }) => ({ marker, label: `${label} band` }));
+/** The colour scan's sections: the three bands, by their `data-` marker. */
+const bandSections = [
+	{ marker: 'data-observability', label: 'observability band' },
+	{ marker: 'data-facts', label: 'facts band' },
+	{ marker: 'data-resources', label: 'resources band' },
+];
 
 /** The markup of a band, or `null` when the page does not carry it. */
 function bandOf(page: BandPage, marker: string): string | null {
@@ -92,15 +118,62 @@ function copyOf(fragment: string): string {
 	return textOf(fragment.replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi, ' '));
 }
 
-/* ---------------------------------------------------------------- the checks */
+/** The fragment with its trace waterfall removed — the run capture is data, not band copy. */
+function withoutTrace(fragment: string): string {
+	const trace = elementOf(fragment, 'div', 'data-trace');
+	return trace === null ? fragment : fragment.replace(trace, ' ');
+}
 
-/** SPEC §3.3/§7.1/§7.4: the observability band, its copy and its one code card. */
+/* ---------------------------------------------------------------- the facts band */
+
+/**
+ * SPEC-revamp §3.2: the architecture facts band — one row of four mono cells, the hairline
+ * between them, no kicker, no heading, and no anchor of its own (nothing links to it).
+ */
+export function factsIssues(page: BandPage): string[] {
+	const section = bandOf(page, 'data-facts');
+	if (section === null) return [`${page.path}: no facts band — the home page carries the §3.2 architecture facts strip`];
+
+	const issues: string[] = [];
+	const opening = section.slice(0, section.indexOf('>') + 1);
+	if (attributeValue(opening, 'id') !== null) {
+		issues.push(`${page.path}: the facts band carries an id — the §3.2 strip sets no anchor (SPEC-revamp §3.2)`);
+	}
+	for (const tag of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'] as const) {
+		if (tagsOf(section, tag).length > 0) {
+			issues.push(`${page.path}: the facts band carries a <${tag}> — four mono cells, no kicker, no heading, no link (SPEC-revamp §3.2)`);
+		}
+	}
+
+	const cells = [...section.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)].map((match) => match[0]);
+	if (cells.length !== factsStrip.length) {
+		issues.push(`${page.path}: the facts band carries ${cells.length} cell(s), expected ${factsStrip.length} (SPEC-revamp §3.2)`);
+	}
+	cells.forEach((cell, index) => {
+		const expected = factsStrip[index];
+		if (expected === undefined) return;
+		if (textOf(cell) !== expected) {
+			issues.push(`${page.path}: facts cell ${index + 1} reads \`${textOf(cell)}\`, expected \`${expected}\` (SPEC-revamp §3.2)`);
+		}
+		const classes = attributeValue(cell.slice(0, cell.indexOf('>') + 1), 'class') ?? '';
+		if (!/\bfont-mono\b/.test(classes) || !/\btext-xs\b/.test(classes)) {
+			issues.push(`${page.path}: facts cell ${index + 1} is not mono \`--t-xs\` — the strip's one type treatment (SPEC-revamp §3.2)`);
+		}
+	});
+
+	return issues;
+}
+
+/* ---------------------------------------------------------------- the observability band */
+
+/** SPEC §3.3/§7.1/§7.4, SPEC-revamp §3.4: the band, its copy, and the three-piece group. */
 export function observabilityIssues(page: BandPage): string[] {
 	const section = bandOf(page, 'data-observability');
 	if (section === null) return [`${page.path}: no observability band — the home page carries \`#observability\` (SPEC §3.3)`];
 
 	const issues: string[] = [];
-	const paragraphs = paragraphsOf(section);
+	// The waterfall's meta/summary lines are capture data, not band copy — read without them.
+	const paragraphs = paragraphsOf(withoutTrace(section));
 	if (paragraphs.length > 2) {
 		issues.push(`${page.path}: the observability band carries ${paragraphs.length} paragraphs — the §3.3 copy is the kicker and the lead`);
 	}
@@ -160,6 +233,48 @@ export function observabilityIssues(page: BandPage): string[] {
 		}
 	}
 
+	// SPEC-revamp §3.4: the trio's second piece — the trace waterfall, the hero's own component
+	// and data rendered again here (two placements of one run, not two runs).
+	const trace = elementOf(section, 'div', 'data-trace');
+	if (trace === null) {
+		issues.push(`${page.path}: the observability band carries no trace waterfall — the §3.4 trio is the code card, the waterfall and the span list`);
+	} else {
+		if (!textOf(trace).includes(traceMeta)) {
+			issues.push(`${page.path}: the observability waterfall is not the §7.5 capture — the hero's data, reused (SPEC-revamp §3.4)`);
+		}
+		const rows = [...trace.matchAll(/<li\b[^>]*\bdata-trace-row\b[^>]*>[\s\S]*?<\/li>/gi)];
+		if (rows.length !== traceRows.length) {
+			issues.push(`${page.path}: the observability waterfall carries ${rows.length} lanes, expected ${traceRows.length} — the hero's data, reused`);
+		}
+	}
+	// The same run in both windows: the capture's meta line reads exactly twice on the page.
+	const metaCount = occurrences(textOf(page.html), traceMeta);
+	if (metaCount !== 2) {
+		issues.push(`${page.path}: the §7.5 meta line appears ${times(metaCount)} — the hero window and the observability band carry the same run (SPEC-revamp §3.4)`);
+	}
+
+	// SPEC-revamp §3.4: the trio's third piece — the span type list, structured mono entries.
+	const spanList = elementOf(section, 'ul', 'data-span-list');
+	if (spanList === null) {
+		issues.push(`${page.path}: the observability band carries no span type list — the §3.4 trio's structured entries (SPEC-revamp §3.4)`);
+	} else {
+		const entries = [...spanList.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)].map((match) => match[0]);
+		if (entries.length !== spanTypes.length) {
+			issues.push(`${page.path}: the span type list carries ${entries.length} entr(ies), expected ${spanTypes.length} (SPEC-revamp §3.4)`);
+		}
+		entries.forEach((entry, index) => {
+			const expected = spanTypes[index];
+			if (expected === undefined) return;
+			if (textOf(entry) !== expected) {
+				issues.push(`${page.path}: span type ${index + 1} reads \`${textOf(entry)}\`, expected \`${expected}\` (SPEC-revamp §3.4)`);
+			}
+			const classes = attributeValue(entry.slice(0, entry.indexOf('>') + 1), 'class') ?? '';
+			if (!/\bfont-mono\b/.test(classes)) {
+				issues.push(`${page.path}: span type ${index + 1} is not mono — structured entries, not terminal output (SPEC-revamp §3.4)`);
+			}
+		});
+	}
+
 	// The claim and the snippet live in the band and nowhere else on the page (SPEC §3.3).
 	const claimCount = occurrences(textOf(page.html), observabilityClaim);
 	if (claimCount !== 1) {
@@ -170,7 +285,7 @@ export function observabilityIssues(page: BandPage): string[] {
 		issues.push(`${page.path}: the §7.4 snippet appears ${times(snippetCount)} on the page (SPEC §3.3)`);
 	}
 
-	// SPEC §3.3: no mock image; the band is copy plus the code card.
+	// SPEC §3.3: no mock image; the band is copy plus the trio.
 	for (const tag of ['img', 'picture', 'figure']) {
 		if (tagsOf(section, tag).length > 0) {
 			issues.push(`${page.path}: the observability band carries an <${tag}> — the §3.3 band has no mock image (SPEC §3.3)`);
@@ -205,88 +320,101 @@ function sentenceAt(text: string, index: number): string {
 	return text.slice(start, end === -1 ? undefined : end + 1).trim();
 }
 
-/** SPEC §3.4: the social-proof placeholder — kicker, one muted line, and nothing invented. */
-export function socialProofIssues(page: BandPage): string[] {
-	const section = bandOf(page, 'data-social-proof');
-	if (section === null) return [`${page.path}: no social-proof band — the home page carries \`#social-proof\` (SPEC §3.4)`];
+/* ---------------------------------------------------------------- the resources band */
 
-	const issues: string[] = [];
-	const paragraphs = paragraphsOf(section);
-	if (paragraphs[0]?.text !== socialProofKicker) {
-		issues.push(
-			`${page.path}: the social-proof kicker reads \`${paragraphs[0]?.text ?? 'nothing'}\`, expected \`${socialProofKicker}\` (SPEC §3.4)`,
-		);
-	}
-
-	const text = textOf(section);
-	if (text !== `${socialProofKicker} ${socialProofLine}`) {
-		issues.push(`${page.path}: the social-proof band reads \`${text}\` — the §3.4 kicker and one muted line, nothing else (SPEC §3.4)`);
-	}
-
-	const lineTag = paragraphs[1]?.tag;
-	if (lineTag !== undefined && !/\btext-ink3\b/.test(attributeValue(lineTag, 'class') ?? '')) {
-		issues.push(`${page.path}: the social-proof line is not muted in \`text-ink3\` — the muted-meta role (SPEC §3.4/§2.1)`);
-	}
-
-	// SPEC §3.4: no fabricated logo wall, quote, rating, count or CTA — no such element at all.
-	for (const tag of ['a', 'button', 'svg', 'img', 'picture', 'figure', 'blockquote', 'ul', 'ol']) {
-		const count = tagsOf(section, tag).length;
-		if (count > 0) {
-			issues.push(
-				`${page.path}: the social-proof band carries ${count} <${tag}> — the placeholder invents no logo, quote, rating, count or CTA (SPEC §3.4)`,
-			);
-		}
-	}
-
-	return issues;
-}
-
-/** SPEC §3.6/§2.4: the resources strip — the kicker, three verbatim links, nothing else. */
+/** SPEC-revamp §3.6/§2.4: the resources band — the kicker, three cards, nothing else. */
 export function resourcesIssues(page: BandPage): string[] {
 	const section = bandOf(page, 'data-resources');
-	if (section === null) return [`${page.path}: no resources strip — the home page carries \`#resources\` (SPEC §3.6)`];
+	if (section === null) return [`${page.path}: no resources band — the home page carries \`#resources\` (SPEC-revamp §3.6)`];
 
 	const issues: string[] = [];
 	const paragraphs = paragraphsOf(section);
-	if (paragraphs.length !== 1 || paragraphs[0]!.text !== resourcesKicker) {
+	if (paragraphs.length !== resourceCards.length + 1 || paragraphs[0]!.text !== resourcesKicker) {
 		issues.push(
-			`${page.path}: the resources kicker reads \`${paragraphs[0]?.text ?? 'nothing'}\`, expected \`${resourcesKicker}\` and nothing else (SPEC §3.6)`,
+			`${page.path}: the resources kicker reads \`${paragraphs[0]?.text ?? 'nothing'}\`, expected \`${resourcesKicker}\` above the three cards (SPEC-revamp §3.6)`,
 		);
 	}
 
 	const links = linksOf(section);
-	if (links.length !== resourceLinks.length) {
-		issues.push(`${page.path}: the resources strip carries ${links.length} link(s), expected ${resourceLinks.length} (SPEC §3.6)`);
+	if (links.length !== resourceCards.length) {
+		issues.push(`${page.path}: the resources band carries ${links.length} link(s), expected ${resourceCards.length} (SPEC-revamp §3.6)`);
 	}
-	resourceLinks.forEach((expected, index) => {
+	resourceCards.forEach((expected, index) => {
 		const link = links[index];
 		if (link === undefined) return;
 		if (link.text !== expected.label) {
 			issues.push(
-				`${page.path}: resources link ${index + 1} reads \`${link.text}\`, expected \`${expected.label}\` (SPEC §3.6)`,
+				`${page.path}: resources link ${index + 1} reads \`${link.text}\`, expected \`${expected.label}\` (SPEC-revamp §3.6)`,
 			);
 		}
 		if (link.href !== LINKS[expected.key]) {
 			issues.push(
-				`${page.path}: the \`${expected.label}\` link points at \`${link.href}\`, expected \`${LINKS[expected.key]}\` from src/lib/links.ts (SPEC §2.4)`,
+				`${page.path}: the \`${expected.label}\` link points at \`${link.href}\`, expected \`${LINKS[expected.key]}\` from src/lib/links.ts (SPEC-revamp §2.4)`,
+			);
+		}
+	});
+
+	// Each card is its label plus its one-line description, verbatim (SPEC-revamp §3.6).
+	const cards = [...section.matchAll(/<li\b[^>]*>[\s\S]*?<\/li>/gi)].map((match) => textOf(match[0]));
+	resourceCards.forEach((expected, index) => {
+		const card = cards[index];
+		if (card === undefined) return;
+		if (card !== `${expected.label} ${expected.description}`) {
+			issues.push(
+				`${page.path}: the \`${expected.label}\` card reads \`${card}\` — the label and the §3.6 description, verbatim (SPEC-revamp §3.6)`,
 			);
 		}
 	});
 
 	if (tagsOf(section, 'button').length > 0) {
-		issues.push(`${page.path}: the resources strip carries a button — three links, no CTA (SPEC §3.6)`);
+		issues.push(`${page.path}: the resources band carries a button — three cards, no CTA (SPEC-revamp §3.6)`);
 	}
-
-	const text = textOf(section);
-	if (text !== [resourcesKicker, ...resourceLinks.map((link) => link.label)].join(' ')) {
-		issues.push(`${page.path}: the resources band reads \`${text}\` — the kicker and the three labels only (SPEC §3.6)`);
+	const retired = textOf(section).match(/changelog|releases/i);
+	if (retired !== null) {
+		issues.push(`${page.path}: the resources band reads \`${retired[0]}\` — no changelog flow, no Releases card (SPEC-revamp §3.6)`);
 	}
 
 	return issues;
 }
 
+/* ---------------------------------------------------------------- the shared rules */
+
 /**
- * SPEC §5.5: the three bands read on the page background, and their text wears only the roles the
+ * SPEC-revamp §3: the home page reads in the nine-zone order — a section that drifts out of the
+ * sequence, or goes missing, is a finding.
+ */
+export function homeSectionOrderIssues(page: BandPage): string[] {
+	const issues: string[] = [];
+	const at = homeSectionOrder.map(({ marker }) => page.html.indexOf(marker));
+	homeSectionOrder.forEach(({ marker, label }, index) => {
+		if (at[index] === -1) issues.push(`${page.path}: the home page has no ${label} (\`${marker}\`) — the §3 nine-zone order (SPEC-revamp §3)`);
+	});
+	for (let index = 1; index < at.length; index += 1) {
+		if (at[index] !== -1 && at[index - 1] !== -1 && at[index]! < at[index - 1]!) {
+			issues.push(
+				`${page.path}: the ${homeSectionOrder[index]!.label} sits before the ${homeSectionOrder[index - 1]!.label} — the §3 nine-zone order (SPEC-revamp §3)`,
+			);
+		}
+	}
+	return issues;
+}
+
+/**
+ * SPEC-revamp §3.2: the social-proof band is abolished — component, content collection and
+ * `#social-proof` anchor alike. Any relic on the page is a finding.
+ */
+export function socialProofRelicIssues(page: BandPage): string[] {
+	const issues: string[] = [];
+	for (const relic of ['#social-proof', 'data-social-proof']) {
+		if (page.html.includes(relic)) {
+			issues.push(`${page.path}: the page still carries \`${relic}\` — the social-proof band is abolished (SPEC-revamp §3.2)`);
+		}
+	}
+	return issues;
+}
+
+/**
+ * SPEC §5.5: the bands read on the page background, and their text wears only the roles the
  * AA audit covers there (`src/lib/colour-rules.ts`) — a band that paints its own surface, or a
  * role the audit never measured, is a finding.
  */
@@ -295,18 +423,25 @@ export function bandColorIssues(page: BandPage): string[] {
 }
 
 /**
- * SPEC §9.2 over the three bands, at this slice's stricter reading (#23): the bands' copy carries
- * no figure at all — no digits, no number-word counts. That is deliberate where the site-wide scan
- * (`copy-rules.ts`) catches the noun-bound counting style: the bands' locked copy has no figure to
- * exempt, so zero occurrences is the property to hold.
+ * SPEC §9.2 over the observability and resources bands, at this slice's stricter reading (#23):
+ * the bands' copy carries no figure at all — no digits, no number-word counts. That is deliberate
+ * where the site-wide scan (`copy-rules.ts`) catches the noun-bound counting style: the bands'
+ * locked copy has no figure to exempt, so zero occurrences is the property to hold. The facts
+ * band is not scanned here — its locked §3.2 copy carries the one approved absolute ("0 runtime
+ * dependencies"), and `factsIssues` already holds it verbatim. The waterfall's figures are the
+ * §7.5 capture's data, not claims.
  */
 export function bandCountingIssues(page: BandPage): string[] {
 	const issues: string[] = [];
-	for (const { marker, label } of bands) {
+	const scanned = [
+		{ marker: 'data-observability', label: 'observability', copyOfBand: (fragment: string) => copyOf(withoutTrace(fragment)) },
+		{ marker: 'data-resources', label: 'resources', copyOfBand: copyOf },
+	] as const;
+	for (const { marker, label, copyOfBand } of scanned) {
 		const section = bandOf(page, marker);
 		if (section === null) continue;
 
-		const copy = copyOf(section);
+		const copy = copyOfBand(section);
 		const digit = copy.match(/\d[\d,.]*/);
 		if (digit !== null) {
 			issues.push(`${page.path}: the ${label} band's copy carries \`${digit[0]}\` — no counting-style claims (SPEC §9.2)`);

@@ -1,59 +1,84 @@
 ---
-// The home hero (SPEC §3.1): H1 → sub → the chip CTA → the GitHub text link → the product window
-// below it — window dots + the `agent.ts` file tab + the `trace` badge + the code card's copy
-// button in the bar, the code on the left, the same run's trace on the right. No kicker, no
-// release-status control of its own (the header pill states the version), and no session title in
-// the window bar. Narrow screens stack the two panes, each keeping its own horizontal scroll.
+// The home hero (SPEC-revamp §3.1, D form): two columns side by side — the left carries the H1,
+// the sub, the chip CTA and the GitHub text link; the right the product window, one pane at a
+// time (`agent.ts` / `trace`, the same run the observability band reuses), its bar reading the
+// capture shortened to trace id · model · duration. The narrow-screen order is the DOM order:
+// H1 → sub → chip → GitHub → window. No kicker; the header pill states the version.
 import { Code } from 'astro:components';
 import { codeThemes } from '../lib/shiki-css.ts';
 import { LINKS } from '../lib/links.ts';
+import { windowBarMeta } from '../lib/trace-meta.ts';
 import AgentPromptCta from './AgentPromptCta.astro';
 import Check from './icons/Check.astro';
 import Copy from './icons/Copy.astro';
-import TraceWaterfall, { type TraceRow } from './TraceWaterfall.astro';
+import TraceWaterfall, { type TraceData } from './TraceWaterfall.astro';
 
 export interface Props {
 	h1: string;
 	sub: string;
 	file: string;
 	code: string;
-	trace: { meta: string; rows: readonly TraceRow[]; summary: string };
+	trace: TraceData;
 }
 
 const { h1, sub, file, code, trace } = Astro.props;
 const shikiThemes = codeThemes;
+const barMeta = windowBarMeta(trace.meta);
 ---
 <section class="py-24" data-hero>
-	<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-		<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
-		<p class="mt-5 max-w-2xl text-lg text-ink2">{sub}</p>
-		<div class="mt-8 flex flex-col items-center gap-3">
-			<AgentPromptCta />
-			<a href={LINKS.github} class="font-semibold text-acc hover:underline">GitHub</a>
+	<div class="wrap cols items-start">
+		<div class="col-span-4 md:col-span-5">
+			<h1 class="text-4xl font-semibold tracking-tight text-ink">{h1}</h1>
+			<p class="mt-5 text-lg text-ink2">{sub}</p>
+			<div class="mt-8 flex flex-col items-start gap-3">
+				<AgentPromptCta />
+				<a href={LINKS.github} class="font-semibold text-acc transition-colors hover:text-acc-h">GitHub</a>
+			</div>
 		</div>
-	</div>
 
-	<div class="wrap mt-12 box bg-bg2 overflow-hidden" data-window>
-		<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-window-bar>
-			<span class="flex gap-1.5" aria-hidden="true">
-				<i class="size-2.5 rounded-full bg-ink3"></i>
-				<i class="size-2.5 rounded-full bg-ink3"></i>
-				<i class="size-2.5 rounded-full bg-ink3"></i>
-			</span>
-			<span class="font-mono text-xs text-ink2" data-file-tab>{file}</span>
-			<span class="ml-auto box px-2.5 py-0.5 font-mono text-xs text-ink3" data-trace-badge>
-				trace
-			</span>
-			<button type="button" data-copy-hero-code aria-label={`Copy ${file}`} class="p-1.5 text-ink3 hover:text-ink">
-				<Copy data-copy-icon />
-				<Check data-copied-icon hidden />
-			</button>
-		</div>
-		<div class="grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-			<div class="overflow-x-auto border-b border-line p-4 md:border-r md:border-b-0" data-hero-code>
+		<div class="col-span-4 self-start overflow-hidden box bg-bg2 md:col-span-7" data-window>
+			<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-window-bar>
+				<span class="flex gap-1.5" aria-hidden="true">
+					<i class="size-2.5 rounded-full bg-ink3"></i>
+					<i class="size-2.5 rounded-full bg-ink3"></i>
+					<i class="size-2.5 rounded-full bg-ink3"></i>
+				</span>
+				<div class="flex items-center gap-1" role="tablist" aria-label={`The ${file} build and its trace`}>
+					<button
+						type="button"
+						role="tab"
+						id="hero-tab-code"
+						aria-controls="hero-panel-code"
+						aria-selected="true"
+						tabindex={0}
+						data-hero-tab
+						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink"
+					>
+						{file}
+					</button>
+					<button
+						type="button"
+						role="tab"
+						id="hero-tab-trace"
+						aria-controls="hero-panel-trace"
+						aria-selected="false"
+						tabindex={-1}
+						data-hero-tab
+						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink"
+					>
+						trace
+					</button>
+				</div>
+				<span class="ml-auto min-w-0 truncate font-mono text-xs text-ink3" data-window-meta>{barMeta}</span>
+				<button type="button" data-copy-hero-code aria-label={`Copy ${file}`} class="p-1.5 text-ink3 hover:text-ink disabled:opacity-40">
+					<Copy data-copy-icon />
+					<Check data-copied-icon hidden />
+				</button>
+			</div>
+			<div role="tabpanel" id="hero-panel-code" aria-labelledby="hero-tab-code" data-hero-code>
 				<Code code={code} lang="ts" themes={shikiThemes} />
 			</div>
-			<div class="overflow-x-auto p-4">
+			<div role="tabpanel" id="hero-panel-trace" aria-labelledby="hero-tab-trace" hidden data-hero-trace class="overflow-x-auto p-4">
 				<TraceWaterfall meta={trace.meta} rows={trace.rows} summary={trace.summary} />
 			</div>
 		</div>
@@ -62,6 +87,40 @@ const shikiThemes = codeThemes;
 
 <script>
 	import { wireCopyButton } from '../lib/clipboard.ts';
+
+	const heroWindow = document.querySelector<HTMLElement>('[data-window]');
+	const tabs = heroWindow ? [...heroWindow.querySelectorAll<HTMLButtonElement>('[data-hero-tab]')] : [];
+	const panels = heroWindow ? [...heroWindow.querySelectorAll<HTMLElement>('[role="tabpanel"]')] : [];
+	const copy = heroWindow?.querySelector<HTMLButtonElement>('[data-copy-hero-code]');
+
+	// One pane at a time; the copy button takes the visible file, so it rests while the trace shows.
+	const select = (index: number, focus = false): void => {
+		tabs.forEach((tab, position) => {
+			const active = position === index;
+			tab.setAttribute('aria-selected', String(active));
+			tab.tabIndex = active ? 0 : -1;
+		});
+		panels.forEach((panel, position) => {
+			panel.hidden = position !== index;
+		});
+		if (copy) copy.disabled = index !== 0;
+		if (focus) tabs[index]?.focus();
+	};
+
+	tabs.forEach((tab, index) => {
+		tab.addEventListener('click', () => select(index));
+		tab.addEventListener('keydown', (event) => {
+			const last = tabs.length - 1;
+			let target: number | null = null;
+			if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+			else if (event.key === 'ArrowLeft') target = (index + last) % tabs.length;
+			else if (event.key === 'Home') target = 0;
+			else if (event.key === 'End') target = last;
+			if (target === null) return;
+			event.preventDefault();
+			select(target, true);
+		});
+	});
 
 	const pane = document.querySelector<HTMLElement>('[data-hero-code]');
 	const button = document.querySelector<HTMLButtonElement>('[data-copy-hero-code]');

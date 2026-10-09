@@ -1,24 +1,28 @@
 ---
-// The resources strip (SPEC §3.6): one thin band — the `Go deeper` kicker and three links, each
-// targeting its `src/lib/links.ts` constant so the docs switch point stays one edit. No second
-// line of copy, no CTA.
+// The resources band (SPEC-revamp §3.6): the `Go deeper` kicker and three cards — the label link
+// and its one-line description from the `resources` collection. The targets come from the
+// `src/lib/links.ts` constants, so the docs switch point stays one edit. No changelog flow, no
+// Releases card, no CTA.
 import { LINKS, type ResourceLinkKey } from '../lib/links.ts';
 
 export interface Props {
 	kicker: string;
-	links: readonly { label: string; key: ResourceLinkKey }[];
+	links: readonly { label: string; key: ResourceLinkKey; description: string }[];
 }
 
 const { kicker, links } = Astro.props;
 ---
-<section id="resources" data-resources class="scroll-mt-20 border-t border-line py-12">
-	<div class="wrap flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base">
-		<p class="font-semibold tracking-wide text-acc">{kicker}</p>
-		<ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+<section id="resources" data-resources class="scroll-mt-20 border-t border-line py-24">
+	<div class="wrap">
+		<p class="text-base font-semibold tracking-wide text-acc">{kicker}</p>
+		<ul class="mt-8 grid gap-6 md:grid-cols-3">
 			{
 				links.map((link) => (
-					<li>
-						<a href={LINKS[link.key]} class="text-ink2 hover:text-ink">{link.label}</a>
+					<li class="box p-6">
+						<a href={LINKS[link.key]} class="font-semibold text-acc transition-colors hover:text-acc-h">
+							{link.label}
+						</a>
+						<p class="mt-2 text-base text-ink2">{link.description}</p>
 					</li>
 				))
 			}

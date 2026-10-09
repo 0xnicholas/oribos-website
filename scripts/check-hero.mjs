@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * The hero gate (SPEC §3.1 / §7.1 / §7.2 / §7.5 / §8.5, SPEC-revamp §4) over the built home page:
- * the hero's copy, its chip CTA and its GitHub text link, the product window's bar, the §7.2 code
- * block verbatim on the Shiki dual-theme surface, the trace waterfall's lanes and coordinates, the
- * shared final CTA with the same chip, the trace green staying trace-only, and the copy scripts
- * shipping. The rules live in `src/lib/hero-rules.ts`.
+ * The hero gate (SPEC-revamp §3.1/§2.6/§4/§6/§7) over the built home page: the hero's copy, its
+ * chip CTA and its GitHub text link, the two-tab product window (`agent.ts` / `trace`, bar meta =
+ * trace id · model · duration), the §7.2 code block verbatim on the Shiki dual-theme surface, the
+ * trace waterfall's lanes and coordinates, the shared final CTA with the same chip, the trace
+ * green staying trace-only, and the copy scripts shipping. The rules live in `src/lib/hero-rules.ts`.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-hero.mjs [--root <dir>] [--dist <dir>]
@@ -47,7 +47,7 @@ const sources = ['src/components', 'src/layouts', 'src/styles'].flatMap((directo
 
 const checks = [
 	[heroIssues(home), 'hero: the §3.1 H1 and sub, the §4.3 chip CTA and the GitHub text link — no kicker, no pill, no star count'],
-	[heroWindowIssues(home), `product window: three dots, the \`${heroFile}\` file tab, the \`trace\` badge, no session title`],
+	[heroWindowIssues(home), `product window: three dots, the \`${heroFile}\` / \`trace\` tabs and the run meta line — no session title`],
 	[heroCodeIssues(home), 'code: the §7.2 snippet verbatim in one `astro-code` dual-theme block'],
 	[traceIssues(home), `trace: the §7.5 meta line, ${traceRows.length} lanes with their coordinates and tones, the summary`],
 	[finalCtaIssues(home), 'final CTA: the §4.5 copy, the same chip CTA and the GitHub text link'],
