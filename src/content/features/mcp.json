@@ -19,7 +19,7 @@
 	"files": [
 		{
 			"file": "server.ts",
-			"code": "import { createMcpServer } from '@oribos/mcp-server';\n\nconst server = createMcpServer({ name: 'weather', version: '0.5.0', tools: { weather } });\n\nexport default server.fetch;   // the same tools over MCP — HTTP or stdio"
+			"code": "import { createMcpServer } from '@oribos/mcp-server';\n\nconst server = createMcpServer({ name: 'weather', version: '{version}', tools: { weather } });\n\nexport default server.fetch;   // the same tools over MCP — HTTP or stdio"
 		},
 		{
 			"file": "client.ts",

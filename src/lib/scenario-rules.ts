@@ -5,9 +5,7 @@
  * title) + tagline, the three scenario cards (name, 2–3 sentences, the `→` package line with
  * every package its own inline-code chip), the shared final CTA, the global FAQ ×9 and the
  * `← All use cases` back link. The page keeps its red lines: no code block, no social-proof
- * band, no breadcrumbs, and no release status in its own copy — the header pill, the final CTA
- * and FAQ question 2 are the designated switch points and stay out of that scan. The head
- * carries the §2.6 meta description and the og pair.
+ * band, no breadcrumbs. The head carries the §2.6 meta description and the og pair.
  *
  * The §9.3 vocabulary guards hold the pages' prose; the package line names subsystems, so it is
  * checked for shape (`→`, `·` separators, one chip per package) and scope (every `@scope/name`
@@ -23,7 +21,7 @@
 import { AA, contrastRatio, parseHex, type Theme, type TokenSet } from './brand-tokens.ts';
 import { sectionColourIssues } from './colour-rules.ts';
 import { redLineRules, ruleMatches } from './copy-rules.ts';
-import { attributeValue, attributesOf, elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
+import { attributeValue, elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
 import { terminologyHits } from './terminology.ts';
 
 export type ScenarioPage = { path: string; html: string };
@@ -346,23 +344,6 @@ function proseIssues(page: ScenarioPage): string[] {
 	}
 
 	return issues;
-}
-
-/* ---------------------------------------------------------------- the release-status regions */
-
-/**
- * Ticket #26: the use-case page's own copy carries no release status. These are the regions
- * the §6.2 scan covers — the page's own sections (hero, scenario cards, back link) and its
- * meta description; the header pill, the final CTA and FAQ question 2 are the switch points
- * and answer to their own gates.
- */
-export function useCaseReleaseRegions(page: ScenarioPage): string[] {
-	return [
-		elementOf(page.html, 'section', 'data-use-case-hero'),
-		elementOf(page.html, 'section', 'data-scenarios'),
-		elementOf(page.html, 'section', 'data-use-case-back'),
-		...attributesOf(page.html, 'meta', 'name', 'description', 'content'),
-	].filter((region): region is string => region !== null);
 }
 
 /* ---------------------------------------------------------------- the colours */

@@ -1,7 +1,7 @@
 /**
- * The copy buttons' shared behaviour (SPEC §6.1/§7.1): a copy takes the visible code block's
- * text, verbatim — the rendered `<pre>` of the pane on screen — so the clipboard gets exactly
- * what the visitor read, and a code card and its copy cannot drift apart.
+ * The copy buttons' shared behaviour (SPEC §6.1/§7.1, SPEC-revamp §4.3): a code card's copy takes
+ * the visible code block's text, verbatim — the rendered `<pre>` of the pane on screen — so the
+ * clipboard gets exactly what the visitor read; the chip CTA's copy takes its hidden payload.
  */
 
 /** How long the copied state shows before the button resets (SPEC §3.1: 1.2s). */
@@ -15,10 +15,8 @@ function visibleCode(scope: ParentNode): string | null {
 	return text.replace(/\n$/, '');
 }
 
-/** Copy the visible code block of `scope`; resolves to whether the clipboard took it. */
-async function copyVisibleCode(scope: ParentNode): Promise<boolean> {
-	const text = visibleCode(scope);
-	if (text === null) return false;
+/** Write one text to the clipboard; resolves to whether the clipboard took it. */
+async function copyText(text: string): Promise<boolean> {
 	try {
 		await navigator.clipboard.writeText(text);
 		return true;
@@ -29,21 +27,41 @@ async function copyVisibleCode(scope: ParentNode): Promise<boolean> {
 }
 
 /**
- * Wire a copy button: on click it copies the code `target()` points at, shows the copied state,
- * and resets it after 1.2s. The caller owns what "copied" looks like — a label swap, an icon
- * swap — and the timer never overlaps itself when the button is clicked twice.
+ * Wire a copy button to a text the caller supplies — the chip CTA's hidden payload (SPEC-revamp
+ * §4.3) reads its `<template>`, a code card its visible pane. On a successful copy the button
+ * shows the copied state, and resets it after 1.2s; the timer never overlaps itself when the
+ * button is clicked twice. The caller owns what "copied" looks like — a label swap, an icon swap.
  */
-export function wireCopyButton(
+export function wireCopyText(
 	button: HTMLElement,
-	target: () => ParentNode | null | undefined,
+	text: () => string | null | undefined,
 	{ onCopied, onReset }: { onCopied: () => void; onReset: () => void },
 ): void {
 	let reset: number | undefined;
 	button.addEventListener('click', async () => {
-		const scope = target();
-		if (scope === null || scope === undefined || !(await copyVisibleCode(scope))) return;
+		const value = text();
+		if (value === null || value === undefined || value === '' || !(await copyText(value))) return;
 		window.clearTimeout(reset);
 		onCopied();
 		reset = window.setTimeout(onReset, copiedMs);
 	});
+}
+
+/**
+ * Wire a copy button: on click it copies the code `target()` points at, shows the copied state,
+ * and resets it after 1.2s (SPEC §7.1). A button whose target is gone stays inert.
+ */
+export function wireCopyButton(
+	button: HTMLElement,
+	target: () => ParentNode | null | undefined,
+	handlers: { onCopied: () => void; onReset: () => void },
+): void {
+	wireCopyText(
+		button,
+		() => {
+			const scope = target();
+			return scope === null || scope === undefined ? null : visibleCode(scope);
+		},
+		handlers,
+	);
 }

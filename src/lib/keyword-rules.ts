@@ -5,8 +5,7 @@
  * the in-page FAQ (4–5 questions, zero overlap with the global nine, 1–3-sentence
  * self-contained answers, no links), the shared final CTA and the back-to-home anchor — and
  * the page-level red lines: RAG / evals nowhere in the page's own copy, no code block, no
- * links between keyword pages, no Platform-class words, and no release status outside the
- * §6.2 switch points.
+ * links between keyword pages, and no Platform-class words.
  *
  * The in-page FAQ wears its own marker (`data-page-faq`): the global FAQ gate owns `data-faq`
  * and demands the §3.7 nine of any page carrying it, while a keyword page carries the page
@@ -29,7 +28,7 @@
 import { sectionColourIssues } from './colour-rules.ts';
 import { ragEvalsRule, redLineRules, ruleMatches } from './copy-rules.ts';
 import { faqItems as globalFaqItems, sentenceCount } from './faq-rules.ts';
-import { attributesOf, elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
+import { elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
 import { learnMoreLinks, type KeywordPageSlug } from './links.ts';
 
 export type KeywordPage = { path: string; html: string };
@@ -563,17 +562,6 @@ function proseIssues(page: KeywordPage): string[] {
 	}
 
 	return issues;
-}
-
-/* ---------------------------------------------------------------- the release-status regions */
-
-/**
- * The keyword page's own copy carries no release status (SPEC §6.2: nothing outside the three
- * switch points names one). These are the regions the scan covers — the page's own sections
- * and its meta description; the header pill and the final CTA answer to their own gates.
- */
-export function keywordReleaseRegions(page: KeywordPage): string[] {
-	return [...ownRegionsOf(page.html), ...attributesOf(page.html, 'meta', 'name', 'description', 'content')];
 }
 
 /* ---------------------------------------------------------------- the colours */

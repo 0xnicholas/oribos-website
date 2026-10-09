@@ -11,8 +11,12 @@ import {
 	titleIssues,
 } from './shell-rules.ts';
 import { LINKS } from './links.ts';
+import { versionLabel } from './version.ts';
 
 const origin = 'https://oribos.dev';
+
+/** The version badge the header carries (SPEC-revamp §4.2) — desktop nav and mobile menu. */
+const pill = `<a href="${LINKS.releases}" data-version-pill class="box font-mono">${versionLabel}</a>`;
 
 /** The markup the shell must render, reduced to the strings the rules read. */
 const header = `
@@ -27,7 +31,7 @@ const header = `
 		</div>
 		<a href="${LINKS.docs}">Docs</a>
 		<a href="${LINKS.github}">GitHub</a>
-		<span class="pill">coming soon</span>
+		${pill}
 	</nav>
 	<button type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Menu"><svg aria-hidden="true"></svg></button>
 	<div id="site-menu" hidden>
@@ -39,7 +43,7 @@ const header = `
 		</ul>
 		<a href="${LINKS.docs}">Docs</a>
 		<a href="${LINKS.github}">GitHub</a>
-		<span class="pill">coming soon</span>
+		${pill}
 	</div>
 </header>`;
 
@@ -105,10 +109,10 @@ test('the header carries the wordmark, the use-case dropdown, Docs, GitHub and t
 	assert.match(issuesOf(wrongDocs)[0]!, /Docs/);
 });
 
-test('the dropdown keeps the SPEC order: Items → Docs → GitHub → pill', () => {
+test('the dropdown keeps the SPEC order: Items → Docs → GitHub → the version pill', () => {
 	const reordered = head
-		.replace('<span class="pill">coming soon</span>', '')
-		.replace('<nav aria-label="Main">', '<nav aria-label="Main"><span class="pill">coming soon</span>');
+		.replace(pill, '')
+		.replace('<nav aria-label="Main">', `<nav aria-label="Main">${pill}`);
 	assert.ok(issuesOf(reordered).length > 0, 'a pill before the links is out of order');
 });
 
@@ -140,15 +144,21 @@ test('cut navigation and the newsletter/social surfaces do not come back', () =>
 	assert.ok(social.length > 0, 'no social column');
 });
 
-test('the pill is a passive, lowercase, version-free badge — never a link', () => {
-	const linked = issuesOf(head.replace('<span class="pill">coming soon</span>', '<a href="/">coming soon</a>'));
-	assert.ok(linked.length > 0, 'the pill must not be a link');
+test('the version pill reads the one constant, links Releases and stays a mono hairline badge', () => {
+	const without = issuesOf(head.replaceAll(pill, ''));
+	assert.ok(without.some((issue) => /has no version pill/.test(issue)), 'the header carries the badge');
 
-	const versioned = issuesOf(head.replace('coming soon</span>', 'coming soon v0.5.0</span>'));
-	assert.ok(versioned.length > 0, 'the pill carries no version');
+	const drifted = issuesOf(head.replaceAll(versionLabel, 'v0.5.0'));
+	assert.ok(drifted.some((issue) => /one constant/.test(issue)), 'the label comes from the constant');
 
-	const titled = issuesOf(head.replace('coming soon</span>', 'Coming soon</span>'));
-	assert.ok(titled.length > 0, 'the pill is all lowercase');
+	const elsewhere = issuesOf(head.replaceAll(LINKS.releases, LINKS.github));
+	assert.ok(elsewhere.some((issue) => /releases/.test(issue)), 'the badge links the releases page');
+
+	const plain = issuesOf(head.replaceAll(' class="box font-mono"', ''));
+	assert.ok(plain.some((issue) => /mono, hairline/.test(issue)), 'the badge is mono and hairline-edged');
+
+	const stray = issuesOf(head.replace('</header>', '<span>v0.5.0</span></header>'));
+	assert.ok(stray.some((issue) => /besides the/.test(issue)), 'no other version sits in the header');
 });
 
 test('disclosures are wired: every control names a panel, and starts closed', () => {

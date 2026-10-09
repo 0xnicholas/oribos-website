@@ -61,13 +61,8 @@ test('an answer carries no link — answers are self-contained', () => {
 	assert.match(faqIssues(linked).join('\n'), /answer carries a link/);
 });
 
-test('the nine iron rules hold: no install command, competitor, counting figure or foreign scope', () => {
-	const install = page(
-		section().replace('Both ship with the first release.', 'Both ship with the first release — run npm install @oribos/mcp-server.'),
-	);
-	assert.match(faqIssues(install).join('\n'), /\[install-command\]/);
-
-	const competitor = page(section().replace('Not yet.', 'Mastra is not there yet.'));
+test('the nine iron rules hold: no competitor, counting figure or foreign scope', () => {
+	const competitor = page(section().replace('Yes — Oribos is on npm.', 'Mastra is on npm.'));
 	assert.match(faqIssues(competitor).join('\n'), /\[competitor-name\]/);
 
 	const counting = page(section().replace('Both ship with the first release.', 'Both ship with the first release; five fields are enough.'));
@@ -101,6 +96,6 @@ test('every §3.7 answer is one to three sentences', () => {
 		assert.ok(count >= 1 && count <= 3, `${item.question}: ${count} sentence(s)`);
 	}
 	assert.equal(sentenceCount('Apache-2.0. Code and examples are licensed under it; the license covers code, not the name.'), 2);
-	assert.equal(sentenceCount('Not yet.'), 1);
+	assert.equal(sentenceCount('Still one sentence.'), 1);
 	assert.equal(sentenceCount('Pre-1.0: one. Two. Three. Four.'), 4);
 });

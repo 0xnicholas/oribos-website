@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * The global-FAQ gate (SPEC §3.7/§6.2/§9.2) over every built page that carries the FAQ: the
- * `#faq` section with its heading, nine `<details>` pairs whose questions and answers are the
- * §3.7 copy verbatim and in order, no link inside an answer, the answers' iron rules — no
- * install command, no competitor name, no counting figure, no foreign package scope, the
- * CONTEXT.md vocabulary, and the RAG / evals line only question 7 answers — and the §5.5 audited
- * text roles on the page background. Every page rendering the shared FaqList joins this gate, so a
- * use-case page cannot drift from the home page's copy. The rules live in `src/lib/faq-rules.ts`.
+ * The global-FAQ gate (SPEC §3.7/§9.2, SPEC-revamp §4.4) over every built page that carries the
+ * FAQ: the `#faq` section with its heading, nine `<details>` pairs whose questions and answers are
+ * the §3.7 copy verbatim and in order — question 2's answer in its published state (SPEC-revamp
+ * §4.4) — no link inside an answer, the answers' iron rules — no competitor name, no counting
+ * figure, no foreign package scope, the CONTEXT.md vocabulary, and the RAG / evals line only
+ * question 7 answers — and the §5.5 audited text roles on the page background. Install commands in
+ * an answer are held to the slot discipline by `scripts/check-install.mjs`. Every page rendering
+ * the shared FaqList joins this gate, so a use-case page cannot drift from the home page's copy.
+ * The rules live in `src/lib/faq-rules.ts`.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-faq.mjs [--root <dir>] [--dist <dir>]

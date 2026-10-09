@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { parseLandingTokens } from './brand-tokens.ts';
-import { releaseStatusIssues } from './copy-rules.ts';
 import { headIssues } from './head-rules.ts';
 import {
 	backLinkHref,
@@ -13,7 +12,6 @@ import {
 	useCaseColourIssues,
 	useCasePageIssues,
 	useCasePages,
-	useCaseReleaseRegions,
 	type ScenarioCardSpec,
 	type ScenarioPage,
 	type UseCasePageSpec,
@@ -85,7 +83,6 @@ test('a use-case page with the §4.3 skeleton passes every rule', () => {
 	const built = page();
 	assert.deepEqual(useCasePageIssues(built, spec), []);
 	assert.deepEqual(headIssues(built, { description: spec.description, title }), []);
-	assert.deepEqual(releaseStatusIssues(built, useCaseReleaseRegions(built)), []);
 	assert.deepEqual(useCaseColourIssues(built), []);
 	assert.deepEqual(sharedArtIssues([built]), []);
 	assert.ok(carriesUseCasePage(built.html));
@@ -202,16 +199,6 @@ test('the head comparisons read attribute values decoded, as Astro emits them', 
 	assert.ok(built.html.includes('content="Platform &amp; developer infra — Oribos"'));
 	assert.deepEqual(useCasePageIssues(built, infra), []);
 	assert.deepEqual(headIssues(built, { description: infra.description, title: infraTitle }), []);
-});
-
-test('the page copy carries no release status outside the shared switch points', () => {
-	const promised = page();
-	promised.html = promised.html.replace(spec.tagline, 'Coming soon: agents inside your product.');
-	assert.match(releaseStatusIssues(promised, useCaseReleaseRegions(promised)).join('\n'), /`Coming soon`.*release status/);
-
-	const versioned = page();
-	versioned.html = versioned.html.replace('picks up where they left off', 'ships in 0.5.0');
-	assert.match(releaseStatusIssues(versioned, useCaseReleaseRegions(versioned)).join('\n'), /`0\.5\.0`.*release status/);
 });
 
 test('the scenario prose holds the vocabulary, the red lines and the package scope', () => {

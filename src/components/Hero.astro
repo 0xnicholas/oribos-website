@@ -1,14 +1,15 @@
 ---
-// The home hero (SPEC §3.1): H1 → sub → CTA row (GitHub · Copy quick start) → the product
-// window below it — window dots + the `agent.ts` file tab + the `trace` badge in the bar, the
-// code on the left, the same run's trace on the right. No kicker, no `coming soon` control of
-// its own (the pill lives in the header, the final CTA and the FAQ), and no session title in
+// The home hero (SPEC §3.1): H1 → sub → the chip CTA → the GitHub text link → the product window
+// below it — window dots + the `agent.ts` file tab + the `trace` badge + the code card's copy
+// button in the bar, the code on the left, the same run's trace on the right. No kicker, no
+// release-status control of its own (the header pill states the version), and no session title in
 // the window bar. Narrow screens stack the two panes, each keeping its own horizontal scroll.
 import { Code } from 'astro:components';
 import { codeThemes } from '../lib/shiki-css.ts';
 import { LINKS } from '../lib/links.ts';
+import AgentPromptCta from './AgentPromptCta.astro';
+import Check from './icons/Check.astro';
 import Copy from './icons/Copy.astro';
-import Star from './icons/Star.astro';
 import TraceWaterfall, { type TraceRow } from './TraceWaterfall.astro';
 
 export interface Props {
@@ -26,12 +27,9 @@ const shikiThemes = codeThemes;
 	<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
 		<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
 		<p class="mt-5 max-w-2xl text-lg text-ink2">{sub}</p>
-		<div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-			<a href={LINKS.github} class="btn btn-primary"><Star />GitHub</a>
-			<button type="button" class="btn btn-ghost" data-copy-quick-start>
-				<Copy />
-				<span data-copy-label>Copy quick start</span>
-			</button>
+		<div class="mt-8 flex flex-col items-center gap-3">
+			<AgentPromptCta />
+			<a href={LINKS.github} class="font-semibold text-acc hover:underline">GitHub</a>
 		</div>
 	</div>
 
@@ -46,6 +44,10 @@ const shikiThemes = codeThemes;
 			<span class="ml-auto box px-2.5 py-0.5 font-mono text-xs text-ink3" data-trace-badge>
 				trace
 			</span>
+			<button type="button" data-copy-hero-code aria-label={`Copy ${file}`} class="p-1.5 text-ink3 hover:text-ink">
+				<Copy data-copy-icon />
+				<Check data-copied-icon hidden />
+			</button>
 		</div>
 		<div class="grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
 			<div class="overflow-x-auto border-b border-line p-4 md:border-r md:border-b-0" data-hero-code>
@@ -61,19 +63,22 @@ const shikiThemes = codeThemes;
 <script>
 	import { wireCopyButton } from '../lib/clipboard.ts';
 
-	const button = document.querySelector<HTMLButtonElement>('[data-copy-quick-start]');
 	const pane = document.querySelector<HTMLElement>('[data-hero-code]');
-	const label = button?.querySelector<HTMLElement>('[data-copy-label]');
-	if (button && pane && label) {
-		const idle = label.textContent ?? '';
+	const button = document.querySelector<HTMLButtonElement>('[data-copy-hero-code]');
+	const copyIcon = button?.querySelector<SVGElement>('[data-copy-icon]');
+	const copiedIcon = button?.querySelector<SVGElement>('[data-copied-icon]');
+	if (pane && button && copyIcon && copiedIcon) {
+		const label = button.getAttribute('aria-label') ?? '';
 		wireCopyButton(button, () => pane, {
 			onCopied: () => {
-				label.textContent = '✓ copied';
+				copyIcon.toggleAttribute('hidden', true);
+				copiedIcon.toggleAttribute('hidden', false);
 				button.setAttribute('aria-label', 'Copied');
 			},
 			onReset: () => {
-				label.textContent = idle;
-				button.removeAttribute('aria-label');
+				copiedIcon.toggleAttribute('hidden', true);
+				copyIcon.toggleAttribute('hidden', false);
+				button.setAttribute('aria-label', label);
 			},
 		});
 	}

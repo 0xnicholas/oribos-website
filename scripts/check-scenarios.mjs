@@ -4,13 +4,13 @@
  * header art — one abstract warm-paper banner with amber orbit / span geometry, no copy, no
  * logo, token-painted and identical on every page — then the skeleton in order: the H1 +
  * tagline verbatim, the three scenario cards with their `→` package lines (every package its
- * own inline-code chip), the shared final CTA with the §3.8 copy, and the `← All use cases`
+ * own inline-code chip), the shared final CTA with the §4.5 copy, and the `← All use cases`
  * back link. The pages keep their red lines — no code block, no social-proof band, no
- * breadcrumbs, no release status in the page's own copy, the CONTEXT.md vocabulary and the
- * `@oribos/*` scope — state the §2.6 meta description and og pair, paint text only in the
- * §5.5 audited roles, and clear AA on the chip pair in both themes. Registered pages the
- * build does not have yet are reported as pending, like the shell gate. The rules live in
- * `src/lib/scenario-rules.ts`; the FAQ itself answers to check-faq.mjs on these pages too.
+ * breadcrumbs, the CONTEXT.md vocabulary and the `@oribos/*` scope — state the §2.6 meta
+ * description and og pair, paint text only in the §5.5 audited roles, and clear AA on the chip
+ * pair in both themes. Registered pages the build does not have yet are reported as pending,
+ * like the shell gate. The rules live in `src/lib/scenario-rules.ts`; the FAQ itself answers to
+ * check-faq.mjs on these pages too.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-scenarios.mjs [--root <dir>] [--dist <dir>]
@@ -18,7 +18,6 @@
 import path from 'node:path';
 import { builtPages, failGate, readText, runChecks, startGate } from './lib/cli.mjs';
 import { parseLandingTokens } from '../src/lib/brand-tokens.ts';
-import { releaseStatusIssues } from '../src/lib/copy-rules.ts';
 import { headIssues } from '../src/lib/head-rules.ts';
 import { finalCtaIssues } from '../src/lib/hero-rules.ts';
 import { routeOfHtmlFile } from '../src/lib/link-rules.ts';
@@ -30,7 +29,6 @@ import {
 	useCaseColourIssues,
 	useCasePageIssues,
 	useCasePages,
-	useCaseReleaseRegions,
 } from '../src/lib/scenario-rules.ts';
 
 const { repoRoot, options } = startGate(import.meta.url, process.argv.slice(2), { values: ['dist'] });
@@ -81,9 +79,8 @@ const perPage = [...byRoute.entries()].flatMap(([route, spec]) => {
 			`${route}: the §4.3 skeleton — shared art, H1 + tagline, three scenario cards with their package lines, the back link`,
 		],
 		[headIssues(page, { description: spec.description, title }), `${route}: the §2.6 meta description and the og pair`],
-		[releaseStatusIssues(page, useCaseReleaseRegions(page)), `${route}: no release status in the page's own copy`],
 		[useCaseColourIssues(page), `${route}: text only in the §5.5 audited roles on the page background`],
-		[finalCtaIssues(page), `${route}: the shared final CTA — the §3.8 copy, the GitHub action and the passive pill`],
+		[finalCtaIssues(page), `${route}: the shared final CTA — the §4.5 copy, the chip CTA and the GitHub text link`],
 	];
 });
 

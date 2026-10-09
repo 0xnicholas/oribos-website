@@ -1,19 +1,24 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+	agentPromptButton,
+	agentPromptCmeta,
+	agentPromptPayload,
+	agentPromptTag,
+	agentPromptTask,
+	copiedLabel,
 	copyScriptIssues,
 	finalCtaIssues,
 	finalCtaHeading,
 	finalCtaSub,
 	heroCodeIssues,
-	heroCopied,
 	heroFile,
 	heroH1,
 	heroIssues,
-	heroSecondary,
 	heroSnippet,
 	heroSub,
 	heroWindowIssues,
+	retiredHeroCta,
 	shikiIssues,
 	traceIssues,
 	traceMeta,
@@ -32,14 +37,28 @@ const codeBlock = (code = heroSnippet, className = 'astro-code astro-code-themes
 		.map((line) => `<span class="line">${line}</span>`)
 		.join('\n')}</code></pre>`;
 
+/** The chip CTA (SPEC-revamp §4.3), reduced to the markers and text the rules read. */
+const chip = `
+<div data-agent-prompt>
+	<div>
+		<span data-agent-prompt-tag>${agentPromptTag}</span>
+		<button type="button" data-agent-prompt-copy><span data-copy-label>${agentPromptButton}</span></button>
+	</div>
+	<div>
+		<span data-agent-prompt-task>${agentPromptTask}</span>
+		<span data-agent-prompt-cmeta>${agentPromptCmeta}</span>
+	</div>
+	<template data-agent-prompt-payload>${agentPromptPayload}</template>
+</div>`;
+
 /** The markup the hero must render, reduced to the strings the rules read. */
 const hero = `
 <section data-hero>
 	<h1>${heroH1}</h1>
 	<p>${heroSub}</p>
 	<div>
-		<a href="${LINKS.github}"><svg aria-hidden="true"></svg>GitHub</a>
-		<button type="button"><svg aria-hidden="true"></svg><span>${heroSecondary}</span></button>
+		${chip}
+		<a href="${LINKS.github}">GitHub</a>
 	</div>
 	<div data-window>
 		<div data-window-bar>
@@ -69,10 +88,8 @@ const finalCta = `
 <section id="get-started">
 	<h2>${finalCtaHeading}</h2>
 	<p>${finalCtaSub}</p>
-	<div>
-		<a href="${LINKS.github}"><svg aria-hidden="true"></svg>GitHub</a>
-		<span>coming soon</span>
-	</div>
+	${chip}
+	<a href="${LINKS.github}">GitHub</a>
 </section>`;
 
 const fullPage = page(`<html><body>${hero}${finalCta}</body></html>`);
@@ -85,23 +102,44 @@ test('a hero page passes every hero rule', () => {
 	assert.deepEqual(finalCtaIssues(fullPage), []);
 });
 
-test('the hero copy and its two CTAs are the locked ones', () => {
+test('the hero copy, its chip CTA and the GitHub link are the locked ones', () => {
 	assert.match(heroIssues(page('<p>nothing</p>'))[0]!, /no hero section/);
 	assert.match(heroIssues(page(hero.replace(heroH1, 'Build AI agents.')))[0]!, /the hero H1 is/);
-	// The CTA's icon is decorative: dropping it changes nothing the rules read.
-	assert.deepEqual(heroIssues(page(hero.replace('><svg aria-hidden="true"></svg>GitHub', '>GitHub'))), []);
-
-	const noCopy = page(hero.replace(heroSecondary, 'Copy'));
-	assert.match(heroIssues(noCopy)[0]!, /Copy quick start/);
 
 	const kicker = page(hero.replace('<h1>', '<p>TypeScript · zero dependencies</p><h1>'));
 	assert.match(heroIssues(kicker)[0]!, /no kicker/);
 
+	const noGithub = page(hero.replace(`href="${LINKS.github}">GitHub`, 'href="/">GitHub'));
+	assert.match(heroIssues(noGithub).join('\n'), /no `GitHub` link/);
+
+	const retired = page(hero.replace('<a href=', `<button type="button">${retiredHeroCta}</button><a href=`));
+	assert.match(heroIssues(retired).join('\n'), /Copy quick start/);
+
 	const pill = page(hero.replace('</section>', '<span>coming soon</span></section>'));
-	assert.match(heroIssues(pill)[0]!, /coming-soon control/);
+	assert.match(heroIssues(pill).join('\n'), /coming-soon control/);
 
 	const stars = page(hero.replace('</section>', '<a href="/">12,345 stars</a></section>'));
 	assert.match(heroIssues(stars)[0]!, /star count/);
+});
+
+test('the chip CTA carries the §4.3 face verbatim and the one hidden payload', () => {
+	const tag = page(hero.replace(agentPromptTag, 'agent prompt'));
+	assert.match(heroIssues(tag).join('\n'), /chip's tag is not the §4\.3 text verbatim/);
+
+	const task = page(hero.replace(agentPromptTask, 'Paste it somewhere.'));
+	assert.match(heroIssues(task).join('\n'), /chip's task sentence is not the §4\.3 text verbatim/);
+
+	const cmeta = page(hero.replace(agentPromptCmeta, 'install inside'));
+	assert.match(heroIssues(cmeta).join('\n'), /chip's cmeta is not the §4\.3 text verbatim/);
+
+	const otherButton = page(hero.replace(agentPromptButton, 'Copy the prompt'));
+	assert.match(heroIssues(otherButton).join('\n'), /no `Copy agent prompt` button/);
+
+	const edited = page(hero.replace("agent.stream('Say hello.')", "agent.stream('Hi.')"));
+	assert.match(heroIssues(edited).join('\n'), /payload is not the §4\.3 13-line text verbatim/);
+
+	const noPayload = page(hero.replace(/<template\b[^>]*\bdata-agent-prompt-payload\b[^>]*>[\s\S]*?<\/template>/i, ''));
+	assert.match(heroIssues(noPayload).join('\n'), /payload definition\(s\)|no hidden payload/);
 });
 
 test('the window bar is dots + the file tab + the trace badge, never a session title', () => {
@@ -134,14 +172,20 @@ test('the trace keeps the §7.5 lanes, coordinates, values and tones', () => {
 	assert.match(traceIssues(otherMeta)[0]!, /card head/);
 });
 
-test('the final CTA is the shared copy, the GitHub action and a passive pill', () => {
+test('the final CTA is the §4.5 copy, the same chip CTA and the GitHub text link', () => {
 	assert.match(finalCtaIssues(page('<p>nothing</p>'))[0]!, /no #get-started section/);
-
-	const linked = page(finalCta.replace('<span>coming soon</span>', `<a href="${LINKS.github}">coming soon</a>`));
-	assert.match(finalCtaIssues(linked)[0]!, /never a link/);
 
 	const noHeading = page(finalCta.replace(finalCtaHeading, 'Ship agents.'));
 	assert.match(finalCtaIssues(noHeading)[0]!, /final CTA heading/);
+
+	const otherSub = page(finalCta.replace(finalCtaSub, 'Star the repository.'));
+	assert.match(finalCtaIssues(otherSub).join('\n'), /not the §4\.5 sentence verbatim/);
+
+	const noChip = page(finalCta.replace('data-agent-prompt-copy', 'data-copy-agent-prompt'));
+	assert.match(finalCtaIssues(noChip).join('\n'), /carries no chip CTA/);
+
+	const pill = page(finalCta.replace('</section>', '<span>coming soon</span></section>'));
+	assert.match(finalCtaIssues(pill).join('\n'), /`coming soon`/);
 });
 
 test('the shipped CSS switches the code surface; the trace green is declared once and trace-only', () => {
@@ -184,8 +228,10 @@ test('the shipped CSS switches the code surface; the trace green is declared onc
 	assert.deepEqual(trailIssues(hex, []), []);
 });
 
-test('the copy script ships: the clipboard write, the copied state, the reset', () => {
-	const script = `document.querySelector(\`[data-copy-quick-start]\`),document.querySelector(\`[data-hero-code]\`),i.textContent=\`${heroCopied}\`,a=window.setTimeout(()=>{},1200),await navigator.clipboard.writeText(n)`;
+test('the copy scripts ship: the clipboard write, the copied state, the reset, the wiring', () => {
+	const script = `for(let e of document.querySelectorAll(\`[data-agent-prompt]\`))e.querySelector(\`[data-agent-prompt-copy]\`),e.querySelector(\`[data-agent-prompt-payload]\`);document.querySelector(\`[data-copy-hero-code]\`),document.querySelector(\`[data-hero-code]\`),t.textContent=\`${copiedLabel}\`,window.setTimeout(()=>{},1200),await navigator.clipboard.writeText(n)`;
 	assert.deepEqual(copyScriptIssues([script]), []);
 	assert.match(copyScriptIssues(['console.log("no copy")'])[0]!, /clipboard/);
+	assert.match(copyScriptIssues([script.replace('data-agent-prompt-payload', 'nothing')]).join('\n'), /hidden payload/);
+	assert.match(copyScriptIssues([script.replace('data-hero-code', 'nothing')]).join('\n'), /hero code card/);
 });

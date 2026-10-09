@@ -69,7 +69,7 @@ const titleChecks = shellPages.flatMap((page) => {
 const checks = [
 	[
 		shellPages.flatMap((page) => headerIssues(page)),
-		`header: ${shellPages.length} page(s) carry the wordmark, the three use-case items, Docs, GitHub and the pill`,
+		`header: ${shellPages.length} page(s) carry the wordmark, the three use-case items, Docs, GitHub and the version badge`,
 	],
 	[
 		shellPages.flatMap((page) => footerIssues(page)),

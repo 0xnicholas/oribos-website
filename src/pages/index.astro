@@ -1,7 +1,8 @@
 ---
 // The home page: hero → feature tabs → the observability band → the social-proof placeholder →
 // the use-case cards → the resources strip → the global FAQ ×9 → the shared final CTA. Section
-// order is fixed by SPEC §3.
+// order is fixed by SPEC §3. The feature snippets pass through `fillVersion`, so the MCP card's
+// `version` field is the one version constant (SPEC-revamp §4.6).
 import { getCollection, getEntry } from 'astro:content';
 import FaqList from '../components/FaqList.astro';
 import FeatureTabs from '../components/FeatureTabs.astro';
@@ -12,6 +13,7 @@ import Observability from '../components/Observability.astro';
 import ResourcesStrip from '../components/ResourcesStrip.astro';
 import SocialProof from '../components/SocialProof.astro';
 import UseCaseCards from '../components/UseCaseCards.astro';
+import { fillVersion } from '../lib/version.ts';
 
 const hero = await getEntry('hero', 'home');
 const snippet = await getEntry('snippets', 'agent');
@@ -55,7 +57,13 @@ if (
 		code={snippet.data.code}
 		trace={trace.data}
 	/>
-	<FeatureTabs features={features.map((entry) => ({ id: entry.id, ...entry.data }))} />
+		<FeatureTabs
+			features={features.map((entry) => ({
+				id: entry.id,
+				...entry.data,
+				files: entry.data.files.map((file) => ({ ...file, code: fillVersion(file.code) })),
+			}))}
+		/>
 	<Observability
 		kicker={observability.data.kicker}
 		claim={observability.data.claim}

@@ -8,6 +8,8 @@ import { SITE } from './site.ts';
 export const LINKS = {
 	github: 'https://github.com/0xnicholas/oribos-framework',
 	issues: 'https://github.com/0xnicholas/oribos-framework/issues',
+	/** The header pill's target (SPEC-revamp §4.2). */
+	releases: 'https://github.com/0xnicholas/oribos-framework/releases',
 	docs: 'https://github.com/0xnicholas/oribos-framework', // → https://docs.oribos.dev
 	examples: 'https://github.com/0xnicholas/oribos-framework/tree/main/examples',
 	architecture: 'https://github.com/0xnicholas/oribos-framework/tree/main/docs/architecture',

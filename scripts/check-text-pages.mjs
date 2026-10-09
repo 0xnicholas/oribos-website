@@ -17,7 +17,6 @@
  */
 import path from 'node:path';
 import { builtPages, failGate, runChecks, startGate } from './lib/cli.mjs';
-import { releaseStatusIssues } from '../src/lib/copy-rules.ts';
 import { headIssues } from '../src/lib/head-rules.ts';
 import { routeOfHtmlFile } from '../src/lib/link-rules.ts';
 import { pages } from '../src/lib/pages.ts';
@@ -30,7 +29,6 @@ import {
 	legalPageIssues,
 	legalPageSpecs,
 	textPageColourIssues,
-	textPageReleaseRegions,
 } from '../src/lib/text-page-rules.ts';
 
 const { repoRoot, options } = startGate(import.meta.url, process.argv.slice(2), { values: ['dist'] });
@@ -78,13 +76,11 @@ const checks = [
 		: [
 				[aboutPageIssues(about), '/about: the §4.1 skeleton — H1 + tagline, Our story, Who\'s behind it, the invitation band, back home'],
 				...headChecks(aboutSpec.route, about, aboutSpec.description),
-				[releaseStatusIssues(about, textPageReleaseRegions(about)), "/about: no release status in the page's own copy"],
 				[textPageColourIssues(about), '/about: text only in the §5.5 audited roles on the page background'],
 			]),
 	...legalBuilt.flatMap(({ spec, page }) => [
 		[legalPageIssues(page, spec), `${spec.route}: the §4.2 stub — H1, the static \`Last updated\` line, the locked paragraphs, Issues-only contact`],
 		...headChecks(spec.route, page, spec.description),
-		[releaseStatusIssues(page, textPageReleaseRegions(page)), `${spec.route}: no release status in the page's own copy`],
 		[textPageColourIssues(page), `${spec.route}: text only in the §5.5 audited roles on the page background`],
 	]),
 	...(legalBuilt.length === legalPageSpecs.length

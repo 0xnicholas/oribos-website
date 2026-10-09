@@ -1,9 +1,11 @@
 ---
-// The shared final CTA (SPEC §3.8): the home page, the use-case pages and the keyword pages all
-// render this one component with the same copy and structure. `coming soon` here is publishing
-// switch point #3 — a passive badge, never a link; the repository link is the action.
+// The shared final CTA (SPEC-revamp §4.5): the home page, the use-case pages and the keyword pages
+// all render this one component with the same copy and structure — the H2, the new sub, the same
+// chip CTA the hero carries (one payload, two placements) and the GitHub text link as the
+// secondary action. The v1 `coming soon` pill is retired: the site carries a single published
+// state, and the header pill states the version (SPEC-revamp §4.2).
 import { LINKS } from '../lib/links.ts';
-import Star from './icons/Star.astro';
+import AgentPromptCta from './AgentPromptCta.astro';
 
 export interface Props {
 	heading: string;
@@ -16,9 +18,7 @@ const { heading, sub } = Astro.props;
 	<div class="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
 		<h2 class="text-3xl font-semibold tracking-tight text-ink">{heading}</h2>
 		<p class="max-w-xl text-ink2">{sub}</p>
-		<div class="flex flex-wrap items-center justify-center gap-3">
-			<a href={LINKS.github} class="btn btn-primary"><Star />GitHub</a>
-			<span class="bg-acc-lo px-3 py-1 text-xs font-semibold text-acc-h">coming soon</span>
-		</div>
+		<AgentPromptCta />
+		<a href={LINKS.github} class="font-semibold text-acc hover:underline">GitHub</a>
 	</div>
 </section>

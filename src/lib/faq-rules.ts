@@ -1,12 +1,12 @@
 /**
  * The global FAQ ×9 (SPEC §3.7) over the built page: the `#faq` section, its heading, nine
  * `<details>` pairs whose questions and answers are the §3.7 copy verbatim and in order, no link
- * inside an answer, and the nine answers' iron rules — no install command, no competitor name, no
- * counting figure, no foreign package scope, the CONTEXT.md vocabulary, and the RAG / evals line
- * that only question 7 answers (SPEC §9.2). The answers also keep the §5.5 audited text roles on
- * the page background (`src/lib/colour-rules.ts`), like the home bands. Question 2 is publishing
- * switch point #2 (SPEC §6.2): the constant here is the pre-release draft, and no install command
- * may be written before the switch is decided.
+ * inside an answer, and the nine answers' iron rules — no competitor name, no counting figure, no
+ * foreign package scope, the CONTEXT.md vocabulary, and the RAG / evals line that only question 7
+ * answers (SPEC §9.2). The answers also keep the §5.5 audited text roles on the page background
+ * (`src/lib/colour-rules.ts`), like the home bands. Question 2's answer is the published state
+ * (SPEC-revamp §4.4): Oribos is on npm, and the answer is one of the two places an install command
+ * may appear — the slot discipline is `src/lib/install-rules.ts` (SPEC-revamp §4.6).
  *
  * Like the hero, feature and band rules, the strings here are the spec's copy — deliberately not
  * read from the content collection that renders them, so the page and its gate cannot agree by
@@ -34,7 +34,7 @@ export const faqItems: readonly FaqSpecItem[] = [
 	{
 		question: 'Is Oribos on npm yet?',
 		answer:
-			'Not yet. The first public release will be 0.5.0, with the framework and its capability packages shipping together. Until then, the repository on GitHub is where to follow along — star or watch it for release updates.',
+			'Yes — Oribos is on npm. npm i @oribos/core installs the zero-dependency core, and every capability package ships alongside it under @oribos/* — add them one at a time, as you need them.',
 	},
 	{
 		question: 'Why another TypeScript agent framework?',
@@ -82,7 +82,7 @@ const faqSection = [{ marker: 'data-faq', label: 'FAQ section' }];
 
 /**
  * How many sentences a §3.7 answer holds: a `.`/`!`/`?` ends one when a capitalised word or the
- * text's end follows it — so `0.5.0`, `22.13`, `Apache-2.0` and `Pre-1.0` never split a sentence.
+ * text's end follows it — so `22.13`, `Apache-2.0` and `Pre-1.0` never split a sentence.
  */
 export function sentenceCount(text: string): number {
 	const terminators = [...text.matchAll(/[.!?](?=\s+(?:["'(\[])?[A-Z]|\s*$)/g)].length;

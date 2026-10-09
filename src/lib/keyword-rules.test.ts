@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { releaseStatusIssues } from './copy-rules.ts';
 import { faqItems as globalFaqItems, sentenceCount } from './faq-rules.ts';
 import { headIssues } from './head-rules.ts';
 import {
@@ -9,7 +8,6 @@ import {
 	keywordColourIssues,
 	keywordPageIssues,
 	keywordPages,
-	keywordReleaseRegions,
 	learnMoreText,
 	pageFaqHeading,
 	type KeywordFaqSpec,
@@ -75,7 +73,6 @@ test('every registered keyword page with the §4.4 skeleton passes every rule', 
 		const built = page(entry);
 		assert.deepEqual(keywordPageIssues(built, entry), [], entry.route);
 		assert.deepEqual(headIssues(built, { description: entry.description, title: titleOf(entry.route) }), [], entry.route);
-		assert.deepEqual(releaseStatusIssues(built, keywordReleaseRegions(built)), [], entry.route);
 		assert.deepEqual(keywordColourIssues(built), [], entry.route);
 		assert.ok(carriesKeywordPage(built.html), entry.route);
 	}
@@ -218,16 +215,6 @@ test('the head carries the §2.6 meta description and the og pair', () => {
 	const ogTitled = page();
 	ogTitled.html = ogTitled.html.replace(`content="${titleOf(spec.route)}"`, 'content="AI agent framework — Oribos"');
 	assert.match(headIssues(ogTitled, { description: spec.description, title: titleOf(spec.route) }).join('\n'), /og:title/);
-});
-
-test("the page's own copy carries no release status", () => {
-	const soon = page();
-	soon.html = soon.html.replace('A library, not infrastructure you operate', 'A library, coming soon to infrastructure');
-	assert.match(releaseStatusIssues(soon, keywordReleaseRegions(soon)).join('\n'), /coming soon/);
-
-	const versioned = page();
-	versioned.html = versioned.html.replace('a single import', 'a single import since 0.5.0');
-	assert.match(releaseStatusIssues(versioned, keywordReleaseRegions(versioned)).join('\n'), /0\.5\.0/);
 });
 
 test('the page sections wear the §5.5 audited roles on the page background', () => {

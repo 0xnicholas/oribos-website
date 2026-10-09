@@ -1,11 +1,11 @@
 /**
- * The home hero, its product window, the trace waterfall and the shared final CTA (SPEC §3.1 /
- * §3.8 / §7.1 / §7.2 / §7.5) over the built page. The strings and geometry here are the spec's
- * copy — deliberately not read from the content collections that render them, so the page and
- * its gate cannot agree by construction.
+ * The home hero, its product window, the trace waterfall, the chip CTA and the shared final CTA
+ * (SPEC §3.1 / §7.1 / §7.2 / §7.5, SPEC-revamp §4.1 / §4.3 / §4.5) over the built page. The
+ * strings and geometry here are the spec's copy — deliberately not read from the content
+ * collections that render them, so the page and its gate cannot agree by construction.
  */
 
-import { attributeValue, codeOf, elementOf, linksOf, missingCodeSurface, textOf } from './html.ts';
+import { attributeValue, codeOf, decodeEntities, elementOf, linksOf, missingCodeSurface, occurrences, textOf } from './html.ts';
 import { hslToHex } from './brand-tokens.ts';
 import { LINKS } from './links.ts';
 
@@ -15,13 +15,35 @@ export type HeroPage = { path: string; html: string };
 export const heroH1 = 'Build ultralight AI agents.';
 export const heroSub =
 	'Build, compose, and ship agents with zero runtime dependencies — Oribos, the ultralight TypeScript agent framework.';
-/** SPEC §3.1/§6.1: the two CTAs and the copy's success state. */
+/** SPEC-revamp §4.1: the hero's secondary CTA is a `GitHub` text link; the v1 copy button is retired. */
 export const ctaGithub = 'GitHub';
-export const heroSecondary = 'Copy quick start';
-export const heroCopied = '✓ copied';
+export const retiredHeroCta = 'Copy quick start';
+/** SPEC-revamp §4.3: the copy button's success state. */
+export const copiedLabel = '✓ copied';
 /** SPEC §3.1: the window's file tab and badge. */
 export const heroFile = 'agent.ts';
 export const heroBadge = 'trace';
+
+/** SPEC-revamp §4.3 【终稿·勿改】: the chip CTA's visible face — one constant per text slot. */
+export const agentPromptTag = 'agent prompt — self-contained';
+export const agentPromptButton = 'Copy agent prompt';
+export const agentPromptTask = 'One paste into your coding agent → a working Oribos agent.';
+export const agentPromptCmeta = 'install · 6-line agent · README — inside';
+
+/** SPEC-revamp §4.3 【终稿·勿改】: the 13-line payload — hidden, single-point defined, copied verbatim. */
+export const agentPromptPayload = `Add a working Oribos agent to this project.
+
+Install: npm i @oribos/core @ai-sdk/openai
+
+Create agent.ts:
+  import { openai } from '@ai-sdk/openai';
+  import { Agent } from '@oribos/core/agent';
+  const agent = new Agent({ name: 'assistant',
+    model: openai.chat('gpt-4o-mini') });
+  for await (const c of agent.stream('Say hello.'))
+    if (c.type === 'text-delta') process.stdout.write(c.textDelta);
+
+Run it with your model key set, then read github.com/0xnicholas/oribos-framework#readme to go deeper.`;
 
 /** SPEC §7.2 【终稿·勿改】 — the block verbatim, blank lines included; never compressed. */
 export const heroSnippet = `import { openai } from '@ai-sdk/openai';
@@ -56,10 +78,10 @@ export const traceRows = [
 ] as const;
 export const traceSummary = "chunk.type === 'text-delta' — every span from the same run";
 
-/** SPEC §3.8: the shared final CTA's copy (the spec permits polishing these words). */
+/** SPEC-revamp §4.5: the shared final CTA — the H2 from the v1 spec, the new published-state sub. */
 export const finalCtaHeading = 'Build ultralight AI agents.';
 export const finalCtaSub =
-	'The repository is open today — star or watch it to follow releases. The first public version is coming soon.';
+	'Copy the agent prompt, paste it into your coding agent, and add a working Oribos agent to the app you already run.';
 
 /** SPEC §7.5 轨迹绿: the site's own auxiliary colour — trace rows only, never a brand token. */
 export const trailGreen = { light: 'hsl(140, 45%, 32%)', dark: 'hsl(140, 40%, 55%)' } as const;
@@ -73,7 +95,52 @@ function leafSpanTexts(fragment: string): string[] {
 
 /* ------------------------------------------------------------------ the checks */
 
-/** SPEC §3.1: the hero's copy, its two CTAs, and what the hero must not carry. */
+/**
+ * SPEC-revamp §4.3: the chip CTA in `scope` (the hero, the final CTA) — the four visible slots
+ * verbatim and the one hidden payload the copy button takes. The chip's root is read through its
+ * markers, not through nested-element matching: a `data-agent-prompt` div ends at its first inner
+ * `</div>`, which the payload sits past.
+ */
+export function agentPromptIssues(page: HeroPage, scope: string, where: string): string[] {
+	const copies = occurrences(scope, 'data-agent-prompt-copy');
+	if (copies === 0) return [`${page.path}: ${where} carries no chip CTA (SPEC-revamp §4.3)`];
+
+	const issues: string[] = [];
+	if (copies !== 1) {
+		issues.push(`${page.path}: ${where} carries ${copies} chip CTAs, expected one (SPEC-revamp §4.3)`);
+	}
+
+	for (const slot of [
+		{ marker: 'data-agent-prompt-tag', expected: agentPromptTag, what: 'tag' },
+		{ marker: 'data-agent-prompt-task', expected: agentPromptTask, what: 'task sentence' },
+		{ marker: 'data-agent-prompt-cmeta', expected: agentPromptCmeta, what: 'cmeta' },
+	] as const) {
+		const element = elementOf(scope, 'span', slot.marker);
+		if (element === null || textOf(element) !== slot.expected) {
+			issues.push(`${page.path}: the chip's ${slot.what} is not the §4.3 text verbatim`);
+		}
+	}
+
+	const button = scope.match(/<button\b[^>]*\bdata-agent-prompt-copy\b[^>]*>([\s\S]*?)<\/button>/i);
+	if (button === null || textOf(button[1]!) !== agentPromptButton) {
+		issues.push(`${page.path}: the chip has no \`${agentPromptButton}\` button (SPEC-revamp §4.3)`);
+	}
+
+	const payloads = occurrences(scope, 'data-agent-prompt-payload');
+	if (payloads !== 1) {
+		issues.push(`${page.path}: the chip carries ${payloads} payload definition(s), expected one (SPEC-revamp §4.3)`);
+	}
+	const payload = scope.match(/<template\b[^>]*\bdata-agent-prompt-payload\b[^>]*>([\s\S]*?)<\/template>/i);
+	if (payload === null) {
+		issues.push(`${page.path}: the chip has no hidden payload — the copy button copies this text (SPEC-revamp §4.3)`);
+	} else if (decodeEntities(payload[1]!) !== agentPromptPayload) {
+		issues.push(`${page.path}: the chip's payload is not the §4.3 13-line text verbatim — the copy button copies this text`);
+	}
+
+	return issues;
+}
+
+/** SPEC-revamp §3.1/§4.1/§4.3: the hero's copy, its chip CTA, its GitHub link, and what it must not carry. */
 export function heroIssues(page: HeroPage): string[] {
 	const hero = elementOf(page.html, 'section', 'data-hero');
 	if (hero === null) return [`${page.path}: no hero section (SPEC §3.1)`];
@@ -95,22 +162,23 @@ export function heroIssues(page: HeroPage): string[] {
 
 	const links = linksOf(hero);
 	if (!links.some((link) => link.text === ctaGithub && link.href === LINKS.github)) {
-		issues.push(`${page.path}: the hero has no \`${ctaGithub}\` link from src/lib/links.ts (SPEC §3.1)`);
+		issues.push(`${page.path}: the hero has no \`${ctaGithub}\` link from src/lib/links.ts (SPEC-revamp §4.1)`);
 	}
 	const buttons = [...hero.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/gi)].map((match) => textOf(match[1]!));
-	if (!buttons.includes(heroSecondary)) {
-		issues.push(`${page.path}: the hero has no \`${heroSecondary}\` button (SPEC §3.1)`);
+	if (buttons.includes(retiredHeroCta)) {
+		issues.push(`${page.path}: the hero still carries \`${retiredHeroCta}\` — the chip CTA is the main action (SPEC-revamp §3.1)`);
 	}
+	issues.push(...agentPromptIssues(page, hero, 'the hero'));
 
 	if (/coming\s+soon/i.test(text)) {
-		issues.push(`${page.path}: the hero carries a coming-soon control — the header pill, the final CTA and the FAQ carry it (SPEC §3.1)`);
+		issues.push(`${page.path}: the hero carries a coming-soon control — the site carries one published state (SPEC-revamp §4)`);
 	}
 	if (/\b\d[\d,]*\s*stars?\b/i.test(text)) {
 		issues.push(`${page.path}: the hero states a star count (SPEC §3.1: none)`);
 	}
 	for (const label of [...links.map((link) => link.text), ...buttons]) {
 		if (/\bv?\d+\.\d+\.\d+\b/.test(label)) {
-			issues.push(`${page.path}: a hero CTA carries a version number (SPEC §3.1): \`${label}\``);
+			issues.push(`${page.path}: a hero CTA carries a version number (SPEC-revamp §4.6): \`${label}\``);
 		}
 	}
 
@@ -227,29 +295,27 @@ export function traceIssues(page: HeroPage): string[] {
 	return issues;
 }
 
-/** SPEC §3.8: the shared final CTA — its copy, its action, and the pill as a passive badge. */
+/** SPEC-revamp §4.5: the shared final CTA — its copy, the shared chip CTA and the GitHub text link. */
 export function finalCtaIssues(page: HeroPage): string[] {
 	const section = elementOf(page.html, 'section', 'id="get-started"');
-	if (section === null) return [`${page.path}: no #get-started section — the final CTA is shared copy (SPEC §3.8)`];
+	if (section === null) return [`${page.path}: no #get-started section — the final CTA is shared copy (SPEC-revamp §4.5)`];
 
 	const issues: string[] = [];
 	const text = textOf(section);
 
 	const heading = section.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i)?.[1];
 	if (heading === undefined || textOf(heading) !== finalCtaHeading) {
-		issues.push(`${page.path}: the final CTA heading is ${heading === undefined ? 'missing' : `\`${textOf(heading)}\``}, expected \`${finalCtaHeading}\` (SPEC §3.8)`);
+		issues.push(`${page.path}: the final CTA heading is ${heading === undefined ? 'missing' : `\`${textOf(heading)}\``}, expected \`${finalCtaHeading}\` (SPEC-revamp §4.5)`);
 	}
 	if (!text.includes(finalCtaSub)) {
-		issues.push(`${page.path}: the final CTA sub is not the §3.8 sentence verbatim`);
+		issues.push(`${page.path}: the final CTA sub is not the §4.5 sentence verbatim`);
 	}
+	issues.push(...agentPromptIssues(page, section, 'the final CTA'));
 	if (!linksOf(section).some((link) => link.text === ctaGithub && link.href === LINKS.github)) {
-		issues.push(`${page.path}: the final CTA has no \`${ctaGithub}\` link from src/lib/links.ts (SPEC §3.8)`);
+		issues.push(`${page.path}: the final CTA has no \`${ctaGithub}\` link from src/lib/links.ts (SPEC-revamp §4.5)`);
 	}
-	if (!text.includes('coming soon')) {
-		issues.push(`${page.path}: the final CTA has no \`coming soon\` pill (SPEC §3.8)`);
-	}
-	if (linksOf(section).some((link) => link.text.includes('coming soon'))) {
-		issues.push(`${page.path}: \`coming soon\` is a passive badge — never a link (SPEC §3.8)`);
+	if (/coming\s+soon/i.test(text)) {
+		issues.push(`${page.path}: the final CTA still carries \`coming soon\` — the pill is retired (SPEC-revamp §4.5)`);
 	}
 
 	return issues;
@@ -338,21 +404,24 @@ export function trailIssues(css: string, sources: readonly { path: string; text:
 	return issues;
 }
 
-/** SPEC §3.1: the copy button's script ships — the clipboard write, the state, the reset. */
+/** SPEC-revamp §4.3/§4.1: the copy scripts ship — the clipboard write, the state, the reset, the wiring. */
 export function copyScriptIssues(scripts: readonly string[]): string[] {
 	const issues: string[] = [];
 	if (!scripts.some((script) => script.includes('writeText'))) {
-		issues.push('no shipped script writes to the clipboard — the hero CTA copies the snippet (SPEC §3.1)');
+		issues.push('no shipped script writes to the clipboard (SPEC-revamp §4.3)');
 	}
-	if (!scripts.some((script) => script.includes(heroCopied))) {
-		issues.push(`no shipped script shows the \`${heroCopied}\` state (SPEC §3.1)`);
+	if (!scripts.some((script) => script.includes(copiedLabel))) {
+		issues.push(`no shipped script shows the \`${copiedLabel}\` state (SPEC-revamp §4.3)`);
 	}
 	if (!scripts.some((script) => script.includes('1200'))) {
-		issues.push('no shipped script resets the copied state after 1.2s (SPEC §3.1)');
+		issues.push('no shipped script resets the copied state after 1.2s (SPEC-revamp §4.3)');
 	}
-	// The button and the pane it copies: a handler that lost its target is a dead button.
-	if (!scripts.some((script) => script.includes('data-copy-quick-start') && script.includes('data-hero-code'))) {
-		issues.push('no shipped script ties the hero copy button to the hero code pane (SPEC §3.1)');
+	// The buttons and what they copy: a handler that lost its target is a dead button.
+	if (!scripts.some((script) => script.includes('data-agent-prompt-copy') && script.includes('data-agent-prompt-payload'))) {
+		issues.push('no shipped script ties the chip copy button to its hidden payload (SPEC-revamp §4.3)');
+	}
+	if (!scripts.some((script) => script.includes('data-copy-hero-code') && script.includes('data-hero-code'))) {
+		issues.push('no shipped script ties the hero code card\'s copy button to its pane (SPEC-revamp §4.1)');
 	}
 	return issues;
 }

@@ -4,11 +4,11 @@
  * in order — H1 (the keyword's face plus its claim), the 2–4 argument sections verbatim, the
  * one `Learn more` link to the pre-launch constant, the in-page FAQ (4–5 questions verbatim,
  * answers 1–3 sentences and self-contained, zero overlap with the global nine, never the
- * `data-faq` marker the §3.7 gate owns), the shared final CTA with the §3.8 copy and the
+ * `data-faq` marker the §3.7 gate owns), the shared final CTA with the §4.5 copy and the
  * back-to-home anchor. The pages keep their red lines — RAG / evals nowhere in the page's own
  * copy (the page-level half of check-copy's rule), no code block, no links between keyword
- * pages, no Platform-class words, no release status outside the §6.2 switch points — state
- * the §2.6 meta description and og pair, and paint text only in the §5.5 audited roles.
+ * pages, no Platform-class words — state the §2.6 meta description and og pair, and paint text
+ * only in the §5.5 audited roles.
  * Registered pages the build does not have yet are reported as pending, like the shell gate.
  * The rules live in `src/lib/keyword-rules.ts`.
  *
@@ -17,7 +17,6 @@
  */
 import path from 'node:path';
 import { builtPages, failGate, runChecks, startGate } from './lib/cli.mjs';
-import { releaseStatusIssues } from '../src/lib/copy-rules.ts';
 import { headIssues } from '../src/lib/head-rules.ts';
 import { finalCtaIssues } from '../src/lib/hero-rules.ts';
 import {
@@ -25,7 +24,6 @@ import {
 	keywordColourIssues,
 	keywordPageIssues,
 	keywordPages,
-	keywordReleaseRegions,
 } from '../src/lib/keyword-rules.ts';
 import { routeOfHtmlFile } from '../src/lib/link-rules.ts';
 import { pages } from '../src/lib/pages.ts';
@@ -66,9 +64,8 @@ const perPage = [...byRoute.entries()].flatMap(([route, spec]) => {
 			`${route}: the §4.4 skeleton — H1, the argument sections, one \`Learn more\`, the in-page FAQ, the back anchor, the red lines`,
 		],
 		[headIssues(page, { description: spec.description, title }), `${route}: the §2.6 meta description and the og pair`],
-		[releaseStatusIssues(page, keywordReleaseRegions(page)), `${route}: no release status in the page's own copy`],
 		[keywordColourIssues(page), `${route}: text only in the §5.5 audited roles on the page background`],
-		[finalCtaIssues(page), `${route}: the shared final CTA — the §3.8 copy, the GitHub action and the passive pill`],
+		[finalCtaIssues(page), `${route}: the shared final CTA — the §4.5 copy, the chip CTA and the GitHub text link`],
 	];
 });
 

@@ -1,20 +1,21 @@
 ---
 // The one header every page carries (SPEC §2.2): wordmark → Use cases ▾ → Docs → GitHub →
-// `coming soon` pill. The dropdown and the hamburger are disclosures — real <button>s
-// carrying aria-expanded/aria-controls, panels closed in the markup and toggled by the small
-// script below. No JS leaves the shell as it renders; the footer still carries every target.
+// the version badge. The badge is the single published state (SPEC-revamp §4.2): a mono, hairline
+// pill reading `v{version}` from `src/lib/version.ts`, linking the releases page. The dropdown and
+// the hamburger are disclosures — real <button>s carrying aria-expanded/aria-controls, panels
+// closed in the markup and toggled by the small script below. No JS leaves the shell as it
+// renders; the footer still carries every target.
 import { LINKS } from '../lib/links.ts';
 import { useCaseItems } from '../lib/navigation.ts';
+import { versionLabel } from '../lib/version.ts';
 import Chevron from './icons/Chevron.astro';
 import Menu from './icons/Menu.astro';
 
 const navLink = 'text-base text-ink2 transition-colors hover:text-ink';
 const trigger = `flex items-center gap-1 ${navLink}`;
-const pill = 'bg-acc-lo px-3 py-1 text-xs font-semibold text-acc-h';
-// The release-status badge is a §6.2 switch point: stated once so the publishing flip is one
-// edit here, not two. The shell gate keeps its own copy (src/lib/shell-rules.ts), so the page
-// and its gate cannot agree by construction.
-const pillLabel = 'coming soon';
+// SPEC-revamp §4.2: mono, hairline edge; hover moves colour only (SPEC-revamp §2.5).
+const pill =
+	'box px-2.5 py-0.5 font-mono text-xs text-ink2 transition-colors hover:border-acc hover:text-acc';
 const itemLink = 'block px-3 py-2 transition-colors hover:bg-bg2';
 ---
 <header id="site-header" class="z-50">
@@ -42,7 +43,7 @@ const itemLink = 'block px-3 py-2 transition-colors hover:bg-bg2';
 			</div>
 			<a href={LINKS.docs} class={navLink}>Docs</a>
 			<a href={LINKS.github} class={navLink}>GitHub</a>
-			<span class={pill}>{pillLabel}</span>
+			<a href={LINKS.releases} data-version-pill class={pill}>{versionLabel}</a>
 		</nav>
 
 		<button
@@ -78,7 +79,7 @@ const itemLink = 'block px-3 py-2 transition-colors hover:bg-bg2';
 			</ul>
 			<a href={LINKS.docs} class="py-2 text-base text-ink2 hover:text-ink">Docs</a>
 			<a href={LINKS.github} class="py-2 text-base text-ink2 hover:text-ink">GitHub</a>
-			<span class={`${pill} mt-2 self-start`}>{pillLabel}</span>
+			<a href={LINKS.releases} data-version-pill class={`${pill} mt-2 self-start`}>{versionLabel}</a>
 		</nav>
 	</div>
 </header>

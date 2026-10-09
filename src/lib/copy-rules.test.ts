@@ -4,32 +4,10 @@ import { copyIssues, isKeywordPage, redLineIds, redLineRules } from './copy-rule
 
 const rules = (text: string, path = 'index.html') => copyIssues([{ path, text }]);
 
-test('every install-class shape the spec lists is caught', () => {
-	for (const command of [
-		'npm install @oribos/core',
-		'npm i @oribos/core',
-		'pnpm add @oribos/core',
-		'pnpm install',
-		'bun add @oribos/core',
-		'yarn add @oribos/core',
-		'npx create-oribos',
-		'git clone https://github.com/0xnicholas/oribos-framework',
-	]) {
-		assert.ok(rules(`<p>${command}</p>`).length > 0, `expected a finding for \`${command}\``);
-	}
-});
-
-test('a package manager near `install` reads as a command; plain prose does not', () => {
-	assert.ok(rules('First, install the package with npm.').length > 0);
-	assert.deepEqual(rules('Each team installs only what it uses.'), []);
-	assert.deepEqual(rules('Read the installation notes in the repository.'), []);
-});
-
-test('import lines and package names are not install commands', () => {
-	assert.deepEqual(
-		rules("import { Agent } from '@oribos/core/agent';\nimport { openai } from '@ai-sdk/openai';"),
-		[],
-	);
+test('the retired `coming soon` status is caught anywhere', () => {
+	assert.ok(rules('<p>Coming soon: agents inside your product.</p>').length > 0);
+	assert.ok(rules('<p>The first version is coming soon.</p>').length > 0);
+	assert.deepEqual(rules('<p>Every capability package ships alongside the core.</p>'), []);
 });
 
 test('competitor and reference-site names are found, case-insensitively', () => {
@@ -85,12 +63,13 @@ test('one finding per rule per line, not one per occurrence', () => {
 	assert.equal(found.length, 1);
 });
 
-test('the §9.2 red-line set is the six site-wide rules, keyword-page scope excluded', () => {
+test('the §9.2 red-line set is the five site-wide rules, keyword-page scope excluded', () => {
 	assert.deepEqual(
 		[...redLineIds],
-		['install-command', 'competitor-name', 'counting-figure', 'mit-license', 'retired-scope', 'retired-name'],
+		['competitor-name', 'counting-figure', 'mit-license', 'retired-scope', 'retired-name'],
 	);
 	assert.ok(redLineRules.length > 0);
 	assert.ok(redLineRules.every((rule) => (redLineIds as readonly string[]).includes(rule.id)));
 	assert.ok(!redLineRules.some((rule) => rule.id === 'rag-evals'));
+	assert.ok(!redLineRules.some((rule) => rule.id === 'coming-soon'));
 });

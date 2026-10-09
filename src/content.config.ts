@@ -6,6 +6,8 @@
  * Collections so far:
  *   - `hero`          — the home hero's H1 and sub (SPEC §3.1 【终稿·勿改】)
  *   - `finalCta`      — the shared final CTA's heading and sub (SPEC §3.8)
+ *   - `agentPrompt`   — the chip CTA's visible face and its hidden payload (SPEC-revamp §4.3),
+ *                       rendered by the hero and the final CTA from this one entry
  *   - `features`      — the home feature tabs, one entry per tab (SPEC §3.2/§7.3)
  *   - `observability` — the observability band's copy and card claim (SPEC §3.3)
  *   - `socialProof`   — the social-proof placeholder band's copy (SPEC §3.4)
@@ -42,6 +44,19 @@ const finalCta = defineCollection({
 	schema: z.object({
 		heading: z.string(),
 		sub: z.string(),
+	}),
+});
+
+const agentPrompt = defineCollection({
+	loader: glob({ pattern: '*.json', base: './src/content/agent-prompt' }),
+	schema: z.object({
+		/** The chip's visible face (SPEC-revamp §4.3 【终稿·勿改】), one field per text slot. */
+		tag: z.string(),
+		button: z.string(),
+		task: z.string(),
+		cmeta: z.string(),
+		/** The hidden payload the copy button takes, verbatim (SPEC-revamp §4.3). */
+		payload: z.string(),
 	}),
 });
 
@@ -248,6 +263,7 @@ const traces = defineCollection({
 export const collections = {
 	hero,
 	finalCta,
+	agentPrompt,
 	features,
 	observability,
 	socialProof,

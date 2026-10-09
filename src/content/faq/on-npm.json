@@ -1,5 +1,5 @@
 {
 	"order": 2,
 	"question": "Is Oribos on npm yet?",
-	"answer": "Not yet. The first public release will be 0.5.0, with the framework and its capability packages shipping together. Until then, the repository on GitHub is where to follow along — star or watch it for release updates."
+	"answer": "Yes — Oribos is on npm. npm i @oribos/core installs the zero-dependency core, and every capability package ships alongside it under @oribos/* — add them one at a time, as you need them."
 }

@@ -13,6 +13,7 @@
 
 import { attributeValue, codeBlocksOf, elementOf, hasAttribute, missingCodeSurface, occurrences, textOf, times } from './html.ts';
 import { terminologyHits } from './terminology.ts';
+import { VERSION } from './version.ts';
 
 export type FeatureBullet = { lead: string; text: string };
 export type FeatureFile = { file: string; code: string };
@@ -30,7 +31,11 @@ export const featureKicker = "What's in the box";
 /** SPEC §3.2/§7.1: every feature card stops at ten lines. */
 export const maxFeatureLines = 10;
 
-/** SPEC §3.2 【终稿·勿改 for the Agents claim】 — the five panels, fixed order. */
+/**
+ * SPEC §3.2 【终稿·勿改 for the Agents claim】 — the five panels, fixed order. The MCP panel's
+ * `version` field is written from `src/lib/version.ts` (SPEC-revamp §4.6): the gate holds the
+ * rendered snippet to the same literal, so a bump shows up here and in the built page at once.
+ */
 export const features: readonly FeatureSpec[] = [
 	{
 		id: 'agents',
@@ -193,7 +198,7 @@ const app = createApp({
 				file: 'server.ts',
 				code: `import { createMcpServer } from '@oribos/mcp-server';
 
-const server = createMcpServer({ name: 'weather', version: '0.5.0', tools: { weather } });
+const server = createMcpServer({ name: 'weather', version: '${VERSION}', tools: { weather } });
 
 export default server.fetch;   // the same tools over MCP — HTTP or stdio`,
 			},

@@ -1,8 +1,10 @@
 /**
- * The red-line scan (SPEC §8.8 ④, §9.2) over the *built* site: install-class commands, names
- * the site never mentions, counting-style figures, the retired `MIT` license word, the retired
- * `@balsa/*` and `@balsats/*` scopes, the retired repository / domain names, and the RAG / evals line keyword
- * pages must not cross.
+ * The red-line scan (SPEC §8.8 ④, §9.2) over the *built* site: names the site never mentions,
+ * counting-style figures, the retired `MIT` license word, the retired `@balsa/*` and `@balsats/*`
+ * scopes, the retired repository / domain names, the retired `coming soon` release status
+ * (SPEC-revamp §4: one published state), and the RAG / evals line keyword pages must not cross.
+ * Install-class commands are not a red line any more — SPEC-revamp §4.6 holds them to two slots,
+ * and `src/lib/install-rules.ts` is that gate.
  *
  * The rules are stated once here and unit-tested; `scripts/check-copy.mjs` walks `dist/` and
  * prints the findings. The RAG / evals rule is page-scoped by design: the two mentions the
@@ -12,7 +14,6 @@
  * where SPEC §8.8 ⑤ already bans them in hrefs; the names themselves live in link-rules.ts.
  */
 
-import { textOf } from './html.ts';
 import { retiredNames } from './link-rules.ts';
 
 /** A built artifact to scan: its dist-relative path and its text. */
@@ -34,24 +35,9 @@ export const isKeywordPage = (path: string): boolean =>
 
 export const copyRules: readonly CopyRule[] = [
 	{
-		id: 'install-command',
-		reason: 'install-class commands are out until the publish switch is decided (SPEC §6.3)',
-		pattern: /\b(?:npm|pnpm|bun|yarn)\s+(?:install|i|add|create|link|dlx|exec|x)\b/i,
-	},
-	{
-		id: 'install-command',
-		reason: 'install-class commands are out until the publish switch is decided (SPEC §6.3)',
-		pattern: /\bnpx\b/i,
-	},
-	{
-		id: 'install-command',
-		reason: 'install-class commands are out until the publish switch is decided (SPEC §6.3)',
-		pattern: /\bgit\s+clone\b/i,
-	},
-	{
-		id: 'install-command',
-		reason: 'a package manager next to `install` reads as an install command (SPEC §6.3)',
-		pattern: /\binstall\b[^\n]{0,40}\b(?:npm|pnpm|bun|yarn)\b|\b(?:npm|pnpm|bun|yarn)\b[^\n]{0,40}\binstall\b/i,
+		id: 'coming-soon',
+		reason: 'the site carries one published state — `coming soon` is retired (SPEC-revamp §4)',
+		pattern: /coming\s+soon/i,
 	},
 	{
 		id: 'competitor-name',
@@ -101,42 +87,18 @@ export const copyRules: readonly CopyRule[] = [
 /** The keyword-page rule, exported so the FAQ and keyword gates hold their regions to the same line. */
 export const ragEvalsRule = copyRules.find((rule) => rule.id === 'rag-evals')!;
 
-/**
- * SPEC §6.2: nothing outside the three switch points names a release status — the scan the
- * page-family gates run over their pages' own copy. `regions` are the page's own sections
- * plus its meta description; the header pill, the final CTA and FAQ question 2 answer to
- * their own gates.
- */
-export function releaseStatusIssues(page: { path: string }, regions: readonly string[]): string[] {
-	const patterns: readonly { pattern: RegExp; reason: string }[] = [
-		{ pattern: /coming\s+soon/i, reason: 'release status lives in the header pill, the final CTA and FAQ question 2' },
-		{ pattern: /\bv?\d+\.\d+\.\d+\b/, reason: 'the page copy names no version' },
-		{ pattern: /\bpre-?release\b/i, reason: 'the page copy names no release state' },
-	];
-
-	const issues: string[] = [];
-	const text = textOf(regions.join('\n'));
-	for (const { pattern, reason } of patterns) {
-		const match = text.match(pattern);
-		if (match !== null) {
-			issues.push(`${page.path}: the page's own copy reads \`${match[0]}\` — no release status (${reason})`);
-		}
-	}
-	return issues;
-}
-
 /** Block comments only: `//` would eat the `https://` in a URL, and HTML is scanned as it is. */
-function withoutBlockComments(text: string): string {
+export function withoutBlockComments(text: string): string {
 	return text.replace(/\/\*[\s\S]*?\*\//g, ' ');
 }
 
 /**
  * SPEC §9.2: the site-wide red lines every section gate clears — the keyword-page-scoped
- * RAG / evals rule is not one of them (it has its own `appliesTo`). Named here, next to the
- * rules it selects, so the FAQ and use-case-page gates hold the same set.
+ * RAG / evals rule is not one of them (it has its own `appliesTo`), and neither is SPEC-revamp's
+ * retired `coming soon` status, which the site-wide scan catches on its own (SPEC-revamp §4).
+ * Named here, next to the rules it selects, so the FAQ and use-case-page gates hold the same set.
  */
 export const redLineIds = [
-	'install-command',
 	'competitor-name',
 	'counting-figure',
 	'mit-license',
@@ -148,7 +110,7 @@ export const redLineIds = [
 export const redLineRules = copyRules.filter((rule) => (redLineIds as readonly string[]).includes(rule.id));
 
 /** The 1-based line a match sits on, for a finding a human can act on. */
-function lineAt(text: string, index: number): number {
+export function lineAt(text: string, index: number): number {
 	return text.slice(0, index).split('\n').length;
 }
 

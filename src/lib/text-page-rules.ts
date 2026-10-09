@@ -528,16 +528,6 @@ export function aboutEntryIssues(pages: readonly TextPage[]): string[] {
 	});
 }
 
-/* ---------------------------------------------------------------- the release-status regions */
-
-/**
- * The text pages' own copy carries no release status beyond what the locked copy already says
- * (SPEC §6.2). These are the regions the scan covers; the header pill answers to the shell gate.
- */
-export function textPageReleaseRegions(page: TextPage): string[] {
-	return ownRegionsOf(page.html);
-}
-
 /* ---------------------------------------------------------------- the colours */
 
 /** SPEC §5.5 over the text pages' own sections: they read on the page background in the audited roles. */

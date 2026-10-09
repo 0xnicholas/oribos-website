@@ -1,0 +1,55 @@
+---
+// The chip-style agent prompt CTA (SPEC-revamp §4.3): a hairline box — the head row carries the
+// mono tag and the solid-accent copy button, the sub row the task sentence and the mono cmeta.
+// The payload (task statement + install + a 6-line Agent + stream + README pointer) hides behind
+// the copy button: clicking copies it verbatim and the button reads `✓ copied` for 1.2s. The
+// visible face and the payload live in the `agentPrompt` content entry, so the hero and the final
+// CTA render one definition of each. Without JS the chip shows and copies nothing.
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('agentPrompt', 'default');
+if (!entry) {
+	throw new Error('the chip CTA needs the agentPrompt entry (SPEC-revamp §4.3)');
+}
+const { tag, button, task, cmeta, payload } = entry.data;
+---
+<div class="box w-full max-w-xl bg-code-bg text-left" data-agent-prompt>
+	<div class="flex items-center justify-between gap-4 py-2 pr-2 pl-4">
+		<span class="font-mono text-xs tracking-wide text-ink3 uppercase" data-agent-prompt-tag>{tag}</span>
+		<button
+			type="button"
+			data-agent-prompt-copy
+			class="flex-none bg-acc px-4 py-2 text-xs font-semibold text-acc-inv transition-colors hover:bg-acc-h"
+		>
+			<span data-copy-label>{button}</span>
+		</button>
+	</div>
+	<p class="flex flex-col gap-1 border-t border-line px-4 py-3 text-xs text-ink2">
+		<span data-agent-prompt-task>{task}</span>
+		<span class="font-mono whitespace-nowrap text-ink3" data-agent-prompt-cmeta>{cmeta}</span>
+	</p>
+	<template data-agent-prompt-payload>{payload}</template>
+</div>
+
+<script>
+	import { wireCopyText } from '../lib/clipboard.ts';
+
+	for (const chip of document.querySelectorAll<HTMLElement>('[data-agent-prompt]')) {
+		const button = chip.querySelector<HTMLButtonElement>('[data-agent-prompt-copy]');
+		const label = button?.querySelector<HTMLElement>('[data-copy-label]');
+		const payload = chip.querySelector<HTMLTemplateElement>('[data-agent-prompt-payload]');
+		if (!button || !label || !payload) continue;
+
+		const idle = label.textContent ?? '';
+		wireCopyText(button, () => payload.content.textContent, {
+			onCopied: () => {
+				label.textContent = '✓ copied';
+				button.setAttribute('aria-label', 'Copied');
+			},
+			onReset: () => {
+				label.textContent = idle;
+				button.removeAttribute('aria-label');
+			},
+		});
+	}
+</script>

@@ -24,6 +24,7 @@ import {
 } from './html.ts';
 import { LINKS } from './links.ts';
 import { routeOf } from './link-rules.ts';
+import { versionLabel } from './version.ts';
 
 export type ShellPage = { path: string; html: string };
 
@@ -32,8 +33,6 @@ export const tagline =
 	'Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage.';
 /** SPEC §2.3 【终稿·勿改】: a static string, never a build-time year. */
 export const legalLine = '© 2026 Oribos · Apache-2.0';
-/** SPEC §2.2: passive status badge — not a link, no version, all lowercase. */
-export const comingSoon = 'coming soon';
 
 /** SPEC §2.2: the three dropdown items, titles verbatim. */
 export const useCaseItems = [
@@ -159,13 +158,34 @@ export function headerIssues(page: ShellPage): string[] {
 		}
 	}
 
-	// Order is fixed (SPEC §2.2): wordmark → the three items → Docs → GitHub → pill.
+	// The version badge (SPEC-revamp §4.2): a mono, hairline pill reading the one version
+	// constant, pointing at the releases page. A stray version literal beside it is a finding
+	// (SPEC-revamp §4.6).
+	const pill = header.match(/<a\b[^>]*\bdata-version-pill\b[^>]*>([\s\S]*?)<\/a>/i);
+	if (pill === null) {
+		issues.push(`${page.path}: the header has no version pill — the badge states the release (SPEC-revamp §4.2)`);
+	} else {
+		const label = textOf(pill[1]!);
+		if (label !== versionLabel) {
+			issues.push(`${page.path}: the version pill reads \`${label}\`, expected \`${versionLabel}\` — the one constant (SPEC-revamp §4.6)`);
+		}
+		const href = attributeValue(pill[0], 'href');
+		if (href !== LINKS.releases) {
+			issues.push(`${page.path}: the version pill points at ${href ?? 'nothing'}, not ${LINKS.releases} (SPEC-revamp §4.2)`);
+		}
+		const classes = attributeValue(pill[0], 'class') ?? '';
+		if (!classes.includes('font-mono') || !classes.includes('box')) {
+			issues.push(`${page.path}: the version pill is not a mono, hairline badge (SPEC-revamp §4.2)`);
+		}
+	}
+
+	// Order is fixed (SPEC §2.2): wordmark → the three items → Docs → GitHub → the pill.
 	const order = [
 		wordmarkLink,
 		...useCaseItems.map((item) => links.find((candidate) => candidate.href === item.href)),
 		navLinks.Docs,
 		navLinks.GitHub,
-		{ index: header.indexOf(comingSoon), text: comingSoon },
+		pill === null ? undefined : { index: pill.index ?? -1, text: versionLabel },
 	].filter((entry): entry is MarkupLink => entry !== undefined && entry.index !== -1);
 	if (order.length === 7) {
 		for (let index = 1; index < order.length; index += 1) {
@@ -185,19 +205,10 @@ export function headerIssues(page: ShellPage): string[] {
 		}
 	}
 
-	if (links.some((candidate) => candidate.text.includes(comingSoon))) {
-		issues.push(`${page.path}: \`${comingSoon}\` is a passive status badge — never a link (SPEC §2.2)`);
-	}
-	for (const match of text.matchAll(/coming\s+soon/gi)) {
-		if (match[0] !== comingSoon) {
-			issues.push(`${page.path}: the pill reads \`${match[0]}\` — it stays all lowercase (SPEC §2.2)`);
-		}
-	}
-	if (!text.includes(comingSoon)) {
-		issues.push(`${page.path}: the header has no \`${comingSoon}\` pill (SPEC §2.2)`);
-	}
-	if (/\bv?\d+\.\d+\.\d+\b/.test(text)) {
-		issues.push(`${page.path}: the header carries a version number — the pill takes none (SPEC §2.2)`);
+	for (const match of text.split(versionLabel).join(' ').matchAll(/\bv?\d+\.\d+\.\d+\b/g)) {
+		issues.push(
+			`${page.path}: the header reads \`${match[0]}\` besides the \`${versionLabel}\` pill — versions come from the one constant (SPEC-revamp §4.6)`,
+		);
 	}
 
 	for (const id of disclosureIds) {
