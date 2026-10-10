@@ -15,7 +15,7 @@ const { kicker, links } = Astro.props;
 <section id="resources" data-resources class="scroll-mt-20 border-t border-line py-24">
 	<div class="wrap">
 		<p class="text-base font-semibold tracking-wide text-acc">{kicker}</p>
-		<ul class="mt-8 grid gap-6 md:grid-cols-3">
+		<ul class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
 			{
 				links.map((link) => (
 					<li class="box p-6">
