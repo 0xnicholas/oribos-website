@@ -4,9 +4,7 @@
 // the whole card (`after:inset-0`) plus its one verbatim claim. The mocks reuse the hero window's
 // component language and name no product, no logo and no person. No script: the section works
 // without JS.
-import MockChat from './mocks/MockChat.astro';
-import MockThread from './mocks/MockThread.astro';
-import MockTraceConsole from './mocks/MockTraceConsole.astro';
+import { mockComponents } from './mocks/index.ts';
 
 export interface UseCaseCard {
 	title: string;
@@ -22,7 +20,6 @@ export interface Props {
 }
 
 const { heading, sub, cards } = Astro.props;
-const mocks = { chat: MockChat, thread: MockThread, console: MockTraceConsole };
 ---
 <section id="use-cases" data-use-cases class="scroll-mt-20 border-t border-line py-24">
 	<div class="wrap">
@@ -31,7 +28,7 @@ const mocks = { chat: MockChat, thread: MockThread, console: MockTraceConsole };
 		<ul class="mt-10 grid gap-6 md:grid-cols-3">
 			{
 				cards.map((card) => {
-					const Mock = mocks[card.mock];
+					const Mock = mockComponents[card.mock];
 					return (
 						<li
 							data-use-case-card

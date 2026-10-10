@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
- * The use-case-page gate (SPEC §4.3/§2.6/§5.5/§9.2) over the built use-case pages: the shared
- * header art — one abstract warm-paper banner with amber orbit / span geometry, no copy, no
- * logo, token-painted and identical on every page — then the skeleton in order: the H1 +
- * tagline verbatim, the three scenario cards with their `→` package lines (every package its
- * own inline-code chip), the shared final CTA with the §4.5 copy, and the `← All use cases`
- * back link. The pages keep their red lines — no code block, no social-proof band, no
- * breadcrumbs, the CONTEXT.md vocabulary and the `@oribos/*` scope — state the §2.6 meta
- * description and og pair, paint text only in the §5.5 audited roles, and clear AA on the chip
- * pair in both themes. Registered pages the build does not have yet are reported as pending,
- * like the shell gate. The rules live in `src/lib/scenario-rules.ts`; the FAQ itself answers to
- * check-faq.mjs on these pages too.
+ * The use-case-page gate (SPEC-revamp §5.1; copy per SPEC §4.3/§2.6/§5.5/§9.2) over the built
+ * use-case pages: the page head — H1 + tagline verbatim plus the page's one host-interface
+ * header mock (chat window / approval thread / trace console, the home card's mock reused
+ * as-is — the reuse itself is check-usecases.mjs's assertion) — then the skeleton in order:
+ * the three scenario cards with their `→` package lines (every package its own inline-code
+ * chip), the global FAQ ×9, the shared final CTA with the §4.5 copy, and the `← All use cases`
+ * back link. The v1 shared abstract header art is retired — a tombstone here. The pages keep
+ * their red lines — no code block, no social-proof band, no breadcrumbs, the CONTEXT.md
+ * vocabulary and the `@oribos/*` scope — state the §2.6 meta description and og pair, paint
+ * text only in the §5.5 audited roles outside the mock, and clear AA on the chip pair in both
+ * themes. Registered pages the build does not have yet are reported as pending, like the shell
+ * gate. The rules live in `src/lib/scenario-rules.ts`; the FAQ itself answers to check-faq.mjs
+ * on these pages too.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-scenarios.mjs [--root <dir>] [--dist <dir>]
@@ -25,7 +27,6 @@ import { pages } from '../src/lib/pages.ts';
 import {
 	carriesUseCasePage,
 	scenarioContrastIssues,
-	sharedArtIssues,
 	useCaseColourIssues,
 	useCasePageIssues,
 	useCasePages,
@@ -76,7 +77,7 @@ const perPage = [...byRoute.entries()].flatMap(([route, spec]) => {
 	return [
 		[
 			useCasePageIssues(page, spec),
-			`${route}: the §4.3 skeleton — shared art, H1 + tagline, three scenario cards with their package lines, the back link`,
+			`${route}: the §5.1 skeleton — the page head (H1 + tagline + header mock), three scenario cards with their package lines, the FAQ, the final CTA, the back link`,
 		],
 		[headIssues(page, { description: spec.description, title }), `${route}: the §2.6 meta description and the og pair`],
 		[useCaseColourIssues(page), `${route}: text only in the §5.5 audited roles on the page background`],
@@ -86,8 +87,7 @@ const perPage = [...byRoute.entries()].flatMap(([route, spec]) => {
 
 const checks = [
 	...perPage,
-	[stray.map((page) => `${page.path}: carries the scenario skeleton but is not in src/lib/scenario-rules.ts's registry (SPEC §2.1/§4.3)`), 'registry: every scenario page is a registered use-case page'],
-	[sharedArtIssues(builtUseCasePages), `shared art: one abstract banner across the ${builtUseCasePages.length} built use-case page(s)`],
+	[stray.map((page) => `${page.path}: carries the scenario skeleton but is not in src/lib/scenario-rules.ts's registry (SPEC §2.1, SPEC-revamp §5.1)`), 'registry: every scenario page is a registered use-case page'],
 	[scenarioContrastIssues(tokens), 'package chips: the rendered pair clears AA in both themes (SPEC §4.3/§5.5)'],
 ];
 
@@ -99,7 +99,7 @@ if (pending.length > 0) {
 }
 
 failGate(issues, {
-	summary: `use-case-page problem(s) (SPEC §4.3/§2.6/§5.5/§9.2).`,
+	summary: `use-case-page problem(s) (SPEC-revamp §5.1, SPEC §2.6/§4.3/§5.5/§9.2).`,
 	hint: 'The pages read their copy from src/content/use-cases/; the spec copy lives in src/lib/scenario-rules.ts.',
 });
 console.log('\nUse-case pages hold.');

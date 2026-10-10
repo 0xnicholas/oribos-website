@@ -51,11 +51,11 @@ An agent whose approval-listed tool calls suspend the run as a human approval ga
 A documentation category name, not a module: the trio of durable agents, signals, and schedules.
 
 **用例页 (Use-case page)**:
-首页 use-case 卡片的展开页,每卡一页(首发三页);讲单一应用场景的完整论证。
+首页 use-case 卡片的展开页,每卡一页(首发三页);讲单一应用场景的完整论证。页头 = 该页对应的宿主界面 mock(与首页卡面同一张,每页一张:聊天窗 / 审批线程 / trace 控制台)。
 _Avoid_: 案例页、customers 页(Oribos 无客户案例)
 
 **场景卡 (Scenario card)**:
-用例页正文的卡片单元,代替客户故事卡:场景名 + 2–3 句「用 Oribos 怎么搭」+ 用到的子系统/包名(首发每页三张);配图为宿主界面 mock。
+用例页正文的卡片单元,代替客户故事卡:场景名 + 2–3 句「用 Oribos 怎么搭」+ 用到的子系统/包名(首发每页三张);纯文字,无配图。
 _Avoid_: 客户故事卡、案例卡(Oribos 无客户案例);能力清单(能力维度归 feature tabs)
 
 **关键词页 (Keyword page)**:

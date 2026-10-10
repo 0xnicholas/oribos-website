@@ -7,7 +7,9 @@
  * generic-UI line (no image, no logo, no fake control, no real name), keep the figures decorative
  * (no size, count or star claim even in the mock data), restrict every colour to the roles the
  * mock pairs measure, audit those pairs against the shipped token layer in both themes, and keep
- * the keyboard path the card links rely on — the site-wide visible focus ring — shipping.
+ * the keyboard path the card links rely on — the site-wide visible focus ring — shipping. The
+ * mocks are also each use-case page's header mock (SPEC-revamp §5.1): the reuse check below holds
+ * every page head's window byte-identical to its card's, so the two render sites cannot drift.
  *
  * Like the hero, feature and band rules, the strings here are the spec's copy — deliberately not
  * read from the content collections that render them, so the page and its gate cannot agree by
@@ -78,6 +80,46 @@ function useCaseCardsOf(section: string): string[] {
 function openingTagOf(fragment: string, marker: string): string | null {
 	const pattern = new RegExp(`<[a-z][a-z0-9-]*\\b[^>]*\\b${marker}(?![\\w-])[^>]*>`, 'i');
 	return fragment.match(pattern)?.[0] ?? null;
+}
+
+/**
+ * The outer HTML of a fragment's `data-mock-window` element, or `null`. Unlike `elementOf`, the
+ * walk tracks nested `<div>`s — the mock bodies are div trees. Attribute values with a `>` would
+ * still end a tag early, as everywhere in `html.ts`; the mocks carry none.
+ */
+function mockWindowOf(fragment: string): string | null {
+	const start = fragment.search(/<div\b[^>]*\bdata-mock-window\b[^>]*>/i);
+	if (start === -1) return null;
+	let depth = 0;
+	for (const match of fragment.slice(start).matchAll(/<div\b[^>]*?>|<\/div\s*>/gi)) {
+		const tag = match[0];
+		depth += tag.startsWith('</') ? -1 : tag.endsWith('/>') ? 0 : 1;
+		if (depth === 0) return fragment.slice(start, start + match.index + tag.length);
+	}
+	return null;
+}
+
+/** Whether the string names one of the §3.5 mock kinds. */
+function isMockKind(kind: string | null): kind is MockKind {
+	return kind === 'chat' || kind === 'thread' || kind === 'console';
+}
+
+/**
+ * SPEC-revamp §5.1: the home cards' mock windows by kind — the windows the use-case pages' heads
+ * reuse as-is. Missing cards and windows are the section checks' findings; this only reads.
+ */
+export function cardMockWindows(home: UseCasePage): Partial<Record<MockKind, string>> {
+	const section = sectionOf(home);
+	if (section === null) return {};
+
+	const windows: Partial<Record<MockKind, string>> = {};
+	for (const card of useCaseCardsOf(section)) {
+		const kind = attributeValue(card.slice(0, card.indexOf('>') + 1), 'data-mock');
+		if (!isMockKind(kind)) continue;
+		const window = mockWindowOf(card);
+		if (window !== null) windows[kind] = window;
+	}
+	return windows;
 }
 
 /* ---------------------------------------------------------------- the checks */
@@ -372,6 +414,37 @@ const claimFigures: readonly RegExp[] = [
 	/\b\d[\d,]*\s*(?:stars?|downloads?|users?|customers?|tests?|benchmarks?)\b/i,
 	/\b(?:two|three|four|five|six|seven|eight|nine|ten)\s+(?:fields|packages|dependencies|modules|subsystems|tests?|stars|downloads|users|customers)\b/i,
 ];
+
+/* ---------------------------------------------------------------- the page-head reuse */
+
+/**
+ * SPEC-revamp §5.1: every use-case page's header mock is its home card's mock, reused as-is —
+ * the page head's `data-use-case-mock` figure holds a window byte-identical to the card's.
+ * Silence is the finding-free case, but also the not-applicable one: a missing figure, an
+ * unmapped kind or a missing window on a page is the scenario gate's finding, and a home
+ * without its section is this gate's own — this check only compares what both sides render.
+ */
+export function headerMockReuseIssues(home: UseCasePage, pages: readonly UseCasePage[]): string[] {
+	const windows = cardMockWindows(home);
+	const issues: string[] = [];
+
+	for (const page of pages) {
+		const figure = elementOf(page.html, 'figure', 'data-use-case-mock');
+		if (figure === null) continue;
+		const kind = attributeValue(figure.slice(0, figure.indexOf('>') + 1), 'data-use-case-mock');
+		if (!isMockKind(kind)) continue;
+		const window = mockWindowOf(figure);
+		const expected = windows[kind];
+		if (window === null || expected === undefined) continue;
+		if (window !== expected) {
+			issues.push(
+				`${page.path}: the header mock is not the home card's \`${kind}\` mock — the page head reuses the §3.5 card mock as-is (SPEC-revamp §5.1)`,
+			);
+		}
+	}
+
+	return issues;
+}
 
 /* ---------------------------------------------------------------- the colours */
 

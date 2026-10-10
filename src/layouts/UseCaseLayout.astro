@@ -1,14 +1,15 @@
 ---
-// The use-case pages' skeleton (SPEC §4.3): the shared header art, H1 + tagline, the three
-// scenario cards — name, 2–3 sentences and the `→` package line, every package its own
-// inline-code chip, `·`-separated — then the shared final CTA, the global FAQ ×9 and the
-// `← All use cases` back link. One layout so the three pages cannot drift apart; no code
-// blocks, no social-proof band, no breadcrumbs. The FAQ and the final CTA come from the same
-// collections the home page reads, verbatim and unabridged.
+// The use-case pages' skeleton (SPEC-revamp §5.1): the page head — H1 + tagline + the page's
+// host-interface header mock (the same mock its home card carries, one per page: chat window,
+// approval thread, trace console) — then the three scenario cards — name, 2–3 sentences and the
+// `→` package line, every package its own inline-code chip, `·`-separated — the global FAQ ×9,
+// the shared final CTA and the `← All use cases` back link. One layout so the three pages
+// cannot drift apart; no code blocks, no social-proof band, no breadcrumbs. The FAQ and the
+// final CTA come from the same collections the home page reads, verbatim and unabridged.
 import { getCollection, getEntry } from 'astro:content';
 import FaqList from '../components/FaqList.astro';
 import FinalCta from '../components/FinalCta.astro';
-import UseCaseArt from '../components/UseCaseArt.astro';
+import { mockComponents } from '../components/mocks/index.ts';
 import MarketingLayout from './MarketingLayout.astro';
 
 export interface ScenarioCard {
@@ -22,10 +23,13 @@ export interface Props {
 	description: string;
 	h1: string;
 	tagline: string;
+	/** Which host-interface mock heads the page (SPEC-revamp §5.1's mapping). */
+	mock: 'chat' | 'thread' | 'console';
 	scenarios: readonly ScenarioCard[];
 }
 
-const { title, description, h1, tagline, scenarios } = Astro.props;
+const { title, description, h1, tagline, mock, scenarios } = Astro.props;
+const Mock = mockComponents[mock];
 
 const finalCta = await getEntry('finalCta', 'default');
 const faq = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
@@ -34,12 +38,14 @@ if (!finalCta || faq.length !== 9) {
 }
 ---
 <MarketingLayout title={title} description={description}>
-	<UseCaseArt />
 	<section data-use-case-hero class="px-6 py-18">
 		<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
 			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
 			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg text-ink2">{tagline}</p>
 		</div>
+		<figure data-use-case-mock={mock} class="mx-auto mt-12 max-w-2xl">
+			<Mock />
+		</figure>
 	</section>
 	<section data-scenarios class="border-t border-line py-24">
 		<div class="wrap">
@@ -66,8 +72,8 @@ if (!finalCta || faq.length !== 9) {
 			</ul>
 		</div>
 	</section>
-	<FinalCta heading={finalCta.data.heading} sub={finalCta.data.sub} />
 	<FaqList items={faq.map((entry) => entry.data)} />
+	<FinalCta heading={finalCta.data.heading} sub={finalCta.data.sub} />
 	<section data-use-case-back class="border-t border-line py-12">
 		<div class="wrap">
 			<a href="/#use-cases" class="text-base font-semibold text-acc hover:underline">← All use cases</a>

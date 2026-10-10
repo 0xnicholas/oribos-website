@@ -1,16 +1,21 @@
 /**
- * The use-case pages (SPEC §4.3) over the built site: the shared header art — one abstract
- * neutral banner with amber orbit / span geometry, no copy, no logo, painted with the brand
- * tokens and identical on every use-case page — then the skeleton in order: H1 (the home card's
- * title) + tagline, the three scenario cards (name, 2–3 sentences, the `→` package line with
- * every package its own inline-code chip), the shared final CTA, the global FAQ ×9 and the
- * `← All use cases` back link. The page keeps its red lines: no code block, no social-proof
- * band, no breadcrumbs. The head carries the §2.6 meta description and the og pair.
+ * The use-case pages (SPEC-revamp §5.1, copy per v1 §4.3) over the built site: the page head —
+ * H1 (the home card's title) + tagline + the page's host-interface header mock, the same mock
+ * its home card carries (SPEC §3.5), one per page: chat window → /in-product-agents, approval
+ * thread → /operations-agents, trace console → /developer-infrastructure — then the skeleton in
+ * order: the three scenario cards (name, 2–3 sentences, the `→` package line with every package
+ * its own inline-code chip), the global FAQ ×9, the shared final CTA and the `← All use cases`
+ * back link. The v1 shared abstract header art is retired — a tombstone here. The page keeps its
+ * red lines: no code block, no social-proof band, no breadcrumbs. The head carries the §2.6 meta
+ * description and the og pair.
  *
  * The §9.3 vocabulary guards hold the pages' prose; the package line names subsystems, so it is
  * checked for shape (`→`, `·` separators, one chip per package) and scope (every `@scope/name`
  * is `@oribos/*`) rather than for prose vocabulary — §4.3's own note renders two of its labels
- * as English phrases.
+ * as English phrases. The header mock's decorative UI text and colours are the §3.5 gate's
+ * subject (`src/lib/use-case-rules.ts`), so the prose and colour scans here skip the mock
+ * figure; the mock's reuse itself — the page head's window is the home card's, as-is — is the
+ * home gate's assertion (`headerMockReuseIssues` there).
  *
  * Like the hero, feature, band and FAQ rules, the strings here are the spec's copy —
  * deliberately not read from the content collections that render them, so the page and its gate
@@ -23,6 +28,7 @@ import { sectionColourIssues } from './colour-rules.ts';
 import { redLineRules, ruleMatches } from './copy-rules.ts';
 import { attributeValue, elementOf, linksOf, markersInOrder, tagsOf, textOf } from './html.ts';
 import { terminologyHits } from './terminology.ts';
+import type { MockKind } from './use-case-rules.ts';
 
 export type ScenarioPage = { path: string; html: string };
 export type ScenarioCardSpec = { name: string; text: string; packages: readonly string[] };
@@ -35,6 +41,8 @@ export type UseCasePageSpec = {
 	tagline: string;
 	/** The §2.6 meta description — og:description reuses it. */
 	description: string;
+	/** The header mock's kind — the home card's mock the page head reuses (SPEC-revamp §5.1). */
+	mock: MockKind;
 	/** The three scenario cards, in page order (SPEC §4.3 【终稿·勿改】). */
 	scenarios: readonly ScenarioCardSpec[];
 };
@@ -43,7 +51,11 @@ export type UseCasePageSpec = {
 export const backLinkText = '← All use cases';
 export const backLinkHref = '/#use-cases';
 
-/** SPEC §4.3 + §2.6: the three use-case pages' locked copy, in §3.5 card order. */
+/**
+ * SPEC §4.3 + §2.6: the three use-case pages' locked copy, in §3.5 card order. The mock is the
+ * §5.1 mapping — chat window → /in-product-agents, thread → /operations-agents, console →
+ * /developer-infrastructure — the same table the home cards' gate restates in §3.5's terms.
+ */
 export const useCasePages: readonly UseCasePageSpec[] = [
 	{
 		route: '/in-product-agents/',
@@ -51,6 +63,7 @@ export const useCasePages: readonly UseCasePageSpec[] = [
 		tagline: 'Answer your users, act inside your product, hand off to a human.',
 		description:
 			'Embed an assistant in the app you already run — streaming, tool calls and human handoff, with no second service to operate.',
+		mock: 'chat',
 		scenarios: [
 			{
 				name: 'Answer, streamed into your UI',
@@ -75,6 +88,7 @@ export const useCasePages: readonly UseCasePageSpec[] = [
 		tagline: 'Bring your tools in over MCP, gate risky actions on approval, wake the agent on a schedule.',
 		description:
 			'Agents that handle the busywork around your team — MCP tools, approval gates and schedules, with a human on the risky steps.',
+		mock: 'thread',
 		scenarios: [
 			{
 				name: 'Bring your tools in, unchanged',
@@ -99,6 +113,7 @@ export const useCasePages: readonly UseCasePageSpec[] = [
 		tagline: 'Ship primitives other teams build on — each team installs only what it uses.',
 		description:
 			'Shared agent primitives your product teams compose — subpath imports, capability packages added one at a time, OTLP observability.',
+		mock: 'console',
 		scenarios: [
 			{
 				name: 'Primitives, not a platform',
@@ -126,8 +141,10 @@ export function carriesUseCasePage(html: string): boolean {
 	return elementOf(html, 'section', 'data-scenarios') !== null;
 }
 
-function artOf(html: string): string | null {
-	return elementOf(html, 'figure', 'data-use-case-art');
+/** The page html minus the header mock figure — the mock's text and colours are the §3.5 gate's subject. */
+function withoutHeaderMock(html: string): string {
+	const figure = elementOf(html, 'figure', 'data-use-case-mock');
+	return figure === null ? html : html.replace(figure, ' ');
 }
 
 function scenarioCardsOf(section: string): string[] {
@@ -145,11 +162,11 @@ function proseOf(html: string): string {
 
 /* ---------------------------------------------------------------- the skeleton */
 
-/** SPEC §4.3: the art, the hero, the three cards, the page order and the red lines. */
+/** SPEC-revamp §5.1: the header mock, the hero, the three cards, the page order and the red lines. */
 export function useCasePageIssues(page: ScenarioPage, spec: UseCasePageSpec): string[] {
 	const issues: string[] = [];
 
-	issues.push(...artIssues(page));
+	issues.push(...mockIssues(page, spec));
 	issues.push(...heroIssues(page, spec));
 	issues.push(...cardIssues(page, spec));
 	issues.push(...orderIssues(page));
@@ -160,60 +177,64 @@ export function useCasePageIssues(page: ScenarioPage, spec: UseCasePageSpec): st
 	return issues;
 }
 
-/** SPEC §4.3 页头图: one shared abstract banner — no copy, no logo, brand tokens only. */
-function artIssues(page: ScenarioPage): string[] {
-	const figures = [...page.html.matchAll(/<figure\b[^>]*\bdata-use-case-art\b[^>]*>/gi)];
-	if (figures.length === 0) {
-		return [`${page.path}: no shared header art — the use-case pages carry one abstract banner (SPEC §4.3)`];
-	}
-	if (figures.length > 1) {
-		return [`${page.path}: ${figures.length} header-art figures — the page carries the one shared banner (SPEC §4.3)`];
-	}
-
+/**
+ * SPEC-revamp §5.1 页头 mock 上位: one host-interface mock per page head — the home card's mock,
+ * wearing the Swiss box hairline frame — mapped chat → /in-product-agents, thread →
+ * /operations-agents, console → /developer-infrastructure. The v1 shared abstract art is retired.
+ */
+function mockIssues(page: ScenarioPage, spec: UseCasePageSpec): string[] {
 	const issues: string[] = [];
-	const art = artOf(page.html)!;
-	const opening = figures[0]![0];
 
-	if (attributeValue(opening, 'aria-hidden') !== 'true') {
-		issues.push(`${page.path}: the header art is not hidden from assistive technology — it is decoration, no copy (SPEC §4.3)`);
+	if (/\bdata-use-case-art\b/.test(page.html)) {
+		issues.push(`${page.path}: the retired shared header art is still on the page — the page head carries the host-interface mock now (SPEC-revamp §5.1)`);
 	}
 
-	const viewBox = attributeValue(art.match(/<svg\b[^>]*>/i)?.[0] ?? '', 'viewBox');
-	if (viewBox !== '0 0 1600 600') {
-		issues.push(`${page.path}: the header art's viewBox is \`${viewBox ?? 'nothing'}\` — not the 1600×600 banner (SPEC §4.3)`);
+	const openings = [...page.html.matchAll(/<figure\b[^>]*\bdata-use-case-mock\b[^>]*>/gi)].map((match) => match[0]);
+	if (openings.length === 0) {
+		issues.push(`${page.path}: no header mock — the page head is H1 + tagline + the page's host-interface mock (SPEC-revamp §5.1)`);
+		return issues;
+	}
+	if (openings.length > 1) {
+		issues.push(`${page.path}: ${openings.length} header mocks — the page head carries one (SPEC-revamp §5.1)`);
+		return issues;
 	}
 
-	for (const tag of ['text', 'image', 'img'] as const) {
-		const count = tagsOf(art, tag).length;
-		if (count > 0) {
-			issues.push(`${page.path}: the header art carries <${tag}> — no copy, no logo, no third-party name (SPEC §4.3)`);
+	const kind = attributeValue(openings[0]!, 'data-use-case-mock');
+	if (kind !== spec.mock) {
+		issues.push(
+			`${page.path}: the header mock is \`${kind ?? 'unmarked'}\`, expected \`${spec.mock}\` — chat → /in-product-agents, thread → /operations-agents, console → /developer-infrastructure (SPEC-revamp §5.1)`,
+		);
+	}
+
+	const hero = elementOf(page.html, 'section', 'data-use-case-hero');
+	const figure = elementOf(page.html, 'figure', 'data-use-case-mock')!;
+	if (hero === null || !hero.includes(figure)) {
+		issues.push(`${page.path}: the header mock sits outside the page head — H1 + tagline + the mock are one block (SPEC-revamp §5.1)`);
+	} else if (hero.indexOf('data-use-case-tagline') > hero.indexOf('data-use-case-mock')) {
+		issues.push(`${page.path}: the header mock does not follow the tagline — the page head reads H1 → tagline → mock (SPEC-revamp §5.1)`);
+	}
+
+	const windows = tagsOf(figure, 'div').filter((tag) => /\bdata-mock-window\b/.test(tag));
+	if (windows.length !== 1) {
+		issues.push(`${page.path}: the header mock carries ${windows.length} mock windows — one (SPEC-revamp §5.1)`);
+	} else {
+		const classes = (attributeValue(windows[0]!, 'class') ?? '').split(/\s+/);
+		if (!classes.includes('box')) {
+			issues.push(`${page.path}: the header mock's window does not wear the box hairline frame (SPEC-revamp §5.1/§2.2)`);
 		}
-	}
-	if (textOf(art) !== '') {
-		issues.push(`${page.path}: the header art reads \`${textOf(art)}\` — no copy (SPEC §4.3)`);
-	}
-
-	const paints = [...art.matchAll(/\b(?:fill|stroke)\s*=\s*"([^"]*)"/gi)].map((match) => match[1]!);
-	for (const paint of paints) {
-		if (paint !== 'none' && !/^var\(--(?:bg2?|ink[23]?|line|acc(?:-h|-lo|-inv)?|code-bg)\)$/.test(paint)) {
-			issues.push(`${page.path}: the header art paints with \`${paint}\` — the brand tokens are the palette (SPEC §4.3/§2.1)`);
+		if (!classes.includes('bg-bg2')) {
+			issues.push(`${page.path}: the header mock's window has no surface — the mock window pair is the one the AA audit measures (SPEC §3.5/§5.5)`);
 		}
-	}
-	if (!paints.some((paint) => /^var\(--acc\)$/.test(paint))) {
-		issues.push(`${page.path}: the header art has no amber geometry — the orbit / span shapes are the accent (SPEC §4.3)`);
-	}
-	if (!paints.some((paint) => paint === 'var(--bg2)' || paint === 'var(--bg)')) {
-		issues.push(`${page.path}: the header art has no neutral base (SPEC §4.3)`);
 	}
 
 	return issues;
 }
 
-/** SPEC §4.3: H1 (the home card's title) + the 1–2 line tagline — the page's only h1. */
+/** SPEC §4.3 / SPEC-revamp §5.1: H1 (the home card's title) + the 1–2 line tagline — the page's only h1. */
 function heroIssues(page: ScenarioPage, spec: UseCasePageSpec): string[] {
 	const hero = elementOf(page.html, 'section', 'data-use-case-hero');
 	if (hero === null) {
-		return [`${page.path}: no hero section — the page opens with H1 + tagline (SPEC §4.3)`];
+		return [`${page.path}: no hero section — the page opens with H1 + tagline + the header mock (SPEC-revamp §5.1)`];
 	}
 
 	const issues: string[] = [];
@@ -282,11 +303,11 @@ function cardIssues(page: ScenarioPage, spec: UseCasePageSpec): string[] {
 	return issues;
 }
 
-/** SPEC §4.3: the skeleton's reading order — art → hero → cards → CTA → FAQ → back link. */
+/** SPEC-revamp §5.1: the skeleton's reading order — page head → cards → FAQ → final CTA → back link. */
 function orderIssues(page: ScenarioPage): string[] {
-	const markers = ['data-use-case-art', 'data-use-case-hero', 'data-scenarios', 'id="get-started"', 'data-faq', 'data-use-case-back'];
+	const markers = ['data-use-case-hero', 'data-scenarios', 'data-faq', 'id="get-started"', 'data-use-case-back'];
 	if (markersInOrder(page.html, markers)) return [];
-	return [`${page.path}: the skeleton is out of order — art → H1 → scenario cards → final CTA → FAQ → \`← All use cases\` (SPEC §4.3)`];
+	return [`${page.path}: the skeleton is out of order — H1 + tagline + header mock → scenario cards → FAQ → final CTA → \`← All use cases\` (SPEC-revamp §5.1)`];
 }
 
 /** SPEC §4.3: no code block on the page, no social-proof band, no breadcrumbs. */
@@ -325,7 +346,8 @@ function proseIssues(page: ScenarioPage): string[] {
 	if (section === null) return [];
 
 	const issues: string[] = [];
-	const prose = textOf(proseOf([elementOf(page.html, 'section', 'data-use-case-hero') ?? '', section].join('\n')));
+	const hero = withoutHeaderMock(elementOf(page.html, 'section', 'data-use-case-hero') ?? '');
+	const prose = textOf(proseOf([hero, section].join('\n')));
 
 	for (const { term, reason } of terminologyHits(prose)) {
 		issues.push(`${page.path}: the page reads \`${term}\` — ${reason}`);
@@ -351,24 +373,15 @@ function proseIssues(page: ScenarioPage): string[] {
 /**
  * SPEC §2.10 over the page's own sections: they read on the page background in the audited
  * roles, like the home bands. The package chips wear the secondary surface (`--bg2`), the
- * same surface pair the AA audit measures.
+ * same surface pair the AA audit measures. The header mock is stripped first — its own roles
+ * (the accent chip pair, the inverted button label) are the §3.5 mock audit's pairs.
  */
 export function useCaseColourIssues(page: ScenarioPage): string[] {
-	return sectionColourIssues(page, [
+	return sectionColourIssues({ ...page, html: withoutHeaderMock(page.html) }, [
 		{ marker: 'data-use-case-hero', label: 'use-case hero' },
 		{ marker: 'data-scenarios', label: 'scenario cards' },
 		{ marker: 'data-use-case-back', label: 'back link' },
 	]);
-}
-
-/** SPEC §4.3 三页同图: the header art is byte-identical on every built use-case page. */
-export function sharedArtIssues(pages: readonly ScenarioPage[]): string[] {
-	const arts = pages.map((page) => artOf(page.html)).filter((art): art is string => art !== null);
-	if (arts.length <= 1) return [];
-	const [first, ...rest] = arts;
-	return rest.some((art) => art !== first)
-		? ['the header art is not the same figure on every use-case page — one shared abstract banner (SPEC §4.3)']
-		: [];
 }
 
 /**

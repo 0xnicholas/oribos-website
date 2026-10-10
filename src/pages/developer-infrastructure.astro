@@ -1,7 +1,7 @@
 ---
-// /developer-infrastructure (SPEC §4.3): the third use-case page — the shared header art, H1 +
-// tagline, the three scenario cards verbatim, the shared final CTA, the global FAQ ×9 and
-// the back link to the home cards. Head copy is the §2.6 row.
+// /developer-infrastructure (SPEC-revamp §5.1): the third use-case page — the page head (H1 +
+// tagline + the trace-console header mock), the three scenario cards verbatim, the global FAQ ×9,
+// the shared final CTA and the back link to the home cards. Head copy is the §2.6 row.
 import { getEntry } from 'astro:content';
 import UseCaseLayout from '../layouts/UseCaseLayout.astro';
 
@@ -16,5 +16,6 @@ if (!entry || !page) {
 	description="Shared agent primitives your product teams compose — subpath imports, capability packages added one at a time, OTLP observability."
 	h1={entry.data.title}
 	tagline={page.tagline}
+	mock={entry.data.mock}
 	scenarios={page.scenarios}
 />

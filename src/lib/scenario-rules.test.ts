@@ -8,7 +8,6 @@ import {
 	backLinkText,
 	carriesUseCasePage,
 	scenarioContrastIssues,
-	sharedArtIssues,
 	useCaseColourIssues,
 	useCasePageIssues,
 	useCasePages,
@@ -22,15 +21,21 @@ const globalCss = readFileSync(new URL('../styles/global.css', import.meta.url),
 const spec = useCasePages[0]!;
 const title = `${spec.h1} — Oribos`;
 
-const art = `
-	<figure data-use-case-art aria-hidden="true">
-		<svg viewBox="0 0 1600 600" class="block h-auto w-full">
-			<rect width="1600" height="600" fill="var(--bg2)" />
-			<circle cx="800" cy="300" r="96" fill="none" stroke="var(--line)" stroke-width="1.5" />
-			<path d="M 959.5 225.6 A 176 176 0 0 1 874.4 459.5" fill="none" stroke="var(--acc)" stroke-width="4" stroke-linecap="round" />
-			<circle cx="800" cy="300" r="8" fill="var(--acc)" />
-		</svg>
-	</figure>`;
+/**
+ * The header mock's shape as the §5.1 gate reads it — a `data-mock-window` box standing in for
+ * the §3.5 mocks, with the accent button's inverted label (the role the page's colour scan must
+ * leave to the mock audit) inside.
+ */
+const mockWindow = `
+			<div class="overflow-hidden box bg-bg2" data-mock-window>
+				<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-mock-bar><span class="flex gap-1.5" aria-hidden="true"><i class="size-2.5 rounded-full bg-ink3"></i><i class="size-2.5 rounded-full bg-ink3"></i><i class="size-2.5 rounded-full bg-ink3"></i></span></div>
+				<div class="p-4"><span class="bg-acc px-2.5 py-1 text-xs font-semibold text-acc-inv" data-mock-action="approve">Approve</span></div>
+			</div>`;
+
+const headerMock = (kind: string, window: string = mockWindow) => `
+		<figure data-use-case-mock="${kind}" class="mx-auto mt-12 max-w-2xl">
+			${window}
+		</figure>`;
 
 const packagesHtml = (packages: readonly string[]) =>
 	`→ ${packages
@@ -41,13 +46,13 @@ const packagesHtml = (packages: readonly string[]) =>
 		.join(' · ')}`;
 
 const cardHtml = (card: ScenarioCardSpec) => `
-			<li data-scenario-card class="box flex flex-col gap-3 p-5">
-				<h3 class="text-lg font-semibold tracking-tight text-ink">${card.name}</h3>
-				<p class="text-base text-ink2">${card.text}</p>
-				<p data-scenario-packages class="mt-auto pt-2 text-xs text-ink3">${packagesHtml(card.packages)}</p>
-			</li>`;
+				<li data-scenario-card class="box flex flex-col gap-3 p-5">
+					<h3 class="text-lg font-semibold tracking-tight text-ink">${card.name}</h3>
+					<p class="text-base text-ink2">${card.text}</p>
+					<p data-scenario-packages class="mt-auto pt-2 text-xs text-ink3">${packagesHtml(card.packages)}</p>
+				</li>`;
 
-const page = (entry: UseCasePageSpec = spec, options: { art?: string } = {}): ScenarioPage => ({
+const page = (entry: UseCasePageSpec = spec, options: { mock?: string } = {}): ScenarioPage => ({
 	path: `${entry.route.slice(1)}index.html`,
 	html: `<html lang="en"><head>
 		<title>${entry.h1} — Oribos</title>
@@ -55,36 +60,35 @@ const page = (entry: UseCasePageSpec = spec, options: { art?: string } = {}): Sc
 		<meta property="og:title" content="${entry.h1} — Oribos" />
 		<meta property="og:description" content="${entry.description}" />
 	</head><body>
-	${options.art ?? art}
-	<section data-use-case-hero class="px-6 py-16">
+	<section data-use-case-hero class="px-6 py-18">
 		<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
 			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${entry.h1}</h1>
 			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg text-ink2">${entry.tagline}</p>
 		</div>
+		${options.mock ?? headerMock(entry.mock)}
 	</section>
-	<section data-scenarios class="border-t border-line px-6 py-20">
-		<div class="mx-auto max-w-5xl">
+	<section data-scenarios class="border-t border-line py-24">
+		<div class="wrap">
 			<ul class="grid gap-6 md:grid-cols-3">
 				${entry.scenarios.map(cardHtml).join('')}
 			</ul>
 		</div>
 	</section>
-	<section id="get-started" class="border-t border-line px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
-	<section id="faq" data-faq class="border-t border-line px-6 py-20"><h2>Frequently asked questions</h2></section>
-	<section data-use-case-back class="border-t border-line px-6 py-12">
-		<div class="mx-auto max-w-5xl">
+	<section id="faq" data-faq class="border-t border-line px-6 py-24"><h2>Frequently asked questions</h2></section>
+	<section id="get-started" class="border-t border-line px-6 py-24"><h2>Build ultralight AI agents.</h2></section>
+	<section data-use-case-back class="border-t border-line py-12">
+		<div class="wrap">
 			<a href="${backLinkHref}" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>
 		</div>
 	</section>
 </body></html>`,
 });
 
-test('a use-case page with the §4.3 skeleton passes every rule', () => {
+test('a use-case page with the §5.1 skeleton passes every rule', () => {
 	const built = page();
 	assert.deepEqual(useCasePageIssues(built, spec), []);
 	assert.deepEqual(headIssues(built, { description: spec.description, title }), []);
 	assert.deepEqual(useCaseColourIssues(built), []);
-	assert.deepEqual(sharedArtIssues([built]), []);
 	assert.ok(carriesUseCasePage(built.html));
 });
 
@@ -126,33 +130,54 @@ test('the three scenario cards carry the name, the text and the package line ver
 	assert.match(useCasePageIssues(unpacked, spec).join('\n'), /card 1 does not render every package as its own <code>/);
 });
 
-test('the shared art is one decorative banner, painted with the brand tokens', () => {
-	const missing = page(spec, { art: '' });
-	assert.match(useCasePageIssues(missing, spec).join('\n'), /no shared header art/);
+test('the page head carries the one host-interface mock, mapped per page (SPEC-revamp §5.1)', () => {
+	const missing = page(spec, { mock: '' });
+	assert.match(useCasePageIssues(missing, spec).join('\n'), /no header mock/);
 
-	const labelled = page(spec, { art: art.replace(' aria-hidden="true"', '') });
-	assert.match(useCasePageIssues(labelled, spec).join('\n'), /is not hidden from assistive technology/);
+	const doubled = page(spec, { mock: headerMock(spec.mock) + headerMock(spec.mock) });
+	assert.match(useCasePageIssues(doubled, spec).join('\n'), /2 header mocks/);
 
-	const square = page(spec, { art: art.replace('viewBox="0 0 1600 600"', 'viewBox="0 0 600 600"') });
-	assert.match(useCasePageIssues(square, spec).join('\n'), /not the 1600×600 banner/);
+	const swapped = page(spec, { mock: headerMock('thread') });
+	assert.match(useCasePageIssues(swapped, spec).join('\n'), /the header mock is `thread`, expected `chat`/);
 
-	const captioned = page(spec, { art: art.replace('</svg>', '<text x="10" y="10">Oribos</text></svg>') });
-	assert.match(useCasePageIssues(captioned, spec).join('\n'), /carries <text>/);
+	const outside = page(spec, { mock: '' });
+	outside.html = outside.html.replace('<section data-scenarios', `${headerMock(spec.mock)}\n\t<section data-scenarios`);
+	assert.match(useCasePageIssues(outside, spec).join('\n'), /sits outside the page head/);
 
-	const literal = page(spec, { art: art.replace('var(--acc)" stroke-width="4"', '#9e630a" stroke-width="4"') });
-	assert.match(useCasePageIssues(literal, spec).join('\n'), /paints with `#9e630a`/);
+	const above = page(spec, { mock: '' });
+	above.html = above.html.replace('<p data-use-case-tagline', `${headerMock(spec.mock)}\n\t\t\t<p data-use-case-tagline`);
+	assert.match(useCasePageIssues(above, spec).join('\n'), /does not follow the tagline/);
 
-	const pale = page(spec, { art: art.replaceAll('var(--acc)', 'var(--line)') });
-	assert.match(useCasePageIssues(pale, spec).join('\n'), /no amber geometry/);
+	const twoWindows = page(spec, { mock: headerMock(spec.mock, mockWindow + mockWindow) });
+	assert.match(useCasePageIssues(twoWindows, spec).join('\n'), /carries 2 mock windows/);
 
-	const drifted = page(spec, { art: art.replace('r="96"', 'r="100"') });
-	assert.match(sharedArtIssues([page(), drifted]).join('\n'), /not the same figure on every use-case page/);
+	const unboxed = page(spec, { mock: headerMock(spec.mock, mockWindow.replace('overflow-hidden box bg-bg2', 'overflow-hidden bg-bg2')) });
+	assert.match(useCasePageIssues(unboxed, spec).join('\n'), /box hairline frame/);
+
+	const surfaceless = page(spec, { mock: headerMock(spec.mock, mockWindow.replace('overflow-hidden box bg-bg2', 'overflow-hidden box')) });
+	assert.match(useCasePageIssues(surfaceless, spec).join('\n'), /no surface/);
 });
 
-test('the skeleton order is art → hero → cards → CTA → FAQ → back link', () => {
+test('the retired shared header art is a tombstone (SPEC-revamp §5.1)', () => {
+	const art = page();
+	art.html = art.html.replace(
+		'<section data-use-case-hero',
+		'<figure data-use-case-art aria-hidden="true"><svg viewBox="0 0 1600 600"></svg></figure>\n\t<section data-use-case-hero',
+	);
+	assert.match(useCasePageIssues(art, spec).join('\n'), /the retired shared header art/);
+});
+
+test('the skeleton order is page head → cards → FAQ → final CTA → back link (SPEC-revamp §5.1)', () => {
+	// The retired mid-page CTA position — the band between the cards and the FAQ — is a finding.
+	const midCta = page();
+	const cta = midCta.html.match(/<section id="get-started"[\s\S]*?<\/section>/)![0];
+	const faq = midCta.html.match(/<section id="faq"[\s\S]*?<\/section>/)![0];
+	midCta.html = midCta.html.replace(faq, '').replace(cta, `${cta}\n\t${faq}`);
+	assert.match(useCasePageIssues(midCta, spec).join('\n'), /out of order/);
+
 	const scrambled = page();
 	const back = scrambled.html.match(/<section data-use-case-back[\s\S]*?<\/section>/)![0];
-	scrambled.html = scrambled.html.replace(back, '').replace('<section id="get-started"', `${back}<section id="get-started"`);
+	scrambled.html = scrambled.html.replace(back, '').replace('<section data-scenarios', `${back}\n\t<section data-scenarios`);
 	assert.match(useCasePageIssues(scrambled, spec).join('\n'), /out of order/);
 });
 
@@ -213,6 +238,10 @@ test('the scenario prose holds the vocabulary, the red lines and the package sco
 	const counted = page();
 	counted.html = counted.html.replace('plain objects with schemas', 'five fields with schemas');
 	assert.match(useCasePageIssues(counted, spec).join('\n'), /`five fields`/);
+
+	// The header mock's decorative UI text is the §3.5 gate's subject, not page prose.
+	const chatty = page(spec, { mock: headerMock(spec.mock, mockWindow.replace('>Approve<', '>A session per user<')) });
+	assert.deepEqual(useCasePageIssues(chatty, spec), []);
 });
 
 test('text comes only from the audited roles on the page background', () => {
@@ -222,10 +251,14 @@ test('text comes only from the audited roles on the page background', () => {
 
 	const surfaced = page();
 	surfaced.html = surfaced.html.replace(
-		'class="border-t border-line px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
-		'class="border-t border-line bg-bg2 px-6 py-20">\n\t\t<div class="mx-auto max-w-5xl">\n\t\t\t<ul',
+		'class="border-t border-line py-24">\n\t\t<div class="wrap">\n\t\t\t<ul',
+		'class="border-t border-line bg-bg2 py-24">\n\t\t<div class="wrap">\n\t\t\t<ul',
 	);
 	assert.match(useCaseColourIssues(surfaced).join('\n'), /paints its own surface/);
+
+	// The mock's own roles — the accent button's inverted label — are the §3.5 audit's pairs:
+	// the fixture's mock carries `text-acc-inv` and clears this scan.
+	assert.deepEqual(useCaseColourIssues(page()), []);
 });
 
 test('the package chip pair clears AA on the shipped token layer, both themes', () => {

@@ -116,7 +116,7 @@ const useCases = defineCollection({
 		claim: z.string(),
 		/** The use-case page the card title — and the whole card — links to (SPEC §2.1). */
 		route: z.string(),
-		/** Which host-interface mock the card carries (SPEC §3.5 brief ①–③). */
+		/** Which host-interface mock the card carries (SPEC §3.5 brief ①–③) — the page's header mock reuses it (SPEC-revamp §5.1). */
 		mock: z.enum(['chat', 'thread', 'console']),
 		/**
 		 * The use-case page's own copy (SPEC §4.3), landing with each page's build slice. The

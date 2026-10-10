@@ -4,9 +4,11 @@ import { test } from 'node:test';
 import { parseLandingTokens } from './brand-tokens.ts';
 import {
 	approvalTitle,
+	cardMockWindows,
 	chatToolChip,
 	consoleStatus,
 	focusRingIssues,
+	headerMockReuseIssues,
 	mockContrastIssues,
 	useCaseCards,
 	useCaseColourIssues,
@@ -256,6 +258,32 @@ test('the mock pairs clear AA on the shipped token layer, both themes', () => {
 
 	const missing = { light: tokens.light, dark: { ...tokens.dark, '--bg2': undefined as unknown as string } };
 	assert.ok(mockContrastIssues(missing).some((issue) => issue.includes('needs tokens')));
+});
+
+test('every use-case page head reuses its home card\'s mock as-is (SPEC-revamp §5.1)', () => {
+	const home = page(section());
+	const windows = cardMockWindows(home);
+	assert.deepEqual(Object.keys(windows).sort(), ['chat', 'console', 'thread']);
+	assert.ok(windows.chat!.includes('data-mock-bubble="user"'));
+	assert.ok(windows.thread!.includes('data-mock-approval'));
+	assert.ok(windows.console!.includes('data-mock-trace-head'));
+
+	const header = (kind: string, window: string) => ({
+		path: `${kind}-page/index.html`,
+		html: `<section data-use-case-hero><figure data-use-case-mock="${kind}">${window}</figure></section>`,
+	});
+	const reused = useCaseCards.map((card) => header(card.mock, windows[card.mock]!));
+	assert.deepEqual(headerMockReuseIssues(home, reused), []);
+
+	const drifted = header('chat', windows.chat!.replace('Where is my order?', 'Where is my parcel?'));
+	assert.match(headerMockReuseIssues(home, [drifted]).join('\n'), /chat-page\/index\.html: the header mock is not the home card's `chat` mock/);
+
+	// A missing figure, an unmapped kind or a missing window is the page gate's finding; a home
+	// without its section is the home gate's — the reuse check stays silent on both.
+	assert.deepEqual(headerMockReuseIssues(home, [{ path: 'bare/index.html', html: '<p>nothing</p>' }]), []);
+	assert.deepEqual(headerMockReuseIssues(home, [header('orbit', windows.chat!)]), []);
+	assert.deepEqual(headerMockReuseIssues(home, [header('chat', '<p>no window</p>')]), []);
+	assert.deepEqual(headerMockReuseIssues(page('<p>no section</p>'), reused), []);
 });
 
 test('the card links keep the site-wide visible focus ring', () => {
