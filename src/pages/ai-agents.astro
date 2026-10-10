@@ -1,7 +1,7 @@
 ---
-// /ai-agents (SPEC §4.4): the agents keyword page — H1, the four argument sections, the
-// `Learn more` link, the in-page FAQ ×5 and the `/#agents` back anchor, every string verbatim
-// from the collection entry. Head copy is the §2.6 row.
+// /ai-agents (SPEC-revamp §5.2–§5.5): the agents keyword page — H1 + §5.2 intro, the four
+// argument cards, the `Learn more` link, the in-page FAQ ×6 and the `/#agents` back anchor,
+// every string verbatim from the collection entry. Head copy is the §2.6 row.
 import { getEntry } from 'astro:content';
 import KeywordLayout from '../layouts/KeywordLayout.astro';
 
@@ -15,6 +15,7 @@ if (!entry) {
 	description={entry.data.description}
 	slug={entry.data.learnMore}
 	h1={entry.data.h1}
+	intro={entry.data.intro}
 	sections={entry.data.sections}
 	faq={entry.data.faq}
 	backAnchor={entry.data.backAnchor}

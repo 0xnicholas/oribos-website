@@ -2,6 +2,7 @@
 	"title": "AI agents for TypeScript — Oribos",
 	"description": "AI agents in TypeScript: a handful of fields, a built-in tool loop, streaming runs, and memory named per call — no hidden state.",
 	"h1": "AI agents — a handful of fields, a built-in loop, and no hidden state.",
+	"intro": "An Oribos agent is a small object — name, instructions, model, tools, plus optional memory and processors — with a built-in tool loop that streams. generate() and stream() run one code path: the loop executes tool calls and feeds results back to the model, and stream() yields the run's chunks as they happen. Tools are plain objects validated with the Standard Schema interfaces you already use, and memory is identity you name per call — thread and resource — so one agent serves every conversation without hidden state.",
 	"sections": [
 		{
 			"heading": "An agent is a small object",
@@ -41,6 +42,10 @@
 		{
 			"question": "How do I add guardrails, redaction, or rate limiting?",
 			"answer": "Processors: ordered hooks (processInput, processOutputStep, processError) are the framework's single cross-cutting extension point and run in declaration order."
+		},
+		{
+			"question": "How do I see what an agent is doing while it runs?",
+			"answer": "stream() yields the run's chunks as they happen — text deltas and tool activity. When a tracer is assembled, the same run opens spans (agent run, model step, tool call) that the built-in exporters can show, so a run can be watched live and read back afterwards."
 		}
 	],
 	"backAnchor": "/#agents"

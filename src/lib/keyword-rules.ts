@@ -1,11 +1,17 @@
 /**
- * The keyword pages (SPEC §4.4) over the built site: the skeleton — the §2.6 title
- * (`<Keyword> for TypeScript — Oribos`), the H1 (the keyword's face plus its claim), 2–4
- * argument sections (a subheading plus 1–3 sentences), exactly one `Learn more` text link,
- * the in-page FAQ (4–5 questions, zero overlap with the global nine, 1–3-sentence
+ * The keyword pages (SPEC-revamp §5.2–§5.5) over the built site: the skeleton — the §2.6 title
+ * (`<Keyword> for TypeScript — Oribos`), the H1 (the keyword's face plus its claim), the §5.2
+ * hero intro paragraph (one self-contained overview, no button, no chip), the §5.4 argument
+ * cards (the v1 argument sections' words unchanged, rehoused as an h3 card grid — no icons, no
+ * h2 section head, no in-card links), exactly one `Learn more` text link, the in-page FAQ
+ * (6–8 questions per the §5.5 slot, zero overlap with the global nine, 1–3-sentence
  * self-contained answers, no links), the shared final CTA and the back-to-home anchor — and
  * the page-level red lines: RAG / evals nowhere in the page's own copy, no code block, no
  * links between keyword pages, and no Platform-class words.
+ *
+ * Density is the §5.5 structural-slot count — intro ×1, argument cards 3–4, `Learn more` ×1,
+ * in-page FAQ 6–8 — and no word-count interval: the v1 「500–700 词」 band is repealed and no
+ * gate carries it.
  *
  * The in-page FAQ wears its own marker (`data-page-faq`): the global FAQ gate owns `data-faq`
  * and demands the §3.7 nine of any page carrying it, while a keyword page carries the page
@@ -13,14 +19,14 @@
  * from `src/lib/links.ts` until the docs switch (#16) flips the mapping to its `post` values —
  * the constant, this gate's expectation and `allowedExternalLinks` move together.
  *
- * Vocabulary note: the locked §4.4 copy names the supervisor / sub-agent concepts in
+ * Vocabulary note: the locked copy names the supervisor / sub-agent concepts in
  * negation ("no supervisor protocol", "no sub-agent concept"), so the CONTEXT.md term guards
  * do not scan these pages — the verbatim locks pin every word by construction, which is the
  * guards' purpose served by the lock itself.
  *
  * Like the hero, feature, band, FAQ and scenario rules, the strings here are the spec's copy —
  * deliberately not read from the content collections that render them, so the page and its
- * gate cannot agree by construction. All four pages' §4.4 copy is registered now【终稿·勿改】;
+ * gate cannot agree by construction. All four pages' locked copy is registered now【终稿·勿改】;
  * the gate checks the pages the build has and reports the rest as pending, like the shell
  * gate.
  */
@@ -41,11 +47,13 @@ export type KeywordPageSpec = {
 	slug: KeywordPageSlug;
 	/** H1 = the keyword's face plus its claim (SPEC §4.4 【终稿·勿改】). */
 	h1: string;
-	/** The §2.6 meta description — og:description reuses it. */
+	/** The §5.2 hero intro paragraph 【终稿·勿改】 — one self-contained overview below the H1. */
+	intro: string;
+	/** The §2.6 meta description — og:description reuses it; the §5.2 intro never rewrites it. */
 	description: string;
-	/** The argument sections, in page order (SPEC §4.4 【终稿·勿改】): subheading + 1–3 sentences. */
+	/** The argument cards, in page order (§5.4): the v1 section words, container swapped. */
 	sections: readonly KeywordSectionSpec[];
-	/** The in-page FAQ, in page order (SPEC §4.4 【终稿·勿改】) — zero overlap with the global nine. */
+	/** The in-page FAQ, in page order (SPEC §4.4 + §5.3 【终稿·勿改】) — zero overlap with the global nine. */
 	faq: readonly KeywordFaqSpec[];
 	/** The home anchor the page links back to (SPEC §4.4 回首页锚映射). */
 	backAnchor: string;
@@ -66,6 +74,8 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 		route: '/ai-agent-framework/',
 		slug: 'ai-agent-framework',
 		h1: 'AI agent framework — everything you need, nothing you have to run.',
+		intro:
+			'Oribos is an AI agent framework for TypeScript: a library you call from the app you already run, not infrastructure you operate. The core package has zero runtime dependencies, every subsystem — agents, tools, memory, workflows, observability — ships behind its own subpath export, and capability packages such as @oribos/mcp-server are added one at a time, only when a job calls for them. There is no database, queue, or long-running process to stand up: an agent is a handful of fields, and model instances come straight from the AI SDK provider packages you already chose.',
 		description:
 			'An AI agent framework for TypeScript: a library, not infrastructure you operate — zero runtime dependencies, nothing new to run.',
 		sections: [
@@ -108,6 +118,11 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 				answer:
 					"Every configuration field is a dynamic argument — either a value or a function resolved per execution against the request context — so per-user behavior doesn't fork your agent code.",
 			},
+			{
+				question: 'Does Oribos replace the AI SDK?',
+				answer:
+					'No — it builds on it. Model instances come straight from AI SDK provider packages, and schemas stay in the Standard Schema library you already use. Oribos adds the layers around the model: agents, the tool loop, memory, workflows, and tracing.',
+			},
 		],
 		backAnchor: '/#features',
 	},
@@ -115,6 +130,8 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 		route: '/ai-agents/',
 		slug: 'ai-agents',
 		h1: 'AI agents — a handful of fields, a built-in loop, and no hidden state.',
+		intro:
+			"An Oribos agent is a small object — name, instructions, model, tools, plus optional memory and processors — with a built-in tool loop that streams. generate() and stream() run one code path: the loop executes tool calls and feeds results back to the model, and stream() yields the run's chunks as they happen. Tools are plain objects validated with the Standard Schema interfaces you already use, and memory is identity you name per call — thread and resource — so one agent serves every conversation without hidden state.",
 		description:
 			'AI agents in TypeScript: a handful of fields, a built-in tool loop, streaming runs, and memory named per call — no hidden state.',
 		sections: [
@@ -161,6 +178,11 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 				answer:
 					"Processors: ordered hooks (processInput, processOutputStep, processError) are the framework's single cross-cutting extension point and run in declaration order.",
 			},
+			{
+				question: 'How do I see what an agent is doing while it runs?',
+				answer:
+					"stream() yields the run's chunks as they happen — text deltas and tool activity. When a tracer is assembled, the same run opens spans (agent run, model step, tool call) that the built-in exporters can show, so a run can be watched live and read back afterwards.",
+			},
 		],
 		backAnchor: '/#agents',
 	},
@@ -168,6 +190,8 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 		route: '/ai-workflows/',
 		slug: 'ai-workflows',
 		h1: 'AI workflows — typed steps, validated boundaries, and runs that survive a restart.',
+		intro:
+			'Oribos workflows compose typed steps — then, parallel, branch, foreach — where a step can call an agent, run deterministic code, or both. Every boundary is validated against its schema before your code runs, and ctx.suspend() unwinds a run into a JSON snapshot at a step boundary that can resume later, even from another process. The snapshot store defaults to memory and takes an adapter such as @oribos/sqlite when runs must outlive the process.',
 		description:
 			'AI workflows in TypeScript: typed steps, validated boundaries, and JSON snapshots that resume a run in another process.',
 		sections: [
@@ -214,6 +238,11 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 				answer:
 					"Each step's output is the next step's typed input, and every boundary is validated against its schema before your code runs — a malformed value fails at the boundary, not deep inside a step.",
 			},
+			{
+				question: 'What happens if a step fails?',
+				answer:
+					"The run settles to failed rather than continuing on bad data. Every boundary — start input, step input, resume data — is validated before your code runs, so a malformed value fails at the boundary instead of deep inside a step, and the run's lifecycle events report which step failed. Suspending is the separate, deliberate path for resumable long-running work.",
+			},
 		],
 		backAnchor: '/#workflows',
 	},
@@ -221,6 +250,8 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 		route: '/ai-agent-observability/',
 		slug: 'ai-agent-observability',
 		h1: 'AI agent observability — see what actually ran, in the stack you already use.',
+		intro:
+			'Oribos traces what actually ran: every agent run, model step, tool call, workflow run and step, and memory recall or save opens a span — with no OpenTelemetry SDK required. Assemble a tracer once at the composition root and every agent built through the app traces with no per-agent wiring; console and memory exporters are built in, and @oribos/otlp maps spans to the GenAI semantic conventions for any OTLP-compatible collector. A standalone agent with no tracer opens no span objects — untraced runs stay as small as they look.',
 		description:
 			'AI agent observability for TypeScript: spans for runs, model steps, tool calls and memory — exported to your collector over OTLP.',
 		sections: [
@@ -262,6 +293,11 @@ export const keywordPages: readonly KeywordPageSpec[] = [
 				question: 'Does Oribos ship a dashboard or a hosted observability service?',
 				answer:
 					'No. Oribos produces spans and exports them to the stack you operate; there is no Oribos-side service in the loop.',
+			},
+			{
+				question: 'How do I turn tracing on?',
+				answer:
+					'Assemble a tracer with an exporter and hand it down from the composition root — every agent built through the app then traces with no per-agent wiring. Nothing is exported until you do: a standalone new Agent() with no tracer opens no span objects at all.',
 			},
 		],
 		backAnchor: '/#observability',
@@ -329,11 +365,11 @@ export function keywordPageIssues(page: KeywordPage, spec: KeywordPageSpec): str
 	return issues;
 }
 
-/** SPEC §4.4: the page opens with its H1 — the keyword's face plus its claim, once. */
+/** SPEC §4.4 + §5.2: the page opens with its H1 — verbatim, once — over the §5.2 intro paragraph. */
 function heroIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 	const hero = heroOf(page.html);
 	if (hero === null) {
-		return [`${page.path}: no keyword hero — the page opens with its H1 (SPEC §4.4)`];
+		return [`${page.path}: no keyword hero — the page opens with its H1 and the §5.2 intro paragraph`];
 	}
 
 	const issues: string[] = [];
@@ -347,37 +383,55 @@ function heroIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 		issues.push(`${page.path}: the H1 reads \`${h1 === undefined ? 'nothing' : textOf(h1)}\`, expected \`${spec.h1}\` (SPEC §4.4)`);
 	}
 
+	const introElement = elementOf(hero, 'p', 'data-keyword-intro');
+	const intro = introElement === null ? undefined : textOf(introElement);
+	if (introElement === null || intro !== spec.intro) {
+		issues.push(`${page.path}: the hero intro is not the §5.2 paragraph verbatim — one self-contained overview under the H1 (SPEC §5.2)`);
+	}
+
+	if (linksOf(hero).length > 0) {
+		issues.push(`${page.path}: the hero carries a link — the intro paragraph is copy only, no button and no chip (SPEC §5.2)`);
+	}
+
 	return issues;
 }
 
-/** SPEC §4.4: the 2–4 argument sections — a subheading plus 1–3 sentences, verbatim, in order. */
+/** §5.4: the argument cards — the v1 section words rehoused as an h3 card grid, verbatim, in order. */
 function sectionIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 	const section = sectionsOf(page.html);
 	if (section === null) {
-		return [`${page.path}: no argument sections — the page argues in 2–4 headed paragraphs (SPEC §4.4)`];
+		return [`${page.path}: no argument cards — the page argues in a 3–4 card grid (SPEC §5.4)`];
 	}
 
 	const issues: string[] = [];
+	if (/<h2\b/i.test(section)) {
+		issues.push(`${page.path}: the argument cards carry an <h2> — the grid has no section head, the cards' h3 titles carry it (SPEC §5.4)`);
+	}
+
 	const cards = sectionCardsOf(section);
 	if (cards.length !== spec.sections.length) {
-		issues.push(`${page.path}: the page carries ${cards.length} argument section(s), expected ${spec.sections.length} (SPEC §4.4)`);
+		issues.push(`${page.path}: the page carries ${cards.length} argument card(s), expected ${spec.sections.length} (SPEC §5.4)`);
 	}
 
 	cards.forEach((card, index) => {
 		const expected = spec.sections[index];
 		if (expected === undefined) return;
-		const label = `section ${index + 1}`;
+		const label = `card ${index + 1}`;
 
-		const heading = card.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i)?.[1];
+		const heading = card.match(/<h3\b[^>]*>([\s\S]*?)<\/h3>/i)?.[1];
 		if (heading === undefined || textOf(heading) !== expected.heading) {
 			issues.push(
-				`${page.path}: ${label}'s heading reads \`${heading === undefined ? 'nothing' : textOf(heading)}\`, expected \`${expected.heading}\` (SPEC §4.4)`,
+				`${page.path}: ${label}'s title reads \`${heading === undefined ? 'nothing' : textOf(heading)}\`, expected \`${expected.heading}\` (SPEC §5.4)`,
 			);
 		}
 
 		const body = card.match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)?.[1];
 		if (body === undefined || textOf(body) !== expected.body) {
-			issues.push(`${page.path}: ${label}'s body is not the §4.4 copy verbatim`);
+			issues.push(`${page.path}: ${label}'s body is not the §4.4 copy verbatim — the words stay, only the container changed (SPEC §5.4)`);
+		}
+
+		if (linksOf(card).length > 0) {
+			issues.push(`${page.path}: ${label} carries a link — the cards hold no links (SPEC §5.4)`);
 		}
 	});
 
@@ -414,9 +468,9 @@ function learnMoreIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 }
 
 /**
- * SPEC §4.4 页内 FAQ: 4–5 questions, verbatim and in order, answers 1–3 sentences and
- * self-contained (no link), zero overlap with the global nine — and never the global list's
- * `data-faq` marker, which belongs to the §3.7 gate.
+ * SPEC §4.4 + §5.3: 6 questions (the §5.5 slot runs 6–8), verbatim and in order, answers 1–3
+ * sentences and self-contained (no link), zero overlap with the global nine — and never the
+ * global list's `data-faq` marker, which belongs to the §3.7 gate.
  */
 function pageFaqIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 	const issues: string[] = [];
@@ -429,7 +483,7 @@ function pageFaqIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 
 	const section = pageFaqOf(page.html);
 	if (section === null) {
-		issues.push(`${page.path}: no in-page FAQ — the keyword page closes its argument with 4–5 local questions (SPEC §4.4)`);
+		issues.push(`${page.path}: no in-page FAQ — the keyword page closes its argument with 6 local questions (SPEC §5.3)`);
 		return issues;
 	}
 
@@ -490,11 +544,11 @@ function pageFaqIssues(page: KeywordPage, spec: KeywordPageSpec): string[] {
 	return issues;
 }
 
-/** SPEC §4.4: the skeleton's reading order — H1 → sections → Learn more → FAQ → CTA → back anchor. */
+/** §5.2: the skeleton's reading order — H1 + intro → cards → Learn more → FAQ → CTA → back anchor. */
 function orderIssues(page: KeywordPage): string[] {
 	const markers = ['data-keyword-hero', 'data-keyword-sections', 'data-keyword-learn-more', 'data-page-faq', 'id="get-started"', 'data-keyword-back'];
 	if (markersInOrder(page.html, markers)) return [];
-	return [`${page.path}: the skeleton is out of order — H1 → sections → \`Learn more\` → in-page FAQ → final CTA → back anchor (SPEC §4.4)`];
+	return [`${page.path}: the skeleton is out of order — H1 + intro → argument cards → \`Learn more\` → in-page FAQ → final CTA → back anchor (SPEC §5.2)`];
 }
 
 /** SPEC §4.4: no code block, no links between keyword pages, no Platform-class words, no RAG / evals. */

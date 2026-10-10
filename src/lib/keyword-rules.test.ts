@@ -22,8 +22,8 @@ const spec = keywordPages[0]!;
 
 const titleOf = (route: string): string => registered.find((page) => page.route === route)!.title;
 
-const sectionHtml = (section: KeywordSectionSpec) =>
-	`<article data-keyword-section><h2 class="text-2xl font-semibold tracking-tight text-ink">${section.heading}</h2><p class="mt-3 text-ink2">${section.body}</p></article>`;
+const cardHtml = (section: KeywordSectionSpec) =>
+	`<article data-keyword-section class="col-span-4 flex flex-col gap-3 box p-5 md:col-span-6"><h3 class="text-xl font-semibold tracking-tight text-ink">${section.heading}</h3><p class="text-lg text-ink2">${section.body}</p></article>`;
 
 const faqHtml = (item: KeywordFaqSpec) =>
 	`<details><summary class="cursor-pointer py-4 font-semibold text-ink hover:text-acc">${item.question}</summary><p class="pb-4 text-base text-ink2">${item.answer}</p></details>`;
@@ -38,18 +38,21 @@ const page = (entry: KeywordPageSpec = spec): KeywordPage => ({
 	</head><body>
 	<header><a href="/">Oribos</a></header>
 	<main>
-		<section data-keyword-hero class="px-6 py-16">
+		<section data-keyword-hero class="px-6 py-18">
 			<div class="mx-auto max-w-3xl">
 				<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">${entry.h1}</h1>
+				<p data-keyword-intro class="mt-5 text-lg text-ink2">${entry.intro}</p>
 			</div>
 		</section>
-		<section data-keyword-sections class="border-t border-line px-6 py-20">
-			<div class="mx-auto flex max-w-3xl flex-col gap-12">
-				${entry.sections.map(sectionHtml).join('')}
-				<p data-keyword-learn-more><a href="${learnMoreLinks[entry.slug].pre}" class="font-semibold text-acc hover:underline">${learnMoreText}</a></p>
+		<section data-keyword-sections class="border-t border-line py-24">
+			<div class="wrap">
+				<div class="cols">
+					${entry.sections.map(cardHtml).join('')}
+				</div>
+				<p data-keyword-learn-more class="mt-12"><a href="${learnMoreLinks[entry.slug].pre}" class="font-semibold text-acc hover:underline">${learnMoreText}</a></p>
 			</div>
 		</section>
-		<section data-page-faq class="border-t border-line px-6 py-20">
+		<section data-page-faq class="border-t border-line py-24">
 			<div class="mx-auto max-w-3xl">
 				<h2 class="text-3xl font-semibold tracking-tight text-ink">${pageFaqHeading}</h2>
 				<div class="mt-8 divide-y divide-line border-y border-line">
@@ -79,7 +82,7 @@ test('every registered keyword page with the §4.4 skeleton passes every rule', 
 	assert.equal(carriesKeywordPage('<section>no marker</section>'), false);
 });
 
-test('the H1 is the §4.4 line, verbatim and the only h1 on the page', () => {
+test('the H1 and the §5.2 intro are the locked lines, the H1 the only h1 on the page', () => {
 	const renamed = page();
 	renamed.html = renamed.html.replace(`>${spec.h1}<`, '>Everything agents.<');
 	assert.match(keywordPageIssues(renamed, spec).join('\n'), /the H1 reads `Everything agents\.`/);
@@ -91,26 +94,46 @@ test('the H1 is the §4.4 line, verbatim and the only h1 on the page', () => {
 	const noHero = page();
 	noHero.html = noHero.html.replace(' data-keyword-hero', '');
 	assert.match(keywordPageIssues(noHero, spec).join('\n'), /no keyword hero/);
+
+	const noIntro = page();
+	noIntro.html = noIntro.html.replace(/<p data-keyword-intro[\s\S]*?<\/p>/, '');
+	assert.match(keywordPageIssues(noIntro, spec).join('\n'), /the hero intro is not the §5\.2 paragraph verbatim/);
+
+	const reworded = page();
+	reworded.html = reworded.html.replace('a library you call from the app you already run', 'a library you import');
+	assert.match(keywordPageIssues(reworded, spec).join('\n'), /the hero intro is not the §5\.2 paragraph verbatim/);
+
+	const linked = page();
+	linked.html = linked.html.replace('</p>\n\t\t\t</div>', '</p><a href="/#features">See how it works →</a></div>');
+	assert.match(keywordPageIssues(linked, spec).join('\n'), /the hero carries a link/);
 });
 
-test('the argument sections are the §4.4 heading / body pairs, verbatim and in order', () => {
+test('the argument cards are the §5.4 rehousing: h3 titles, verbatim words, in order, no h2, no links', () => {
 	const fewer = page({ ...spec, sections: spec.sections.slice(0, 2) });
-	assert.match(keywordPageIssues(fewer, spec).join('\n'), /carries 2 argument section\(s\), expected 3/);
+	assert.match(keywordPageIssues(fewer, spec).join('\n'), /carries 2 argument card\(s\), expected 3/);
 
 	const renamed = page();
 	renamed.html = renamed.html.replace(`>${spec.sections[0]!.heading}<`, '>A library you call<');
-	assert.match(keywordPageIssues(renamed, spec).join('\n'), /section 1's heading reads `A library you call`/);
+	assert.match(keywordPageIssues(renamed, spec).join('\n'), /card 1's title reads `A library you call`/);
 
 	const reworded = page();
 	reworded.html = reworded.html.replace('a deliberate choice rather than a prerequisite', 'an option, not a prerequisite');
-	assert.match(keywordPageIssues(reworded, spec).join('\n'), /section 1's body is not the §4\.4 copy verbatim/);
+	assert.match(keywordPageIssues(reworded, spec).join('\n'), /card 1's body is not the §4\.4 copy verbatim/);
 
 	const swapped = page();
 	swapped.html = swapped.html
 		.replace(spec.sections[0]!.heading, '@@TWO@@')
 		.replace(spec.sections[1]!.heading, spec.sections[0]!.heading)
 		.replace('@@TWO@@', spec.sections[1]!.heading);
-	assert.match(keywordPageIssues(swapped, spec).join('\n'), /section 1's heading reads/);
+	assert.match(keywordPageIssues(swapped, spec).join('\n'), /card 1's title reads/);
+
+	const h2Head = page();
+	h2Head.html = h2Head.html.replace('<div class="cols">', '<h2 class="text-3xl font-semibold tracking-tight text-ink">Why Oribos</h2><div class="cols">');
+	assert.match(keywordPageIssues(h2Head, spec).join('\n'), /the argument cards carry an <h2>/);
+
+	const linked = page();
+	linked.html = linked.html.replace('</article>', '<a href="/">home</a></article>');
+	assert.match(keywordPageIssues(linked, spec).join('\n'), /card 1 carries a link/);
 });
 
 test('one Learn more link, the label verbatim, the pre-launch constant its target', () => {
@@ -133,7 +156,7 @@ test('one Learn more link, the label verbatim, the pre-launch constant its targe
 
 test('the in-page FAQ is the §4.4 set, verbatim and in order — and not the global nine', () => {
 	const four = page({ ...spec, faq: spec.faq.slice(0, 4) });
-	assert.match(keywordPageIssues(four, spec).join('\n'), /the in-page FAQ carries 4 questions, expected 5/);
+	assert.match(keywordPageIssues(four, spec).join('\n'), /the in-page FAQ carries 4 questions, expected 6/);
 
 	const renamed = page();
 	renamed.html = renamed.html.replace(spec.faq[0]!.question, 'What is Oribos?');
@@ -219,15 +242,19 @@ test('the head carries the §2.6 meta description and the og pair', () => {
 
 test('the page sections wear the §5.5 audited roles on the page background', () => {
 	const badRole = page();
-	badRole.html = badRole.html.replace('mt-3 text-ink2', 'mt-3 text-acc-lo');
-	assert.match(keywordColourIssues(badRole).join('\n'), /argument sections paints text with `text-acc-lo`/);
+	badRole.html = badRole.html.replace('mt-5 text-lg text-ink2', 'mt-5 text-lg text-acc-lo');
+	assert.match(keywordColourIssues(badRole).join('\n'), /keyword hero paints text with `text-acc-lo`/);
+
+	const badCardRole = page();
+	badCardRole.html = badCardRole.html.replace('<p class="text-lg text-ink2">', '<p class="text-lg text-acc-lo">');
+	assert.match(keywordColourIssues(badCardRole).join('\n'), /argument sections paints text with `text-acc-lo`/);
 
 	const surface = page();
 	surface.html = surface.html.replace('data-keyword-sections class="', 'data-keyword-sections class="bg-bg2 ');
 	assert.match(keywordColourIssues(surface).join('\n'), /argument sections paints its own surface with `bg-bg2`/);
 });
 
-test('the registry holds the §4.4 locks: four pages, their shapes, their sentence discipline', () => {
+test('the registry holds the §5.2–§5.5 locks: four pages, the structural slots, their sentence discipline', () => {
 	assert.deepEqual(
 		keywordPages.map((entry) => entry.route),
 		['/ai-agent-framework/', '/ai-agents/', '/ai-workflows/', '/ai-agent-observability/'],
@@ -239,8 +266,9 @@ test('the registry holds the §4.4 locks: four pages, their shapes, their senten
 
 	const globalQuestions = new Set(globalFaqItems.map((item) => item.question.toLowerCase()));
 	for (const entry of keywordPages) {
-		assert.ok(entry.sections.length >= 2 && entry.sections.length <= 4, `${entry.route}: 2–4 argument sections`);
-		assert.ok(entry.faq.length >= 4 && entry.faq.length <= 5, `${entry.route}: 4–5 in-page questions`);
+		assert.ok(entry.intro.length > 0, `${entry.route}: the §5.2 intro paragraph is registered`);
+		assert.ok(entry.sections.length >= 3 && entry.sections.length <= 4, `${entry.route}: 3–4 argument cards`);
+		assert.ok(entry.faq.length >= 6 && entry.faq.length <= 8, `${entry.route}: 6–8 in-page questions (§5.5 slot)`);
 		for (const section of entry.sections) {
 			const count = sentenceCount(section.body);
 			assert.ok(count >= 1 && count <= 3, `${entry.route} · ${section.heading}: ${count} sentence(s)`);
@@ -252,11 +280,13 @@ test('the registry holds the §4.4 locks: four pages, their shapes, their senten
 		}
 		const ownCopy = [
 			entry.h1,
+			entry.intro,
 			...entry.sections.flatMap((section) => [section.heading, section.body]),
 			...entry.faq.flatMap((item) => [item.question, item.answer]),
 		].join(' ');
 		assert.ok(!/\bplatform\b/i.test(ownCopy), `${entry.route}: no Platform-class words`);
 		assert.ok(!/\bRAG\b|\bevals?\b/i.test(ownCopy), `${entry.route}: no RAG / evals`);
+		assert.ok(!/[<>{}]/.test(entry.intro), `${entry.route}: the intro is prose only — no markup, no code`);
 		assert.ok(entry.slug in learnMoreLinks, `${entry.route}: the Learn more mapping covers the slug`);
 	}
 });

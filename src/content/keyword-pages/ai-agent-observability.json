@@ -2,6 +2,7 @@
 	"title": "AI agent observability for TypeScript — Oribos",
 	"description": "AI agent observability for TypeScript: spans for runs, model steps, tool calls and memory — exported to your collector over OTLP.",
 	"h1": "AI agent observability — see what actually ran, in the stack you already use.",
+	"intro": "Oribos traces what actually ran: every agent run, model step, tool call, workflow run and step, and memory recall or save opens a span — with no OpenTelemetry SDK required. Assemble a tracer once at the composition root and every agent built through the app traces with no per-agent wiring; console and memory exporters are built in, and @oribos/otlp maps spans to the GenAI semantic conventions for any OTLP-compatible collector. A standalone agent with no tracer opens no span objects — untraced runs stay as small as they look.",
 	"sections": [
 		{
 			"heading": "Spans for the things that actually ran",
@@ -37,6 +38,10 @@
 		{
 			"question": "Does Oribos ship a dashboard or a hosted observability service?",
 			"answer": "No. Oribos produces spans and exports them to the stack you operate; there is no Oribos-side service in the loop."
+		},
+		{
+			"question": "How do I turn tracing on?",
+			"answer": "Assemble a tracer with an exporter and hand it down from the composition root — every agent built through the app then traces with no per-agent wiring. Nothing is exported until you do: a standalone new Agent() with no tracer opens no span objects at all."
 		}
 	],
 	"backAnchor": "/#observability"

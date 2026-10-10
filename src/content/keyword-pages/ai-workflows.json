@@ -2,6 +2,7 @@
 	"title": "AI workflows for TypeScript — Oribos",
 	"description": "AI workflows in TypeScript: typed steps, validated boundaries, and JSON snapshots that resume a run in another process.",
 	"h1": "AI workflows — typed steps, validated boundaries, and runs that survive a restart.",
+	"intro": "Oribos workflows compose typed steps — then, parallel, branch, foreach — where a step can call an agent, run deterministic code, or both. Every boundary is validated against its schema before your code runs, and ctx.suspend() unwinds a run into a JSON snapshot at a step boundary that can resume later, even from another process. The snapshot store defaults to memory and takes an adapter such as @oribos/sqlite when runs must outlive the process.",
 	"sections": [
 		{
 			"heading": "Steps that promise what they take and what they give back",
@@ -41,6 +42,10 @@
 		{
 			"question": "How do I pass data between steps?",
 			"answer": "Each step's output is the next step's typed input, and every boundary is validated against its schema before your code runs — a malformed value fails at the boundary, not deep inside a step."
+		},
+		{
+			"question": "What happens if a step fails?",
+			"answer": "The run settles to failed rather than continuing on bad data. Every boundary — start input, step input, resume data — is validated before your code runs, so a malformed value fails at the boundary instead of deep inside a step, and the run's lifecycle events report which step failed. Suspending is the separate, deliberate path for resumable long-running work."
 		}
 	],
 	"backAnchor": "/#workflows"

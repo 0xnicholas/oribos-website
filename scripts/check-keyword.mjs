@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 /**
- * The keyword-page gate (SPEC §4.4/§2.6/§5.5/§9.2) over the built keyword pages: the skeleton
- * in order — H1 (the keyword's face plus its claim), the 2–4 argument sections verbatim, the
- * one `Learn more` link to the pre-launch constant, the in-page FAQ (4–5 questions verbatim,
- * answers 1–3 sentences and self-contained, zero overlap with the global nine, never the
- * `data-faq` marker the §3.7 gate owns), the shared final CTA with the §4.5 copy and the
- * back-to-home anchor. The pages keep their red lines — RAG / evals nowhere in the page's own
- * copy (the page-level half of check-copy's rule), no code block, no links between keyword
- * pages, no Platform-class words — state the §2.6 meta description and og pair, and paint text
- * only in the §5.5 audited roles.
+ * The keyword-page gate (SPEC-revamp §5.2–§5.5/§2.6) over the built keyword pages: the skeleton
+ * in order — the H1 (the keyword's face plus its claim) over the §5.2 hero intro paragraph, the
+ * §5.4 argument cards verbatim (the locked words, h3 card grid), the one `Learn more` link to
+ * the pre-launch constant, the in-page FAQ (6 questions per page, verbatim, answers 1–3
+ * sentences and self-contained, zero overlap with the global nine, never the `data-faq` marker
+ * the §3.7 gate owns — 6 questions shipped today, the §5.5 slot runs 6–8), the shared final CTA
+ * with the §4.5 copy and the back-to-home anchor.
+ * The pages keep their red lines — RAG / evals nowhere in the page's own copy (the page-level
+ * half of check-copy's rule), no code block, no links between keyword pages, no Platform-class
+ * words — state the §2.6 meta description and og pair, and paint text only in the §5.5 audited
+ * roles. Density is the §5.5 structural-slot count; no word-count interval is gated.
  * Registered pages the build does not have yet are reported as pending, like the shell gate.
  * The rules live in `src/lib/keyword-rules.ts`.
  *
@@ -61,7 +63,7 @@ const perPage = [...byRoute.entries()].flatMap(([route, spec]) => {
 	return [
 		[
 			keywordPageIssues(page, spec),
-			`${route}: the §4.4 skeleton — H1, the argument sections, one \`Learn more\`, the in-page FAQ, the back anchor, the red lines`,
+			`${route}: the §5.2 skeleton — H1 + intro, the argument cards, one \`Learn more\`, the in-page FAQ ×6, the back anchor, the red lines`,
 		],
 		[headIssues(page, { description: spec.description, title }), `${route}: the §2.6 meta description and the og pair`],
 		[keywordColourIssues(page), `${route}: text only in the §5.5 audited roles on the page background`],

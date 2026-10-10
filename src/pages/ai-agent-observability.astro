@@ -1,7 +1,8 @@
 ---
-// /ai-agent-observability (SPEC §4.4): the observability keyword page — H1, the three argument
-// sections, the `Learn more` link, the in-page FAQ ×5 and the `/#observability` back anchor,
-// every string verbatim from the collection entry. Head copy is the §2.6 row.
+// /ai-agent-observability (SPEC-revamp §5.2–§5.5): the observability keyword page — H1 + §5.2
+// intro, the three argument cards, the `Learn more` link, the in-page FAQ ×6 and the
+// `/#observability` back anchor, every string verbatim from the collection entry. Head copy is
+// the §2.6 row.
 import { getEntry } from 'astro:content';
 import KeywordLayout from '../layouts/KeywordLayout.astro';
 
@@ -15,6 +16,7 @@ if (!entry) {
 	description={entry.data.description}
 	slug={entry.data.learnMore}
 	h1={entry.data.h1}
+	intro={entry.data.intro}
 	sections={entry.data.sections}
 	faq={entry.data.faq}
 	backAnchor={entry.data.backAnchor}

@@ -2,6 +2,7 @@
 	"title": "AI agent framework for TypeScript — Oribos",
 	"description": "An AI agent framework for TypeScript: a library, not infrastructure you operate — zero runtime dependencies, nothing new to run.",
 	"h1": "AI agent framework — everything you need, nothing you have to run.",
+	"intro": "Oribos is an AI agent framework for TypeScript: a library you call from the app you already run, not infrastructure you operate. The core package has zero runtime dependencies, every subsystem — agents, tools, memory, workflows, observability — ships behind its own subpath export, and capability packages such as @oribos/mcp-server are added one at a time, only when a job calls for them. There is no database, queue, or long-running process to stand up: an agent is a handful of fields, and model instances come straight from the AI SDK provider packages you already chose.",
 	"sections": [
 		{
 			"heading": "A library, not infrastructure you operate",
@@ -37,6 +38,10 @@
 		{
 			"question": "Can one agent behave differently per user or request?",
 			"answer": "Every configuration field is a dynamic argument — either a value or a function resolved per execution against the request context — so per-user behavior doesn't fork your agent code."
+		},
+		{
+			"question": "Does Oribos replace the AI SDK?",
+			"answer": "No — it builds on it. Model instances come straight from AI SDK provider packages, and schemas stay in the Standard Schema library you already use. Oribos adds the layers around the model: agents, the tool loop, memory, workflows, and tracing."
 		}
 	],
 	"backAnchor": "/#features"

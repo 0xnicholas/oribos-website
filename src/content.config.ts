@@ -15,8 +15,8 @@
  *   - `useCases`      — the three use-case cards plus each use-case page's copy (SPEC §3.5/§4.3)
  *   - `resources`     — the resources band's kicker and its three cards (SPEC-revamp §3.6)
  *   - `faq`           — the global FAQ ×9, shared by the home and use-case pages (SPEC §3.7)
- *   - `keywordPages`  — the keyword pages' H1, sections, `Learn more` key, in-page FAQ and back
- *                       anchor (SPEC §4.4), one JSON per page
+ *   - `keywordPages`  — the keyword pages' H1, §5.2 intro, argument cards, `Learn more` key,
+ *                       in-page FAQ ×6 and back anchor (SPEC-revamp §5.2–§5.5), one JSON per page
  *   - `about`         — the /about page's sections (SPEC §4.1); the sub reuses the tagline
  *                       from `src/lib/brand.ts`, so it is not repeated here
  *   - `legalPages`    — the two legal stubs' H1 and paragraphs (SPEC §4.2), one JSON per page
@@ -178,12 +178,14 @@ const keywordPages = defineCollection({
 		description: z.string(),
 		/** The §4.4 H1 (【终稿·勿改】): the keyword's face plus its claim. */
 		h1: z.string(),
-		/** §4.4: 2–4 argument paragraphs, each a subheading plus 1–3 sentences. */
-		sections: z.array(z.object({ heading: z.string(), body: z.string() })).min(2).max(4),
+		/** The §5.2 hero intro paragraph (【终稿·勿改】) — one self-contained overview below the H1. */
+		intro: z.string(),
+		/** §5.4: the argument cards — the v1 sections' words, 3–4 per page, heading + body. */
+		sections: z.array(z.object({ heading: z.string(), body: z.string() })).min(3).max(4),
 		/** The `Learn more` target — a key of `learnMoreLinks` in links.ts (the §4.4 mapping). */
 		learnMore: z.enum([...keywordPageSlugs]),
-		/** §4.4: the in-page FAQ — 4–5 questions, zero overlap with the global nine. */
-		faq: z.array(z.object({ question: z.string(), answer: z.string() })).min(4).max(5),
+		/** §5.3: the in-page FAQ — 6 questions per page (§5.5 slot 6–8), zero overlap with the global nine. */
+		faq: z.array(z.object({ question: z.string(), answer: z.string() })).min(6).max(8),
 		/** The §4.4 anchor mapping: the home anchor the page links back to (`/#features` …). */
 		backAnchor: z.string(),
 	}),
