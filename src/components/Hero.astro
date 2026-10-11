@@ -26,17 +26,17 @@ const shikiThemes = codeThemes;
 const barMeta = windowBarMeta(trace.meta);
 ---
 <section class="py-24" data-hero>
-	<div class="wrap cols items-start">
-		<div class="col-span-4 md:col-span-5">
-			<h1 class="text-4xl font-semibold tracking-tight text-ink">{h1}</h1>
-			<p class="mt-5 text-lg text-ink2">{sub}</p>
-			<div class="mt-8 flex flex-col items-start gap-3">
+	<div class="wrap cols items-center">
+		<div class="col-span-4 md:col-span-12 xl:col-span-6">
+			<h1 class="text-3xl font-semibold tracking-tight text-ink xl:text-4xl">{h1}</h1>
+			<p class="mt-6 text-lg text-ink2">{sub}</p>
+			<div class="mt-12 flex flex-col items-start gap-3">
 				<AgentPromptCta />
 				<a href={LINKS.github} class="font-semibold text-acc transition-colors hover:text-acc-h">GitHub</a>
 			</div>
 		</div>
 
-		<div class="col-span-4 self-start overflow-hidden box bg-bg2 md:col-span-7" data-window>
+		<div class="col-span-4 mt-12 overflow-hidden box bg-bg2 md:col-span-12 xl:col-span-6 xl:mt-0" data-window>
 			<div class="flex items-center gap-3 border-b border-line px-4 py-2.5" data-window-bar>
 				<span class="flex gap-1.5" aria-hidden="true">
 					<i class="size-2.5 rounded-full bg-ink3"></i>
