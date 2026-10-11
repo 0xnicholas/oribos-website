@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
  * The red-line scan over the built site (SPEC §8.8 ④, §9.2, SPEC-revamp §4): the retired
- * `coming soon` status, competitor names, counting-style figures, `MIT`, the retired
- * `@balsa/*` / `@balsats/*` scopes, the retired repository / domain names (issue #18 Testing #4),
- * and the RAG / evals line keyword pages must not cross. Install-class commands are held to two
- * slots instead — `scripts/check-install.mjs`. The rules and their reasons live in
- * `src/lib/copy-rules.ts`; this script walks `dist/` and reports.
+ * `coming soon` status, competitor names, counting-style figures, the retired `ultralight` /
+ * `lightweight` positioning, `MIT`, the retired `@balsa/*` / `@balsats/*` scopes, the retired
+ * repository / domain names (issue #18 Testing #4), and the RAG / evals line keyword pages must
+ * not cross. Install-class commands are held to two slots instead — `scripts/check-install.mjs`.
+ * The rules and their reasons live in `src/lib/copy-rules.ts`; this script walks `dist/` and
+ * reports.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-copy.mjs [--root <dir>] [--dist <dir>]
@@ -27,7 +28,7 @@ const issues = copyIssues(files);
 
 reportIssues(
 	issues,
-	`${files.length} built file(s): no retired \`coming soon\`, competitor name, counting figure, \`MIT\`, retired scope, retired name or RAG/evals breach`,
+	`${files.length} built file(s): no retired \`coming soon\`, competitor name, counting figure, retired \`ultralight\`/\`lightweight\` positioning, \`MIT\`, retired scope, retired name or RAG/evals breach`,
 );
 
 failGate(issues, {

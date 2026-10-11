@@ -15,12 +15,18 @@ test('competitor and reference-site names are found, case-insensitively', () => 
 	assert.ok(rules('<p>LangChain users will feel at home.</p>').length > 0);
 });
 
+test('the retired `ultralight` / `lightweight` positioning is caught, case-insensitively', () => {
+	assert.ok(rules('<p>Build ultralight AI agents.</p>').length > 0);
+	assert.ok(rules('<p>Lightweight in two precise senses.</p>').length > 0);
+	assert.deepEqual(rules('<p>The TypeScript agent framework with zero runtime dependencies.</p>'), []);
+});
+
 test('counting-style figures are caught; the locked phrases of the spec are not', () => {
 	for (const figure of ['five fields', 'five core subsystems', '12 packages', '3 tests', '500 KB', '2 million users']) {
 		assert.ok(rules(`<p>${figure}</p>`).length > 0, `expected a finding for \`${figure}\``);
 	}
 	assert.deepEqual(rules('<p>An agent is a handful of fields.</p>'), []);
-	assert.deepEqual(rules('<p>One small framework, three shapes.</p>'), []);
+	assert.deepEqual(rules('<p>One framework, three shapes.</p>'), []);
 	assert.deepEqual(rules('<p>trace · gpt-4o-mini · 2 steps · 1.62s</p>'), []);
 	assert.deepEqual(rules('<p>0 runtime dependencies</p>'), []);
 });

@@ -9,16 +9,16 @@ The landing page group for Oribos — home page and closely related content page
 _Avoid_: docs site, website（泛指）
 
 **Oribos**:
-The umbrella brand this site markets: its first subproject is the ultralight TypeScript AI agent framework (repo `oribos-framework`), the documentation site follows, and future subprojects live alongside them. Public tagline: "Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage."
+The umbrella brand this site markets: its first subproject is the TypeScript AI agent framework (repo `oribos-framework`), the documentation site follows, and future subprojects live alongside them. Public tagline: "The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies."
 _Avoid_: `balsa` / `balsats`（旧名，见框架 ADR-0013 末次修订；`link-rules.ts` 见到即红）
 
 **站点根 (Site origin)**:
 营销站的单一部署根 = `https://oribos.dev`（文档站 = `https://docs.oribos.dev`，两站同根）；仓库里唯一的 host 字面量在 `src/lib/site.ts`，canonical / `og:url` / sitemap / robots 全由它派生。
 _Avoid_: 在页面 / 布局 / 组件 / 内容数据里另写域名（`scripts/check-origin.mjs` 见到即红）
 
-**Lightweight**:
-Oribos's differentiating axis, with a precise two-part meaning: compose only what you use (every subsystem a separate subpath export; zero runtime dependencies) and no runtime burden (no required DB, queue, or long-running process; embeds in the host app).
-_Avoid_: small, mini（泛化的"小"）
+**Architecture facts**:
+The approved claims about Oribos's shape, stated as facts rather than a lightness identity: compose only what you use (every subsystem a separate subpath export; zero runtime dependencies) and no runtime burden (no required DB, queue, or long-running process; embeds in the host app).
+_Avoid_: ultralight, lightweight（退役定位词，CI 红线）, small, mini（泛化的"小"）
 
 **core package**:
 `@oribos/core`, the zero-runtime-dependency package; every subsystem is a subpath export.

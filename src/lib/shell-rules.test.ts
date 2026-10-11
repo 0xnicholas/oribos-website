@@ -50,7 +50,7 @@ const header = `
 const footer = `
 <footer>
 	<a href="/">Oribos</a>
-	<p>Ultralight TypeScript agent framework.<br />Compose only what you use — run anywhere, no runtime baggage.</p>
+	<p>The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies.</p>
 	<h2>Framework</h2>
 	<a href="/ai-agent-framework/">Agent framework</a>
 	<a href="/ai-agents/">Agents</a>
@@ -117,7 +117,7 @@ test('the dropdown keeps the SPEC order: Items → Docs → GitHub → the versi
 });
 
 test('the footer keeps the four columns in order and the verbatim tagline and legal line', () => {
-	const withoutTagline = head.replace('Compose only what you use — run anywhere, no runtime baggage.', 'Compose only what we sell.');
+	const withoutTagline = head.replace('with zero runtime dependencies.', 'with zero compromises.');
 	assert.match(footerIssues(page(withoutTagline))[0]!, /tagline/);
 
 	const withoutLegal = head.replace('© 2026 Oribos · Apache-2.0', '© 2026 Oribos');

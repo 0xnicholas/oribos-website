@@ -60,7 +60,7 @@ const page = (entry: KeywordPageSpec = spec): KeywordPage => ({
 				</div>
 			</div>
 		</section>
-		<section id="get-started" class="border-t border-line px-6 py-20"><h2>Build ultralight AI agents.</h2></section>
+		<section id="get-started" class="border-t border-line px-6 py-20"><h2>Build AI agents that run for days.</h2></section>
 		<section data-keyword-back class="border-t border-line px-6 py-12">
 			<div class="mx-auto max-w-3xl">
 				<a href="${entry.backAnchor}" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>

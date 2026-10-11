@@ -40,7 +40,7 @@ export const features: readonly FeatureSpec[] = [
 	{
 		id: 'agents',
 		tab: 'Agents',
-		claim: 'A minimal agent surface with a built-in tool loop.',
+		claim: 'A compact agent surface with a built-in tool loop.',
 		bullets: [
 			{ lead: 'A handful of fields', text: 'name, instructions, model, tools — plus optional memory and processors.' },
 			{

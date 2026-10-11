@@ -1,20 +1,23 @@
 ---
 // The one footer every page carries (SPEC §2.3): brand block → four columns → legal row.
 // No newsletter slot, no social column, no status line; the external targets are the links
-// constants, so the docs switch point stays one edit. The tagline comes from `src/lib/brand.ts`,
-// split at its sentence boundary for the two-line brand-block typography.
+// constants, so the docs switch point stays one edit. The tagline comes from `src/lib/brand.ts`;
+// a two-sentence tagline puts sentence one on its own semibold line, a one-sentence tagline
+// renders whole.
 import { publicTagline } from '../lib/brand.ts';
 import { footerColumns } from '../lib/navigation.ts';
 
 const [taglineLead, ...taglineRest] = publicTagline.split('. ');
+const taglineTail = taglineRest.join('. ');
+const taglineHead = taglineTail === '' ? taglineLead : `${taglineLead}.`;
 ---
 <footer class="mt-24 border-t border-line">
 	<div class="wrap grid gap-10 py-12 md:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">
 		<div class="max-w-xs">
 			<a href="/" class="text-lg font-semibold tracking-tight text-ink">Oribos</a>
 			<p class="mt-3 text-base text-ink2">
-				<span class="font-semibold">{taglineLead}.</span><br />
-				{taglineRest.join('. ')}
+				<span class="font-semibold">{taglineHead}</span>{taglineTail !== '' && <br />}
+				{taglineTail}
 			</p>
 		</div>
 		{footerColumns.map((column) => (

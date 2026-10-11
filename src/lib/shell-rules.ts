@@ -30,7 +30,7 @@ export type ShellPage = { path: string; html: string };
 
 /** SPEC §2.3 【终稿·勿改】: the public tagline, footer brand block. */
 export const tagline =
-	'Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage.';
+	'The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies.';
 /** SPEC §2.3 【终稿·勿改】: a static string, never a build-time year. */
 export const legalLine = '© 2026 Oribos · Apache-2.0';
 

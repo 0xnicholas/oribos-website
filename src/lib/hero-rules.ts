@@ -13,9 +13,9 @@ import { windowBarMeta } from './trace-meta.ts';
 export type HeroPage = { path: string; html: string };
 
 /** SPEC §3.1 【终稿·勿改】: the H1 and the sub. */
-export const heroH1 = 'Build ultralight AI agents.';
+export const heroH1 = 'Build AI agents that run for days.';
 export const heroSub =
-	'Build, compose, and ship agents with zero runtime dependencies — Oribos, the ultralight TypeScript agent framework.';
+	'Build, observe, and ship durable agents — Oribos, the TypeScript agent framework with zero runtime dependencies.';
 /** SPEC-revamp §4.1: the hero's secondary CTA is a `GitHub` text link; the v1 copy button is retired. */
 export const ctaGithub = 'GitHub';
 export const retiredHeroCta = 'Copy quick start';
@@ -83,7 +83,7 @@ export const traceSummary = "chunk.type === 'text-delta' — every span from the
 export const heroWindowBarMeta = windowBarMeta(traceMeta);
 
 /** SPEC-revamp §4.5: the shared final CTA — the H2 from the v1 spec, the new published-state sub. */
-export const finalCtaHeading = 'Build ultralight AI agents.';
+export const finalCtaHeading = 'Build AI agents that run for days.';
 export const finalCtaSub =
 	'Copy the agent prompt, paste it into your coding agent, and add a working Oribos agent to the app you already run.';
 

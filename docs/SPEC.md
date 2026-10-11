@@ -27,7 +27,7 @@
 
 ## 1. 一页速览
 
-**站点是什么**：Oribos——ultralight TypeScript AI agent 框架（core 零运行时依赖）——的营销站。英文优先；IA 以 mastra.ai 为内部参照（站上永不点名）；主 CTA = GitHub + `coming soon`；社会证明只留占位；不点名竞品；数据口径 = 架构事实 + 绝对值。
+**站点是什么**：Oribos——TypeScript AI agent 框架（core 零运行时依赖）——的营销站。英文优先；IA 以 mastra.ai 为内部参照（站上永不点名）；主 CTA = GitHub + `coming soon`；社会证明只留占位；不点名竞品；数据口径 = 架构事实 + 绝对值。
 
 **交付物**：11 个页面（首页 + `/about` + 2 法务页 + 3 用例页 + 4 关键词页）+ Astro 默认 404。技术形态固定为：Astro 静态站、`output: 'static'`、**不装任何 adapter**、产物 = 可移植的 `dist/` 静态目录（部署目标 = 腾讯云，2026-10-02 owner 定；具体托管形态与节点选择待定，见 §10.1②）。
 
@@ -91,10 +91,10 @@ Oribos（文字 wordmark，链 /） · Use cases ▾ · Docs · GitHub · coming
 - **左品牌块**：wordmark `Oribos`（链 `/`）+ 公开 tagline（逐字，【终稿·勿改】）：
 
 ```
-Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage.
+The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies.
 ```
 
-  排版【SPEC 起草·可润色】：第一句独立一行、字重略高；第二句换行缩进（或同段折行），两行共用 footer 文本色（非 accent）。
+  排版【SPEC 起草·可润色】：整句字重略高、品牌块内折行（两句式 tagline 则首句独立一行），footer 文本色（非 accent）。
 
 - **四栏**（栏名与条目逐字）：
 
@@ -155,7 +155,7 @@ title 后缀统一 `— Oribos`；关键词页 title 为票据锁定口径（`<K
 
 | 页面 | title | meta description |
 | --- | --- | --- |
-| `/` | `Oribos — ultralight TypeScript AI agent framework` | `Oribos is an ultralight TypeScript agent framework: compose only what you use, run anywhere, with zero runtime dependencies.` |
+| `/` | `Oribos — TypeScript AI agent framework` | `Oribos is a TypeScript agent framework: agents, workflows, memory, and MCP with zero runtime dependencies — from prototype to production, in the app you already run.` |
 | `/about` | `About — Oribos` | `About Oribos — why the project exists, who maintains it, and how code and content are licensed.` |
 | `/privacy-policy` | `Privacy policy — Oribos` | `Privacy policy for the Oribos marketing site: a static site with no accounts, no cookies and no tracking.` |
 | `/terms-of-service` | `Terms of service — Oribos` | `Terms of service for the Oribos website and project: pre-1.0, provided as-is, code under Apache-2.0.` |
@@ -198,9 +198,9 @@ Hero → Feature tabs ×5（Agents / Workflows / Harness / Memory / MCP）→ Ob
 **文案**【终稿·勿改】：
 
 ```
-H1:  Build ultralight AI agents.
-Sub: Build, compose, and ship agents with zero runtime dependencies — Oribos,
-     the ultralight TypeScript agent framework.
+H1:  Build AI agents that run for days.
+Sub: Build, observe, and ship durable agents — Oribos, the TypeScript agent
+     framework with zero runtime dependencies.
 ```
 
 **CTA**：主 = `GitHub`（星形图标 + 文本，无星数；→ `links.github`）；次 = `⧉ Copy quick start`（点击复制 §7.2 hero 代码段**逐字**，复制成功态 `✓ copied`，1.2s 后复原）。CTA 不带版本号、不含 install 命令。hero 内**不另设** `coming soon` 控件——`coming soon` 由 header pill、final CTA 与 FAQ 第 2 题承担（#4/#6 锁定 hero CTA 只此两枚；#12 所称「hero 的 coming soon CTA」按站级口径读）。
@@ -225,7 +225,7 @@ Sub: Build, compose, and ship agents with zero runtime dependencies — Oribos,
 **1 · Agents**【claim 终稿；支撑项为原型渲染稿，逐条对应 #5 要点】
 
 ```
-A minimal agent surface with a built-in tool loop.
+A compact agent surface with a built-in tool loop.
 ```
 
 - **A handful of fields** — name, instructions, model, tools — plus optional memory and processors.
@@ -325,7 +325,7 @@ they will live here.
 
 ```
 In your product. Around your team. Under your platform.
-One small framework, three shapes — and nothing new to stand up.
+One framework, three shapes — and nothing new to stand up.
 ```
 
 - 三张卡（标题与 claim 逐字【终稿·勿改】；整卡可点、卡标题为链）：
@@ -355,14 +355,14 @@ One small framework, three shapes — and nothing new to stand up.
 - 第 2 题是 CTA 切换点之二（双版见 §6.2）。`FAQPage` JSON-LD 归 fog（§10 未决④）。
 
 **1. `What is Oribos?`**（定义题不背发布状态）
-要点：ultralight TypeScript agent framework；心智表面 = agents / tools / memory / workflows / durable execution（+ capability packages）；轻量两义 = compose only what you use（逐子路径导出、core 零运行时依赖）+ no runtime burden（不要求 DB / 队列 / 长驻进程，嵌入宿主应用）。
+要点：TypeScript agent framework；心智表面 = agents / tools / memory / workflows / durable execution（+ capability packages）；架构事实 = compose only what you use（逐子路径导出、core 零运行时依赖）+ no runtime burden（不要求 DB / 队列 / 长驻进程，嵌入宿主应用）。
 EN 初稿【SPEC 起草·可润色】：
 
 ```
-Oribos is an ultralight TypeScript agent framework. Its surface is agents, tools, memory,
-workflows and durable execution, with capability packages you add as you need them. It is
-lightweight in two precise senses: you compose only what you use, and it asks for no runtime
-of its own — no database, no queue, no long-running process; it embeds in the app you already run.
+Oribos is a TypeScript agent framework. Its surface is agents, tools, memory, workflows
+and durable execution, with capability packages you add as you need them. The core carries
+zero runtime dependencies and asks for no runtime of its own — no database, no queue, no
+long-running process; it embeds in the app you already run.
 ```
 
 **2. `Is Oribos on npm yet?`**（CTA 切换点之二）
@@ -378,7 +378,7 @@ star or watch it for release updates.
 发布后版本（草案，**未拍**；随 CTA 切换方案落地）：`Yes — 0.5.0 is on npm, and every @oribos/* package ships under it.` + install 命令/下一步（**未拍前不得写入**）。
 
 **3. `Why another TypeScript agent framework?`**
-要点：只答自家轴（Lightweight 两义）；可提 CI 字节预算是「被检查的属性」的机制；不点名竞品、不做相对化或生态对比、不写任何数字。
+要点：只答自家轴（架构事实：compose only what you use + no runtime burden）；可提 CI 字节预算是「被检查的属性」的机制；不点名竞品、不做相对化或生态对比、不写任何数字。
 EN 初稿【SPEC 起草·可润色】：
 
 ```
@@ -457,7 +457,7 @@ Apache-2.0. Code and examples are licensed under it; the license covers code, no
 【SPEC 起草·可润色】；硬约束：不带版本号、不含 install 命令、不用对比性表述。
 
 ```
-H2:  Build ultralight AI agents.
+H2:  Build AI agents that run for days.
 Sub: The repository is open today — star or watch it to follow releases. The first public
      version is coming soon.
 CTA: ★ GitHub（主） + `coming soon` pill（纯状态徽标，非链接）

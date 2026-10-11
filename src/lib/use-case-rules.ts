@@ -29,7 +29,7 @@ export type UseCaseCardSpec = { title: string; claim: string; route: string; moc
 
 /** SPEC §3.5 引言【终稿·勿改】: the section's two lines, as the heading and the line under it. */
 export const useCaseIntroHeading = 'In your product. Around your team. Under your platform.';
-export const useCaseIntroSub = 'One small framework, three shapes — and nothing new to stand up.';
+export const useCaseIntroSub = 'One framework, three shapes — and nothing new to stand up.';
 
 /** SPEC §3.5: the three cards in page order — titles, claims and targets verbatim. */
 export const useCaseCards: readonly UseCaseCardSpec[] = [

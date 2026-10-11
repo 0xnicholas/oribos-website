@@ -62,7 +62,7 @@ export const lastUpdatedPattern = /^Last updated: [A-Z][a-z]+ \d{1,2}, \d{4}$/;
 export const aboutSpec: AboutPageSpec = {
 	route: '/about/',
 	h1: 'About Oribos',
-	tagline: 'Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage.',
+	tagline: 'The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies.',
 	storyHeading: 'Our story',
 	story: [
 		'The project exists for one bet — that an agent framework should be a library inside your application, not a platform your application moves into. So every subsystem ships behind its own entry point, the core carries no runtime dependencies, and nothing here needs a database, a queue or a long-running process.',

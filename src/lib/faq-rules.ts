@@ -29,7 +29,7 @@ export const faqItems: readonly FaqSpecItem[] = [
 	{
 		question: 'What is Oribos?',
 		answer:
-			'Oribos is an ultralight TypeScript agent framework. Its surface is agents, tools, memory, workflows and durable execution, with capability packages you add as you need them. It is lightweight in two precise senses: you compose only what you use, and it asks for no runtime of its own — no database, no queue, no long-running process; it embeds in the app you already run.',
+			'Oribos is a TypeScript agent framework. Its surface is agents, tools, memory, workflows and durable execution, with capability packages you add as you need them. The core carries zero runtime dependencies and asks for no runtime of its own — no database, no queue, no long-running process; it embeds in the app you already run.',
 	},
 	{
 		question: 'Is Oribos on npm yet?',

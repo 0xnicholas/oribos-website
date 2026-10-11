@@ -61,7 +61,7 @@ export const resourceCards: readonly BandResourceLink[] = [
 	{
 		label: 'Architecture',
 		key: 'architecture',
-		description: 'How the framework stays ultralight — architecture decisions and the CI byte budget mechanism.',
+		description: 'The architecture behind zero runtime dependencies — design decisions and the CI byte budget mechanism.',
 	},
 ];
 

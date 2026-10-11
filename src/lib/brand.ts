@@ -12,4 +12,4 @@ export const wordmark = 'Oribos';
 
 /** The public tagline, verbatim from the spec — sentence one, then sentence two. */
 export const publicTagline =
-	'Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage.';
+	'The TypeScript agent framework: agents, workflows, memory, and durable execution — with zero runtime dependencies.';

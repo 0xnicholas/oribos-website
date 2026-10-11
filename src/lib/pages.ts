@@ -14,7 +14,7 @@
 export type SitePage = { route: string; title: string };
 
 export const pages: readonly SitePage[] = [
-	{ route: '/', title: 'Oribos — ultralight TypeScript AI agent framework' },
+	{ route: '/', title: 'Oribos — TypeScript AI agent framework' },
 	{ route: '/about/', title: 'About — Oribos' },
 	{ route: '/privacy-policy/', title: 'Privacy policy — Oribos' },
 	{ route: '/terms-of-service/', title: 'Terms of service — Oribos' },

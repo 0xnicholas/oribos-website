@@ -39,7 +39,7 @@ test('the favicon PNG exports keep their sizes', () => {
 
 test('llms.txt is the page list: verbatim titles with absolute URLs on the one origin', () => {
 	const pages = [
-		{ route: '/', title: 'Oribos — ultralight TypeScript AI agent framework' },
+		{ route: '/', title: 'Oribos — TypeScript AI agent framework' },
 		{ route: '/about/', title: 'About — Oribos' },
 	];
 	const text = `# Oribos\n\n- [${pages[0]!.title}](${origin}/)\n- [${pages[1]!.title}](${origin}/about/)\n`;

@@ -1,8 +1,9 @@
 /**
  * The red-line scan (SPEC §8.8 ④, §9.2) over the *built* site: names the site never mentions,
- * counting-style figures, the retired `MIT` license word, the retired `@balsa/*` and `@balsats/*`
- * scopes, the retired repository / domain names, the retired `coming soon` release status
- * (SPEC-revamp §4: one published state), and the RAG / evals line keyword pages must not cross.
+ * counting-style figures, the retired `ultralight` / `lightweight` positioning, the retired `MIT`
+ * license word, the retired `@balsa/*` and `@balsats/*` scopes, the retired repository / domain
+ * names, the retired `coming soon` release status (SPEC-revamp §4: one published state), and the
+ * RAG / evals line keyword pages must not cross.
  * Install-class commands are not a red line any more — SPEC-revamp §4.6 holds them to two slots,
  * and `src/lib/install-rules.ts` is that gate.
  *
@@ -43,6 +44,11 @@ export const copyRules: readonly CopyRule[] = [
 		id: 'competitor-name',
 		reason: 'the site never names a competitor or the reference site (SPEC §9.2)',
 		pattern: /\b(?:mastra|langchain|langgraph|llamaindex|llama[ _-]?index|crewai|autogen|semantic[ -]?kernel|haystack)\b/i,
+	},
+	{
+		id: 'retired-positioning',
+		reason: 'the `ultralight` / `lightweight` positioning is retired — the category is the TypeScript agent framework (SPEC §2.3)',
+		pattern: /\b(?:ultralight|lightweight)\b/i,
 	},
 	{
 		id: 'counting-figure',

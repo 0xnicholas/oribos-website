@@ -11,6 +11,11 @@
  * - §3.6 adds only the Resources card descriptions; §4.2 adds the `releases` link, removing
  *   nothing.
  *
+ * On top of the revamp sanctions sits the repositioning ruling (SPEC §2.3/§3.1 改判): the
+ * `ultralight` positioning is retired, so the hero H1/sub, the final-CTA heading, the
+ * definition FAQ answer, the Agents claim, the use-case intro sub and the public tagline in
+ * `brand.ts` move to the category framing — each held to the exact keys it rewrites.
+ *
  * Any other difference from the skeleton — a re-worded carried sentence, a dropped FAQ, an
  * edited legal page — is a finding. `scripts/check-provenance.mjs` diffs the working tree
  * against the skeleton ref with git and prints the findings; the matching rules live here.
@@ -51,11 +56,16 @@ export const sanctions: readonly Sanction[] = [
 	{ path: /^src\/content\/facts\//, status: 'A', reason: 'the architecture-facts collection is new (SPEC-revamp §3.2)' },
 	{ path: /^src\/content\/social-proof\//, status: 'D', reason: 'the social-proof collection is abolished (SPEC-revamp §3.2)' },
 	{ path: /^src\/content\/faq\/on-npm\.json$/, status: 'M', keys: ['answer'], reason: 'only the npm answer flips to the published state (SPEC-revamp §4.4)' },
+	{ path: /^src\/content\/faq\/what-is-oribos\.json$/, status: 'M', keys: ['answer'], reason: 'the definition answer drops the retired `ultralight` framing (SPEC §3.7 改判)' },
+	{ path: /^src\/content\/features\/agents\.json$/, status: 'M', keys: ['claim'], reason: 'the Agents claim says `compact`, not `minimal` (SPEC §3.2 改判)' },
 	{ path: /^src\/content\/features\/mcp\.json$/, status: 'M', keys: ['files'], reason: 'only the MCP snippet\'s version literal becomes the {version} token (SPEC-revamp §4.6)' },
-	{ path: /^src\/content\/final-cta\/default\.json$/, status: 'M', keys: ['sub'], reason: 'only the final-CTA sub is replaced (SPEC-revamp §4.5)' },
+	{ path: /^src\/content\/final-cta\/default\.json$/, status: 'M', keys: ['sub', 'heading'], reason: 'the sub flips to the published state (SPEC-revamp §4.5); the heading follows the new hero H1 (SPEC §3.1 改判)' },
+	{ path: /^src\/content\/hero\/home\.json$/, status: 'M', keys: ['h1', 'sub'], reason: 'the hero H1/sub move to the `run for days` positioning (SPEC §3.1 改判)' },
+	{ path: /^src\/content\/use-case-intro\/default\.json$/, status: 'M', keys: ['sub'], reason: 'the intro sub drops `small` from the framework line (SPEC §3.5 改判)' },
 	{ path: /^src\/content\/keyword-pages\/[^/]+\.json$/, status: 'M', keys: ['intro', 'faq'], reason: 'only the hero intro and the §5.3 FAQ row are added (SPEC-revamp §5.2/§5.3)' },
 	{ path: /^src\/content\/resources\/default\.json$/, status: 'M', keys: ['links'], reason: 'only the card descriptions are added (SPEC-revamp §3.6)' },
 	{ path: /^src\/lib\/links\.ts$/, status: 'M', additionsOnly: true, additionsMatch: /releases|§4\.2/, reason: 'the releases constant is added, nothing removed (SPEC-revamp §4.2)' },
+	{ path: /^src\/lib\/brand\.ts$/, status: 'M', reason: 'the public tagline moves to the category positioning (SPEC §2.3 改判)' },
 	{ path: /^src\/lib\/version\.ts$/, status: 'A', reason: 'the version constant is new (SPEC-revamp §4.6)' },
 ];
 

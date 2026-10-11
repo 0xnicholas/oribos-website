@@ -75,7 +75,7 @@ const page = (entry: UseCasePageSpec = spec, options: { mock?: string } = {}): S
 		</div>
 	</section>
 	<section id="faq" data-faq class="border-t border-line px-6 py-24"><h2>Frequently asked questions</h2></section>
-	<section id="get-started" class="border-t border-line px-6 py-24"><h2>Build ultralight AI agents.</h2></section>
+	<section id="get-started" class="border-t border-line px-6 py-24"><h2>Build AI agents that run for days.</h2></section>
 	<section data-use-case-back class="border-t border-line py-12">
 		<div class="wrap">
 			<a href="${backLinkHref}" class="text-base font-semibold text-acc hover:underline">${backLinkText}</a>

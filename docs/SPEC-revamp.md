@@ -198,7 +198,7 @@ Size is a checked property
 ```
 Docs:         Concepts and reference for every subsystem — agents, tools, memory, workflows, observability.
 Examples:     Working examples from the repository — copy one and start building.
-Architecture: How the framework stays ultralight — architecture decisions and the CI byte budget mechanism.
+Architecture: The architecture behind zero runtime dependencies — design decisions and the CI byte budget mechanism.
 ```
 
 - **无 changelog 流、无 Releases 卡、无书**（#15 承接面禁令沿旧）。
@@ -278,7 +278,7 @@ capability package ships alongside it under @oribos/* — add them one at a time
 
 ### 4.5 final CTA 组件（首页 + 用例页 + 关键词页共用）
 
-- H2 `沿用 build`（`Build ultralight AI agents.`）；coming soon pill 移除。
+- H2 改判随 hero H1（`Build AI agents that run for days.`）；coming soon pill 移除。
 - 新 sub`【终稿·勿改】`：
 
 ```

@@ -115,7 +115,7 @@ test('/about: the H1 must read `About Oribos`', () => {
 });
 
 test('/about: the sub is the public tagline verbatim', () => {
-	const issues = aboutPageIssues(mutateAbout(aboutSpec.tagline, 'The ultralight agent framework.'));
+	const issues = aboutPageIssues(mutateAbout(aboutSpec.tagline, 'The agent framework of record.'));
 	assert.ok(issues.some((issue) => issue.includes('the sub is not the public tagline verbatim')));
 });
 
