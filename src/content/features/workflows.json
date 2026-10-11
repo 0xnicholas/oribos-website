@@ -1,0 +1,33 @@
+{
+	"order": 2,
+	"tab": "Workflows",
+	"claim": "Multi-step runs that suspend, snapshot, and resume — anywhere.",
+	"bullets": [
+		{
+			"lead": "A fluent builder",
+			"text": "foreach, parallel, branch, then — an agent is an ordinary step."
+		},
+		{
+			"lead": "Suspend & resume",
+			"text": "a run stops at a step boundary as a JSON snapshot, resumable from another process."
+		},
+		{
+			"lead": "Lifecycle events",
+			"text": "run-start, step-start, step-end, run-end — streamed as they happen."
+		},
+		{
+			"lead": "Schema at every boundary",
+			"text": "start input, step input and resume data are all validated."
+		}
+	],
+	"files": [
+		{
+			"file": "workflow.ts",
+			"code": "import { createWorkflow } from '@oribos/core/workflows';\n\nconst workflow = createWorkflow({ id: 'expense-approval', inputSchema: report, outputSchema: receipt })\n  .foreach(checkItem, { concurrency: 2 })\n  .parallel([policyCheck, budgetCheck])\n  .then(draftMemo)\n  .then(approvalGate)\n  .commit();"
+		},
+		{
+			"file": "resume.ts",
+			"code": "// another process, later — the whole state is one JSON snapshot\nconst outcome = await workflow.createRun({ runId: 'run-1' }).resume({\n  step: 'approval-gate',\n  resumeData: { approved: true },\n});"
+		}
+	]
+}

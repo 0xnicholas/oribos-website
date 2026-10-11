@@ -1,0 +1,5 @@
+{
+	"order": 3,
+	"question": "Why another TypeScript agent framework?",
+	"answer": "Because the useful parts of a framework should behave like a library, not a platform. Every subsystem ships behind its own subpath export and the core carries zero runtime dependencies, so what you don't import costs you nothing — not in the dependency tree, not in concept space. Nothing here needs a database, a queue or a long-running process, and a CI byte budget keeps size a checked property rather than a promise."
+}

@@ -1,0 +1,7 @@
+{
+	"tag": "agent prompt — self-contained",
+	"button": "Copy agent prompt",
+	"task": "One paste into your coding agent → a working Oribos agent.",
+	"cmeta": "install · 6-line agent · README — inside",
+	"payload": "Add a working Oribos agent to this project.\n\nInstall: npm i @oribos/core @ai-sdk/openai\n\nCreate agent.ts:\n  import { openai } from '@ai-sdk/openai';\n  import { Agent } from '@oribos/core/agent';\n  const agent = new Agent({ name: 'assistant',\n    model: openai.chat('gpt-4o-mini') });\n  for await (const c of agent.stream('Say hello.'))\n    if (c.type === 'text-delta') process.stdout.write(c.textDelta);\n\nRun it with your model key set, then read github.com/0xnicholas/oribos-framework#readme to go deeper."
+}

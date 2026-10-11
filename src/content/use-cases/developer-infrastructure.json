@@ -1,0 +1,27 @@
+{
+	"order": 3,
+	"title": "Platform & developer infra",
+	"claim": "Shared agent primitives your product teams compose.",
+	"route": "/developer-infrastructure/",
+	"mock": "console",
+	"page": {
+		"tagline": "Ship primitives other teams build on — each team installs only what it uses.",
+		"scenarios": [
+			{
+				"name": "Primitives, not a platform",
+				"text": "Teams import only the subpaths they need and add capability packages one at a time; the composition root is optional and a bare new Agent() stays first-class.",
+				"packages": ["@oribos/core/*", "capability packages added one at a time"]
+			},
+			{
+				"name": "Into the observability you already run",
+				"text": "Oribos traces its own minimal spans; @oribos/otlp exports them with GenAI semantic conventions to your collector — one tracer handed down by the app.",
+				"packages": ["@oribos/core/observability", "@oribos/otlp"]
+			},
+			{
+				"name": "Publish agents as shared infrastructure",
+				"text": "Serve an MCP endpoint other teams and systems call — and compose one team's agent as a tool on another's.",
+				"packages": ["@oribos/mcp-server", "as-tool composition"]
+			}
+		]
+	}
+}

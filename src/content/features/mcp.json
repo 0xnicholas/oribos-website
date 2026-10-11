@@ -1,0 +1,29 @@
+{
+	"order": 5,
+	"tab": "MCP",
+	"claim": "Serve your tools over MCP — and bring MCP tools in.",
+	"bullets": [
+		{
+			"lead": "@oribos/mcp-server",
+			"text": "your tools served over MCP, HTTP or stdio."
+		},
+		{
+			"lead": "@oribos/mcp-client",
+			"text": "another server's tools become ordinary Oribos tools."
+		},
+		{
+			"lead": "Tools stay plain objects",
+			"text": "no registry — a tool's name is its key in the container."
+		}
+	],
+	"files": [
+		{
+			"file": "server.ts",
+			"code": "import { createMcpServer } from '@oribos/mcp-server';\n\nconst server = createMcpServer({ name: 'weather', version: '{version}', tools: { weather } });\n\nexport default server.fetch;   // the same tools over MCP — HTTP or stdio"
+		},
+		{
+			"file": "client.ts",
+			"code": "import { createMcpClient } from '@oribos/mcp-client';\n\nconst client = await createMcpClient({ transport: { type: 'http', url } });\n\nconst agent = new Agent({ name, model, tools: client.tools });   // remote tools, as plain tools"
+		}
+	]
+}

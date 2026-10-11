@@ -1,0 +1,27 @@
+{
+	"order": 2,
+	"title": "Operations agents",
+	"claim": "Agents that handle the busywork around your team — with a human on the risky steps.",
+	"route": "/operations-agents/",
+	"mock": "thread",
+	"page": {
+		"tagline": "Bring your tools in over MCP, gate risky actions on approval, wake the agent on a schedule.",
+		"scenarios": [
+			{
+				"name": "Bring your tools in, unchanged",
+				"text": "MCP servers you already run stay where they are; their tools arrive as ordinary Oribos tools — plain objects, no registry.",
+				"packages": ["@oribos/mcp-client"]
+			},
+			{
+				"name": "A human on the risky step",
+				"text": "Approval-listed calls suspend instead of executing — approve to continue, reject and the model replans; the snapshot is JSON and survives the process.",
+				"packages": ["@oribos/core/durable-agent", "@oribos/sqlite"]
+			},
+			{
+				"name": "Wake it on a schedule, not a worker",
+				"text": "tick() fired by a platform cron is the first-class shape; @oribos/croner supplies the cron expressions, signals wake or inject into a thread.",
+				"packages": ["@oribos/core/schedules", "@oribos/core/signals", "@oribos/croner"]
+			}
+		]
+	}
+}

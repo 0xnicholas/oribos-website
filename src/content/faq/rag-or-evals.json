@@ -1,0 +1,5 @@
+{
+	"order": 7,
+	"question": "Does Oribos support RAG or evals?",
+	"answer": "No — neither is built in. Both sit on the framework's deferred list and will be reopened against real use-case signals, with no schedule promised. Eval-style assertions can already hang off processors, and observability is built in: a tracer with spans, exportable to any OTLP collector with GenAI semantic conventions."
+}

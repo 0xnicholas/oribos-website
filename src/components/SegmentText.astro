@@ -1,0 +1,23 @@
+---
+// One paragraph of the about / legal pages' copy (SPEC §4.1/§4.2): plain text runs and links
+// whose hrefs come from the one constants file (SPEC §2.4) — the content data names the link's
+// key, never the URL.
+import { LINKS, type TextPageLinkKey } from '../lib/links.ts';
+
+export type CopySegment = { text: string } | { link: { label: string; key: TextPageLinkKey } };
+
+export interface Props {
+	segments: readonly CopySegment[];
+}
+
+const { segments } = Astro.props;
+---
+{
+	segments.map((segment) =>
+		'text' in segment ? (
+			segment.text
+		) : (
+			<a href={LINKS[segment.link.key]} class="text-acc hover:underline">{segment.link.label}</a>
+		),
+	)
+}

@@ -1,0 +1,27 @@
+{
+	"order": 1,
+	"title": "In-product agents",
+	"claim": "Add an assistant to the app you already run — no second service to operate.",
+	"route": "/in-product-agents/",
+	"mock": "chat",
+	"page": {
+		"tagline": "Answer your users, act inside your product, hand off to a human.",
+		"scenarios": [
+			{
+				"name": "Answer, streamed into your UI",
+				"text": "agent.stream() on the server, the AI SDK message-stream route on the client, thread / resource memory so each user picks up where they left off.",
+				"packages": ["@oribos/core/agent", "@oribos/core/memory", "@oribos/ai-sdk"]
+			},
+			{
+				"name": "Act, through your own APIs",
+				"text": "Your endpoints become tools — plain objects with schemas — and multi-step flows compose as workflows where every boundary is validated.",
+				"packages": ["@oribos/core/tools", "@oribos/core/workflows"]
+			},
+			{
+				"name": "Hand off, with the run on hold",
+				"text": "Approval-listed tool calls never execute: the run suspends, and resume({ approved }) continues it — even from another process.",
+				"packages": ["@oribos/core/durable-agent", "@oribos/sqlite"]
+			}
+		]
+	}
+}

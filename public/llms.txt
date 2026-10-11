@@ -1,0 +1,13 @@
+# Oribos
+
+- [Oribos — ultralight TypeScript AI agent framework](https://oribos.dev/)
+- [About — Oribos](https://oribos.dev/about/)
+- [Privacy policy — Oribos](https://oribos.dev/privacy-policy/)
+- [Terms of service — Oribos](https://oribos.dev/terms-of-service/)
+- [In-product agents — Oribos](https://oribos.dev/in-product-agents/)
+- [Operations agents — Oribos](https://oribos.dev/operations-agents/)
+- [Platform & developer infra — Oribos](https://oribos.dev/developer-infrastructure/)
+- [AI agent framework for TypeScript — Oribos](https://oribos.dev/ai-agent-framework/)
+- [AI agents for TypeScript — Oribos](https://oribos.dev/ai-agents/)
+- [AI workflows for TypeScript — Oribos](https://oribos.dev/ai-workflows/)
+- [AI agent observability for TypeScript — Oribos](https://oribos.dev/ai-agent-observability/)

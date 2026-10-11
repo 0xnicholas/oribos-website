@@ -1,0 +1,21 @@
+---
+// /developer-infrastructure (SPEC-revamp §5.1): the third use-case page — the page head (H1 +
+// tagline + the trace-console header mock), the three scenario cards verbatim, the global FAQ ×9,
+// the shared final CTA and the back link to the home cards. Head copy is the §2.6 row.
+import { getEntry } from 'astro:content';
+import UseCaseLayout from '../layouts/UseCaseLayout.astro';
+
+const entry = await getEntry('useCases', 'developer-infrastructure');
+const page = entry?.data.page;
+if (!entry || !page) {
+	throw new Error('/developer-infrastructure needs its §4.3 page copy in src/content/use-cases/');
+}
+---
+<UseCaseLayout
+	title="Platform & developer infra — Oribos"
+	description="Shared agent primitives your product teams compose — subpath imports, capability packages added one at a time, OTLP observability."
+	h1={entry.data.title}
+	tagline={page.tagline}
+	mock={entry.data.mock}
+	scenarios={page.scenarios}
+/>

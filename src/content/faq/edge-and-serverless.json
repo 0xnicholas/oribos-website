@@ -1,0 +1,5 @@
+{
+	"order": 5,
+	"question": "Does Oribos run on edge and serverless?",
+	"answer": "Yes — nothing in the architecture requires a database, a queue or a long-running process, and the core has zero runtime dependencies. Serverless and edge deployments are a first-class shape rather than a downgrade: a platform cron calling tick() on an endpoint is the canonical way to run schedules. Capability packages carry their own runtime requirements — the SQLite adapter targets Node — and the core's declared runtime is Node 22.13 or newer; Bun, Deno and Workers are not promised."
+}

@@ -1,0 +1,47 @@
+---
+// The trace waterfall (SPEC §7.5): a real run's static capture — the card head meta, one row
+// per span (lane, its 0–100% bar, the right-hand value) and the card foot summary. Accent bars
+// for ordinary spans, the site's trace-green for tool rows; the green is declared once in
+// `src/styles/trace-ink.css` (it does not spread into the brand palette).
+export type TraceRow = {
+	lane: string;
+	left: number;
+	width: number;
+	value: string;
+	tone: 'accent' | 'tool';
+};
+
+/** One run capture (SPEC §7.5) — the hero window and the observability band render the same one. */
+export type TraceData = { meta: string; rows: readonly TraceRow[]; summary: string };
+
+export interface Props extends TraceData {}
+
+const { meta, rows, summary } = Astro.props;
+---
+<div class="trace" data-trace>
+	<p class="trace-meta font-mono text-xs text-ink3">{meta}</p>
+	<ul class="mt-3 flex min-w-[20rem] flex-col gap-2">
+		{
+			rows.map((row) => (
+				<li class="grid grid-cols-[minmax(7.5rem,auto)_1fr_auto] items-center gap-3" data-trace-row data-tone={row.tone}>
+					<span class="truncate font-mono text-xs text-ink2">{row.lane}</span>
+					<span class="relative h-1.5 bg-bg2">
+						<span class="trace-bar absolute inset-y-0" style={`left:${row.left}%;width:${row.width}%`} />
+					</span>
+					<span class="text-right font-mono text-xs text-ink3">{row.value}</span>
+				</li>
+			))
+		}
+	</ul>
+	<p class="trace-summary mt-4 font-mono text-xs text-ink3">{summary}</p>
+</div>
+
+<style>
+	[data-tone='accent'] .trace-bar {
+		background-color: var(--acc);
+	}
+
+	[data-tone='tool'] .trace-bar {
+		background-color: var(--trace-green);
+	}
+</style>

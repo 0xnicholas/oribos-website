@@ -1,0 +1,125 @@
+---
+// The file-tab code card (SPEC §7.1): one tab per file, one file visible at a time, and a copy
+// button that copies the visible file verbatim. It is written here rather than pulled from
+// expressive-code — the build-time recheck on #21 found no usable official tab-group feature —
+// so the site keeps zero new dependencies. Without JS the first file stays visible and the
+// buttons do nothing.
+import { Code } from 'astro:components';
+import { codeThemes } from '../lib/shiki-css.ts';
+import Check from './icons/Check.astro';
+import Copy from './icons/Copy.astro';
+
+export interface Props {
+	/** A stable slug for this card's tab / panel ids, e.g. `workflows`. */
+	id: string;
+	files: readonly { file: string; code: string }[];
+	/** The tab list's accessible name; defaults to the first file's name. */
+	label?: string;
+}
+
+const { id, files, label } = Astro.props;
+const shikiThemes = codeThemes;
+if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`);
+---
+<div class="overflow-hidden box" data-code-tabs>
+	<div class="flex items-center gap-1 border-b border-line px-2 py-1.5">
+		<div class="flex items-center gap-1" role="tablist" aria-label={label ?? files[0]!.file}>
+			{
+				files.map((file, index) => (
+					<button
+						type="button"
+						role="tab"
+						id={`${id}-tab-${index}`}
+						aria-controls={`${id}-panel-${index}`}
+						aria-selected={index === 0 ? 'true' : 'false'}
+						tabindex={index === 0 ? 0 : -1}
+						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink"
+					>
+						{file.file}
+					</button>
+				))
+			}
+		</div>
+		<span class="flex-1"></span>
+		<button
+			type="button"
+			data-copy
+			aria-label={`Copy ${files[0]!.file}`}
+			class="p-1.5 text-ink3 hover:text-ink"
+		>
+			<Copy data-copy-icon />
+			<Check data-copied-icon hidden />
+		</button>
+	</div>
+	{
+		files.map((file, index) => (
+			<div
+				role="tabpanel"
+				id={`${id}-panel-${index}`}
+				aria-labelledby={`${id}-tab-${index}`}
+				hidden={index !== 0}
+				data-panel
+			>
+				<Code code={file.code} lang="ts" themes={shikiThemes} />
+			</div>
+		))
+	}
+</div>
+
+<script>
+	import { wireCopyButton } from '../lib/clipboard.ts';
+
+	for (const card of document.querySelectorAll<HTMLElement>('[data-code-tabs]')) {
+		const tabs = [...card.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+		const panels = [...card.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+		const copy = card.querySelector<HTMLButtonElement>('[data-copy]');
+		const copyIcon = copy?.querySelector<SVGElement>('[data-copy-icon]');
+		const copiedIcon = copy?.querySelector<SVGElement>('[data-copied-icon]');
+		if (tabs.length === 0 || tabs.length !== panels.length) continue;
+
+		const nameOf = (index: number): string => tabs[index]?.textContent?.trim() ?? '';
+		const visiblePane = (): HTMLElement | undefined => panels.find((panel) => !panel.hidden);
+		const visibleTab = (): number => tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+
+		const select = (index: number, focus = false): void => {
+			tabs.forEach((tab, position) => {
+				const active = position === index;
+				tab.setAttribute('aria-selected', String(active));
+				tab.tabIndex = active ? 0 : -1;
+				panels[position]!.hidden = !active;
+			});
+			copy?.setAttribute('aria-label', `Copy ${nameOf(index)}`);
+			if (focus) tabs[index]!.focus();
+		};
+
+		tabs.forEach((tab, index) => {
+			tab.addEventListener('click', () => select(index));
+			tab.addEventListener('keydown', (event) => {
+				const last = tabs.length - 1;
+				let target: number | null = null;
+				if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+				else if (event.key === 'ArrowLeft') target = (index + last) % tabs.length;
+				else if (event.key === 'Home') target = 0;
+				else if (event.key === 'End') target = last;
+				if (target === null) return;
+				event.preventDefault();
+				select(target, true);
+			});
+		});
+
+		if (copy && copyIcon && copiedIcon) {
+			wireCopyButton(copy, visiblePane, {
+				onCopied: () => {
+					copyIcon.toggleAttribute('hidden', true);
+					copiedIcon.toggleAttribute('hidden', false);
+					copy.setAttribute('aria-label', 'Copied');
+				},
+				onReset: () => {
+					copiedIcon.toggleAttribute('hidden', true);
+					copyIcon.toggleAttribute('hidden', false);
+					copy.setAttribute('aria-label', `Copy ${nameOf(visibleTab())}`);
+				},
+			});
+		}
+	}
+</script>

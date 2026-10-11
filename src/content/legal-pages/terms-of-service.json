@@ -1,0 +1,24 @@
+{
+	"title": "Terms of service — Oribos",
+	"description": "Terms of service for the Oribos website and project: pre-1.0, provided as-is, code under Apache-2.0.",
+	"h1": "Terms of service",
+	"paragraphs": [
+		[
+			{
+				"text": "This site is provided as-is, without warranties of any kind. It describes an open-source project that is pre-1.0: what you read here can change."
+			}
+		],
+		[
+			{
+				"text": "Code and examples in the Oribos project are licensed under Apache-2.0 — that license covers code, and does not grant rights to the Oribos name or logo. Site copy and graphics are © 2026 Oribos, all rights reserved."
+			}
+		],
+		[
+			{
+				"text": "Links to third-party sites are here for convenience; those sites are governed by their own terms. Questions: open an issue in the "
+			},
+			{ "link": { "label": "repository", "key": "issues" } },
+			{ "text": "." }
+		]
+	]
+}

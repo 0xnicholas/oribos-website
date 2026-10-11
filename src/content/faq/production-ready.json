@@ -1,0 +1,5 @@
+{
+	"order": 8,
+	"question": "Is Oribos production-ready?",
+	"answer": "Pre-1.0: everything this site describes is implemented and verified, but 0.x releases reserve the right to make breaking changes, and 1.0 is not scheduled. Pin the version you build against and follow releases — storage ports become additive-only from 1.0."
+}

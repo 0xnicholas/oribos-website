@@ -1,0 +1,4 @@
+{
+	"file": "agent.ts",
+	"code": "import { openai } from '@ai-sdk/openai';\nimport { Agent } from '@oribos/core/agent';\nimport { createTool } from '@oribos/core/tools';\nimport { z } from 'zod';\n\nconst weather = createTool({\n  description: 'Looks up the weather for a city.',\n  inputSchema: z.object({ city: z.string() }),\n  execute: ({ city }) => ({ city, celsius: 18 }),\n});\n\nconst agent = new Agent({ name: 'assistant',\n  model: openai.chat('gpt-4o-mini'), tools: { weather } });\n\nconst run = agent.stream('What is the weather in Paris?');\nfor await (const chunk of run) {\n  if (chunk.type === 'text-delta') process.stdout.write(chunk.textDelta);\n}"
+}

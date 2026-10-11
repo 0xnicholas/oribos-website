@@ -1,0 +1,33 @@
+{
+	"order": 4,
+	"tab": "Memory",
+	"claim": "Threads, resources, and history — persistent where you choose.",
+	"bullets": [
+		{
+			"lead": "Thread / resource identity",
+			"text": "the conversation is named per call, so one agent serves every one."
+		},
+		{
+			"lead": "Message history, on by default",
+			"text": "the recent window is recalled into the prompt; recall() reads the rest."
+		},
+		{
+			"lead": "Working memory",
+			"text": "an opt-in, resource-scoped record injected as a system message."
+		},
+		{
+			"lead": "Storage ports",
+			"text": "in-memory defaults; @oribos/sqlite covers all of them."
+		}
+	],
+	"files": [
+		{
+			"file": "memory.ts",
+			"code": "import { Memory, createInMemoryStore } from '@oribos/core/memory';\n\nconst memory = new Memory({ storage: createInMemoryStore() });\nconst agent = new Agent({ name, instructions, model, memory });\n\nawait agent.generate('Should I bring a rain jacket?', {\n  memory: { thread: 'trip-lisbon', resource: 'user-42' },   // identity is per call\n});"
+		},
+		{
+			"file": "sqlite.ts",
+			"code": "import { createSqliteStorage } from '@oribos/sqlite';\n\nconst storage = createSqliteStorage({ path: 'oribos.db' });   // one adapter, all four ports\n\nconst app = createApp({\n  storage: { memory: storage.memory, durableAgent: storage.agentRunSnapshots },\n});"
+		}
+	]
+}

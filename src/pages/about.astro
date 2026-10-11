@@ -1,0 +1,59 @@
+---
+// /about (SPEC §4.1): H1 + the public tagline (the footer brand block's line, read from
+// src/lib/brand.ts) → Our story ×3 → Who's behind it (the signature is the GitHub handle,
+// never a name or an email) → the closing invitation band with its GitHub · Issues pair,
+// every string verbatim from the collection entry. The page's only entry is the footer
+// Project column; the way home is the wordmark plus the one back link — no breadcrumbs.
+import { getEntry } from 'astro:content';
+import SegmentText from '../components/SegmentText.astro';
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import { publicTagline } from '../lib/brand.ts';
+import { LINKS } from '../lib/links.ts';
+
+const entry = await getEntry('about', 'default');
+if (!entry) {
+	throw new Error('/about needs its §4.1 copy in src/content/about/');
+}
+const { title, description, h1, storyHeading, story, behindHeading, behind, closing } = entry.data;
+---
+<MarketingLayout title={title} description={description}>
+	<section data-about-hero class="px-6 py-18">
+		<div class="mx-auto max-w-3xl">
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+			<p data-about-tagline class="mt-5 text-lg text-ink2">{publicTagline}</p>
+		</div>
+	</section>
+	<section data-about-story class="border-t border-line px-6 py-24">
+		<div class="mx-auto max-w-3xl">
+			<h2 class="text-2xl font-semibold tracking-tight text-ink">{storyHeading}</h2>
+			{story.map((paragraph) => <p class="mt-4 text-ink2">{paragraph}</p>)}
+		</div>
+	</section>
+	<section data-about-behind class="border-t border-line px-6 py-24">
+		<div class="mx-auto max-w-3xl">
+			<h2 class="text-2xl font-semibold tracking-tight text-ink">{behindHeading}</h2>
+			{
+				behind.map((segments) => (
+					<p class="mt-4 text-ink2">
+						<SegmentText segments={segments} />
+					</p>
+				))
+			}
+		</div>
+	</section>
+	<section data-about-closing class="border-t border-line px-6 py-24">
+		<div class="mx-auto max-w-3xl">
+			<h2 class="text-2xl font-semibold tracking-tight text-ink">{closing.lead}</h2>
+			<p class="mt-3 text-ink2">{closing.sub}</p>
+			<p class="mt-6 flex gap-4">
+				<a href={LINKS.github} class="font-semibold text-acc hover:underline">GitHub</a>
+				<a href={LINKS.issues} class="font-semibold text-acc hover:underline">Issues</a>
+			</p>
+		</div>
+	</section>
+	<section data-about-back class="border-t border-line px-6 py-12">
+		<div class="mx-auto max-w-3xl">
+			<a href="/" class="text-base font-semibold text-acc hover:underline">← Home</a>
+		</div>
+	</section>
+</MarketingLayout>

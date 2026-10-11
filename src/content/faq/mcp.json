@@ -1,0 +1,5 @@
+{
+	"order": 6,
+	"question": "Does Oribos support MCP?",
+	"answer": "Yes. @oribos/mcp-server serves your tools over MCP through HTTP or stdio, and @oribos/mcp-client brings another server's tools in as ordinary Oribos tools — plain objects, no registry. Both ship with the first release."
+}

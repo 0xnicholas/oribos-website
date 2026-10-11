@@ -1,0 +1,48 @@
+{
+	"title": "AI agent framework for TypeScript — Oribos",
+	"description": "An AI agent framework for TypeScript: a library, not infrastructure you operate — zero runtime dependencies, nothing new to run.",
+	"h1": "AI agent framework — everything you need, nothing you have to run.",
+	"intro": "Oribos is an AI agent framework for TypeScript: a library you call from the app you already run, not infrastructure you operate. The core package has zero runtime dependencies, every subsystem — agents, tools, memory, workflows, observability — ships behind its own subpath export, and capability packages such as @oribos/mcp-server are added one at a time, only when a job calls for them. There is no database, queue, or long-running process to stand up: an agent is a handful of fields, and model instances come straight from the AI SDK provider packages you already chose.",
+	"sections": [
+		{
+			"heading": "A library, not infrastructure you operate",
+			"body": "Oribos is a library you call from the app you already run. No database, queue, or long-running process is required: storage ports default to in-memory implementations, and adapters are a deliberate choice rather than a prerequisite."
+		},
+		{
+			"heading": "Compose only what you use",
+			"body": "Every subsystem ships behind its own subpath export — agents, tools, memory, workflows, observability, durable execution, signals, schedules — and the core carries zero runtime dependencies. Capability packages such as @oribos/mcp-server, @oribos/sqlite and @oribos/otlp are added one at a time, only when a job calls for them."
+		},
+		{
+			"heading": "A small surface you can hold in your head",
+			"body": "An agent is a handful of fields, a tool is a plain object, and processors are the framework's single cross-cutting extension point. Model instances come straight from the AI SDK provider ecosystem — no adapters, no registries — and multi-agent systems are built by wrapping one agent as a tool on another, with no supervisor protocol to learn."
+		}
+	],
+	"learnMore": "ai-agent-framework",
+	"faq": [
+		{
+			"question": "What does \"zero runtime dependencies\" actually mean?",
+			"answer": "The core package ships with no third-party runtime dependencies; model instances arrive from AI SDK provider packages you already chose, and schemas stay in the library you already use. Your dependency tree gains Oribos and nothing hidden behind it."
+		},
+		{
+			"question": "Do I have to run anything alongside my app?",
+			"answer": "No. There is no database, queue, or long-running process to operate; storage ports default to in-memory implementations and swap to adapters only when you want persistence."
+		},
+		{
+			"question": "Can I adopt Oribos one piece at a time?",
+			"answer": "Yes. Each subsystem is its own subpath export and capability packages are installed individually, so a first agent can be a single import. What you don't import costs nothing — not in the dependency tree, not in concept space."
+		},
+		{
+			"question": "How do multiple agents fit together?",
+			"answer": "By composition: wrap one agent as a tool on another, and delegation becomes an ordinary tool call. The core has no supervisor protocol and no sub-agent concept to adopt."
+		},
+		{
+			"question": "Can one agent behave differently per user or request?",
+			"answer": "Every configuration field is a dynamic argument — either a value or a function resolved per execution against the request context — so per-user behavior doesn't fork your agent code."
+		},
+		{
+			"question": "Does Oribos replace the AI SDK?",
+			"answer": "No — it builds on it. Model instances come straight from AI SDK provider packages, and schemas stay in the Standard Schema library you already use. Oribos adds the layers around the model: agents, the tool loop, memory, workflows, and tracing."
+		}
+	],
+	"backAnchor": "/#features"
+}

@@ -1,0 +1,5 @@
+{
+	"order": 4,
+	"question": "What models and providers can I use with Oribos?",
+	"answer": "Any model from the AI SDK provider ecosystem: you pass a model instance straight from a provider package, with no adapter, no registry and no magic strings. The core stays dependency-free by keeping a minimal structural model contract. For streaming into an AI SDK UI, @oribos/ai-sdk provides the message-stream interop and a useChat-compatible route."
+}

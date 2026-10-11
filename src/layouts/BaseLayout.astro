@@ -1,0 +1,58 @@
+---
+import tokenCss from '../styles/global.css?raw';
+import { parseLandingTokens, themeColorValues } from '../lib/brand-tokens.ts';
+import { SITE } from '../lib/site.ts';
+import '../styles/global.css';
+import '../styles/trace-ink.css';
+
+export interface Props {
+	title: string;
+	description: string;
+}
+
+const { title, description } = Astro.props;
+
+// The `theme-color` pair is each theme's resolved `--bg` (SPEC-revamp §2.8), read out of
+// the token layer at build time — the value is never written here a second time.
+const parsed = parseLandingTokens(tokenCss);
+if (parsed.errors.length > 0) {
+	throw new Error(`src/styles/global.css is not a valid brand token layer:\n${parsed.errors.join('\n')}`);
+}
+const themeColor = themeColorValues(parsed.tokens);
+
+// canonical and og:url are the page's own address on the one origin (SPEC §2.6); `site` in
+// astro.config.mjs comes from the same constant, so the head cannot name a second host.
+const canonical = new URL(Astro.url.pathname, SITE.origin).href;
+
+// One static card for the whole site (SPEC §5.3): the head names it, the width/height pair
+// lets the crawler lay it out, and nothing here generates a second image per page.
+const ogImage = new URL('/og.png', SITE.origin).href;
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<meta property="og:site_name" content="Oribos" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content={themeColor.light} />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content={themeColor.dark} />
+		<slot name="head" />
+	</head>
+	<body class="bg-bg font-sans text-ink">
+		<slot />
+	</body>
+</html>

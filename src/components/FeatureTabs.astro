@@ -1,0 +1,119 @@
+---
+// The home feature tabs (SPEC §3.2): five tabs in a fixed order over five panels — claim (H3) +
+// bullets + the §7.3 code card (CodeTabs: file tabs and a copy of the visible file). The deep
+// links `#agents` … `#mcp` are the tab buttons themselves; the script activates the matching tab
+// on load and on `hashchange`, and only one panel is up at a time. Without JS the first panel
+// (Agents) stays visible and the buttons stay inert.
+import CodeTabs from './CodeTabs.astro';
+
+export interface FeaturePanel {
+	/** The content entry's id — also the panel's anchor (`#agents` …). */
+	id: string;
+	tab: string;
+	claim: string;
+	bullets: readonly { lead: string; text: string }[];
+	files: readonly { file: string; code: string }[];
+}
+
+export interface Props {
+	features: readonly FeaturePanel[];
+}
+
+const { features } = Astro.props;
+const kicker = "What's in the box";
+const tabClass =
+	'scroll-mt-32 box px-4 py-1.5 text-base font-semibold text-ink3 transition-colors hover:text-ink aria-selected:border-acc aria-selected:bg-acc-lo aria-selected:text-acc-h';
+---
+<section id="features" data-features class="scroll-mt-20 border-t border-line py-24">
+	<div class="wrap">
+		<p class="text-center text-base font-semibold tracking-wide text-acc">{kicker}</p>
+		<div class="mt-6 flex flex-wrap justify-center gap-2" role="tablist" aria-label={kicker}>
+			{
+				features.map((feature, index) => (
+					<button
+						type="button"
+						role="tab"
+						id={feature.id}
+						aria-controls={`feature-panel-${feature.id}`}
+						aria-selected={index === 0 ? 'true' : 'false'}
+						tabindex={index === 0 ? 0 : -1}
+						data-feature-tab
+						class={tabClass}
+					>
+						{feature.tab}
+					</button>
+				))
+			}
+		</div>
+		{
+			features.map((feature, index) => (
+				<div
+					role="tabpanel"
+					id={`feature-panel-${feature.id}`}
+					aria-labelledby={feature.id}
+					hidden={index !== 0}
+					data-feature-panel
+					class="mt-8 box bg-bg2 p-6 sm:p-8"
+				>
+					<h3 class="text-2xl font-semibold tracking-tight text-ink">{feature.claim}</h3>
+					<ul class="mt-4 space-y-2.5">
+						{feature.bullets.map((bullet) => (
+							<li class="text-base text-ink2">
+								<strong class="font-semibold text-ink">{bullet.lead}</strong> — {bullet.text}
+							</li>
+						))}
+					</ul>
+					<div class="mt-6">
+						<CodeTabs id={`feature-${feature.id}`} files={feature.files} />
+					</div>
+				</div>
+			))
+		}
+	</div>
+</section>
+
+<script>
+	const section = document.querySelector<HTMLElement>('[data-features]');
+	const tabs = section ? [...section.querySelectorAll<HTMLButtonElement>('[data-feature-tab]')] : [];
+	const panels = section ? [...section.querySelectorAll<HTMLElement>('[data-feature-panel]')] : [];
+
+	if (section && tabs.length > 0 && tabs.length === panels.length) {
+		const select = (index: number, options: { focus?: boolean; syncHash?: boolean } = {}): void => {
+			tabs.forEach((tab, position) => {
+				const active = position === index;
+				tab.setAttribute('aria-selected', String(active));
+				tab.tabIndex = active ? 0 : -1;
+				panels[position]!.hidden = !active;
+			});
+			if (options.focus) tabs[index]!.focus();
+			// Clicking a tab keeps the address bar shareable without a scroll jump.
+			if (options.syncHash) history.replaceState(null, '', `#${tabs[index]!.id}`);
+		};
+
+		// SPEC §3.2: `#agents` … `#mcp` open the page on their tab; a hash that names no tab
+		// (say `#features`) leaves the first panel up.
+		const indexOfHash = (): number =>
+			tabs.findIndex((tab) => tab.id !== '' && `#${tab.id}` === location.hash);
+
+		select(Math.max(indexOfHash(), 0));
+		window.addEventListener('hashchange', () => {
+			const index = indexOfHash();
+			if (index >= 0) select(index);
+		});
+
+		tabs.forEach((tab, index) => {
+			tab.addEventListener('click', () => select(index, { syncHash: true }));
+			tab.addEventListener('keydown', (event) => {
+				const last = tabs.length - 1;
+				let target: number | null = null;
+				if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+				else if (event.key === 'ArrowLeft') target = (index + last) % tabs.length;
+				else if (event.key === 'Home') target = 0;
+				else if (event.key === 'End') target = last;
+				if (target === null) return;
+				event.preventDefault();
+				select(target, { focus: true, syncHash: true });
+			});
+		});
+	}
+</script>

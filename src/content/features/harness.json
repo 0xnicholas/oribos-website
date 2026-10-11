@@ -1,0 +1,33 @@
+{
+	"order": 3,
+	"tab": "Harness",
+	"claim": "Durable execution for humans and time.",
+	"bullets": [
+		{
+			"lead": "Durable agents",
+			"text": "a listed tool call suspends the run; resume({ approved }) continues it."
+		},
+		{
+			"lead": "Signals",
+			"text": "inject into a live run, wake an idle thread, or queue in order."
+		},
+		{
+			"lead": "Schedules",
+			"text": "tick() fires what is due — storage is JSON, the occurrence function is injected."
+		},
+		{
+			"lead": "@oribos/croner",
+			"text": "cron expressions as that injected next() fragment."
+		}
+	],
+	"files": [
+		{
+			"file": "gate.ts",
+			"code": "import { createDurableAgent } from '@oribos/core/durable-agent';\n\nconst durable = app.durableAgent({ agent, approval: { tools: ['issueRefund'] } });\nconst out = durable.stream('Please refund order A-4471.');\n\nif ((await out.finishReason) === 'suspended') {\n  await durable.resume(out.runId, { approved: true });   // the held call now executes\n}"
+		},
+		{
+			"file": "schedule.ts",
+			"code": "import { cron } from '@oribos/croner';\n\nawait schedules.save({\n  id: 'morning-sweep',\n  ...cron('0 9 * * *', { timezone: 'UTC' }),   // the injected next() fragment\n  target: { agent: 'desk', input: 'write the daily digest' },\n});"
+		}
+	]
+}

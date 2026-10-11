@@ -1,0 +1,29 @@
+{
+	"title": "Privacy policy — Oribos",
+	"description": "Privacy policy for the Oribos marketing site: a static site with no accounts, no cookies and no tracking.",
+	"h1": "Privacy policy",
+	"paragraphs": [
+		[
+			{
+				"text": "Oribos's marketing site is a static site. It has no accounts, sets no cookies and runs no tracking, and we do not collect or store personal information about you."
+			}
+		],
+		[
+			{
+				"text": "Our hosting provider serves the site and may keep standard server logs — IP address, user agent, requested URL — for security and operations, under its own policies. We do not sell or share personal data, so there is nothing here to opt out of."
+			}
+		],
+		[
+			{
+				"text": "If you reach us through GitHub, what you send is handled by GitHub under GitHub's terms. Questions and requests: open an issue in the "
+			},
+			{ "link": { "label": "repository", "key": "issues" } },
+			{ "text": "." }
+		],
+		[
+			{
+				"text": "If analytics or an email subscription is added later, this page will say exactly what is collected and by whom before it goes live."
+			}
+		]
+	]
+}

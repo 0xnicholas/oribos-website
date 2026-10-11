@@ -1,0 +1,55 @@
+{
+	"meta": "trace 4f3c9a… · gpt-4o-mini · 2 steps · 1.62s · 214 in / 62 out tokens",
+	"rows": [
+		{
+			"lane": "input",
+			"left": 0,
+			"width": 7,
+			"value": "41ms",
+			"tone": "accent"
+		},
+		{
+			"lane": "agent-step #1",
+			"left": 7,
+			"width": 85,
+			"value": "1.51s",
+			"tone": "accent"
+		},
+		{
+			"lane": "tool-call weather",
+			"left": 12,
+			"width": 14,
+			"value": "38ms",
+			"tone": "tool"
+		},
+		{
+			"lane": "tool-result",
+			"left": 26,
+			"width": 8,
+			"value": "2ms",
+			"tone": "tool"
+		},
+		{
+			"lane": "text-delta ×14",
+			"left": 34,
+			"width": 48,
+			"value": "streamed",
+			"tone": "accent"
+		},
+		{
+			"lane": "agent-step #2",
+			"left": 82,
+			"width": 10,
+			"value": "96ms",
+			"tone": "accent"
+		},
+		{
+			"lane": "finish stop",
+			"left": 92,
+			"width": 8,
+			"value": "stop",
+			"tone": "accent"
+		}
+	],
+	"summary": "chunk.type === 'text-delta' — every span from the same run"
+}

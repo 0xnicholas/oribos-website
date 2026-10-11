@@ -1,0 +1,38 @@
+---
+// SPEC §3.5 mock ③: a trace console — the run's head, then span rows with a status and a duration
+// column. The figures are decoration (an id, durations, step numbers): no size, count, test or
+// star claim. The `ok` state wears the site's trace green (SPEC §7.5 判定③, declared once in
+// `src/styles/trace-ink.css`), trace status only.
+import MockWindow from './MockWindow.astro';
+
+const spans = [
+	{ lane: 'agent-run', value: '214ms' },
+	{ lane: 'agent-step #1', value: '172ms' },
+	{ lane: 'tool-call lookupOrder', value: '38ms' },
+	{ lane: 'memory-recall thread', value: '9ms' },
+	{ lane: 'agent-step #2', value: '33ms' },
+];
+---
+<MockWindow>
+	<div class="p-4">
+		<p class="font-mono text-xs text-ink3" data-mock-trace-head>trace 8b1e2f… · completed · 214ms</p>
+		<div class="mt-3 flex flex-col gap-2">
+			{
+				spans.map((span) => (
+					<div class="grid grid-cols-[1fr_auto_auto] items-center gap-3" data-mock-span>
+						<span class="truncate font-mono text-xs text-ink2">{span.lane}</span>
+						<span class="mock-status font-mono text-xs" data-mock-status>ok</span>
+						<span class="text-right font-mono text-xs text-ink3" data-mock-duration>{span.value}</span>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</MockWindow>
+
+<style>
+	.mock-status {
+		/* SPEC §7.5 判定③: the site's own auxiliary colour, for trace / tool states only. */
+		color: var(--trace-green);
+	}
+</style>

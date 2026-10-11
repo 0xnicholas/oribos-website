@@ -1,0 +1,5 @@
+{
+	"order": 1,
+	"question": "What is Oribos?",
+	"answer": "Oribos is an ultralight TypeScript agent framework. Its surface is agents, tools, memory, workflows and durable execution, with capability packages you add as you need them. It is lightweight in two precise senses: you compose only what you use, and it asks for no runtime of its own — no database, no queue, no long-running process; it embeds in the app you already run."
+}

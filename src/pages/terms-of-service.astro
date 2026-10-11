@@ -1,0 +1,20 @@
+---
+// /terms-of-service (SPEC §4.2): the one-screen stub — H1, the shared static `Last updated`
+// date and the locked paragraphs, verbatim from the collection entries. Head copy is the
+// §2.6 row.
+import { getEntry } from 'astro:content';
+import LegalLayout from '../layouts/LegalLayout.astro';
+
+const entry = await getEntry('legalPages', 'terms-of-service');
+const meta = await getEntry('legalMeta', 'shared');
+if (!entry || !meta) {
+	throw new Error('/terms-of-service needs its §4.2 copy in src/content/legal-pages/ and the shared date in src/content/legal-meta/');
+}
+---
+<LegalLayout
+	title={entry.data.title}
+	description={entry.data.description}
+	h1={entry.data.h1}
+	lastUpdated={meta.data.lastUpdated}
+	paragraphs={entry.data.paragraphs}
+/>

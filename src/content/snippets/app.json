@@ -1,0 +1,4 @@
+{
+	"file": "app.ts",
+	"code": "import { createApp } from '@oribos/core';\nimport { createTracer, consoleExporter } from '@oribos/core/observability';\nimport { createOtlpExporter } from '@oribos/otlp';\n\nconst app = createApp({\n  tracer: createTracer({ exporters: [consoleExporter(), createOtlpExporter({ url })] }),\n});\n\nconst agent = app.agent({ name, instructions, model });   // one tracer, every agent"
+}

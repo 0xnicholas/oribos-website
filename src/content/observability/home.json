@@ -1,0 +1,6 @@
+{
+	"kicker": "Observability",
+	"claim": "Every run traced. OTLP when you want it.",
+	"lead": "Agent runs, model steps, tool calls, workflow steps, memory recall and save — traced by default. Built-in console and memory exporters; @oribos/otlp maps Oribos spans to the GenAI semantic conventions. A standalone agent with no tracer stays zero-overhead.",
+	"codeClaim": "One tracer, distributed by the composition root."
+}

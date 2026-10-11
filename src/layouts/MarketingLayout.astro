@@ -1,0 +1,21 @@
+---
+// The pages' shell (SPEC §2.7): BaseLayout's head, then the one header, the page body and the
+// one footer. Every page of the site renders through this layout.
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+	title: string;
+	description: string;
+}
+
+const { title, description } = Astro.props;
+---
+<BaseLayout title={title} description={description}>
+	<Header />
+	<main>
+		<slot />
+	</main>
+	<Footer />
+</BaseLayout>

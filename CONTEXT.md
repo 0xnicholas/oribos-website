@@ -9,7 +9,12 @@ The landing page group for Oribos — home page and closely related content page
 _Avoid_: docs site, website（泛指）
 
 **Oribos**:
-The ultralight TypeScript AI agent framework this site markets. Public tagline: "Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage."
+The umbrella brand this site markets: its first subproject is the ultralight TypeScript AI agent framework (repo `oribos-framework`), the documentation site follows, and future subprojects live alongside them. Public tagline: "Ultralight TypeScript agent framework. Compose only what you use — run anywhere, no runtime baggage."
+_Avoid_: `balsa` / `balsats`（旧名，见框架 ADR-0013 末次修订；`link-rules.ts` 见到即红）
+
+**站点根 (Site origin)**:
+营销站的单一部署根 = `https://oribos.dev`（文档站 = `https://docs.oribos.dev`，两站同根）；仓库里唯一的 host 字面量在 `src/lib/site.ts`，canonical / `og:url` / sitemap / robots 全由它派生。
+_Avoid_: 在页面 / 布局 / 组件 / 内容数据里另写域名（`scripts/check-origin.mjs` 见到即红）
 
 **Lightweight**:
 Oribos's differentiating axis, with a precise two-part meaning: compose only what you use (every subsystem a separate subpath export; zero runtime dependencies) and no runtime burden (no required DB, queue, or long-running process; embeds in the host app).
@@ -46,7 +51,7 @@ An agent whose approval-listed tool calls suspend the run as a human approval ga
 A documentation category name, not a module: the trio of durable agents, signals, and schedules.
 
 **用例页 (Use-case page)**:
-首页 use-case 卡片的展开页,每卡一页(首发三页);讲单一应用场景的完整论证。
+首页 use-case 卡片的展开页,每卡一页(首发三页);讲单一应用场景的完整论证。页头 = 该页对应的宿主界面 mock(与首页卡面同一张,每页一张:聊天窗 / 审批线程 / trace 控制台)。
 _Avoid_: 案例页、customers 页(Oribos 无客户案例)
 
 **场景卡 (Scenario card)**:
@@ -76,6 +81,10 @@ _Avoid_: social proof 占位带、logo 墙(无客户案例)、数字宣称
 **agent prompt CTA**:
 改版后 hero 与 final CTA 共用的主 CTA 形态(改版图 #38 裁定):一个代码块,复制的是一段喂给 coding agent 的自含脚手架 prompt(install 行 + 最小 agent 代码 + README 指引);prompt 文本单点定义,final CTA 复用同一块。取代旧「Copy quick start」次 CTA(已废止,与 hero 代码卡自带 copy 按钮功能重复)。
 _Avoid_: Copy quick start(废止形态)、install 命令裸块(#38 否决的备选)
+
+**文本页 (Text page)**:
+纯文本三页(`/about` 与 `/privacy-policy`、`/terms-of-service` 两页法务 stub)的合称;正文逐字锁定,署名只到 GitHub handle,法务页 `Last updated` 为内容数据里的单一静态字符串。
+_Avoid_: 内容页(泛指)、静态页(与整站静态形态混淆)
 
 **维护者署名 (Maintainer attribution)**:
 站点公开面上代表 Oribos 的个人标识:只到 GitHub handle(`@0xnicholas`),不出现真实姓名与邮箱;footer 的 `©` 行保持项目名义,不随署名改变。

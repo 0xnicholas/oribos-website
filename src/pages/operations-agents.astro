@@ -1,0 +1,21 @@
+---
+// /operations-agents (SPEC-revamp §5.1): the second use-case page — the page head (H1 + tagline +
+// the approval-thread header mock), the three scenario cards verbatim, the global FAQ ×9, the
+// shared final CTA and the back link to the home cards. Head copy is the §2.6 row.
+import { getEntry } from 'astro:content';
+import UseCaseLayout from '../layouts/UseCaseLayout.astro';
+
+const entry = await getEntry('useCases', 'operations-agents');
+const page = entry?.data.page;
+if (!entry || !page) {
+	throw new Error('/operations-agents needs its §4.3 page copy in src/content/use-cases/');
+}
+---
+<UseCaseLayout
+	title="Operations agents — Oribos"
+	description="Agents that handle the busywork around your team — MCP tools, approval gates and schedules, with a human on the risky steps."
+	h1={entry.data.title}
+	tagline={page.tagline}
+	mock={entry.data.mock}
+	scenarios={page.scenarios}
+/>

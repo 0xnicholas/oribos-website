@@ -1,0 +1,82 @@
+---
+// The use-case pages' skeleton (SPEC-revamp §5.1): the page head — H1 + tagline + the page's
+// host-interface header mock (the same mock its home card carries, one per page: chat window,
+// approval thread, trace console) — then the three scenario cards — name, 2–3 sentences and the
+// `→` package line, every package its own inline-code chip, `·`-separated — the global FAQ ×9,
+// the shared final CTA and the `← All use cases` back link. One layout so the three pages
+// cannot drift apart; no code blocks, no case-study band, no breadcrumbs. The FAQ and the
+// final CTA come from the same collections the home page reads, verbatim and unabridged.
+import { getCollection, getEntry } from 'astro:content';
+import FaqList from '../components/FaqList.astro';
+import FinalCta from '../components/FinalCta.astro';
+import { mockComponents } from '../components/mocks/index.ts';
+import MarketingLayout from './MarketingLayout.astro';
+
+export interface ScenarioCard {
+	name: string;
+	text: string;
+	packages: readonly string[];
+}
+
+export interface Props {
+	title: string;
+	description: string;
+	h1: string;
+	tagline: string;
+	/** Which host-interface mock heads the page (SPEC-revamp §5.1's mapping). */
+	mock: 'chat' | 'thread' | 'console';
+	scenarios: readonly ScenarioCard[];
+}
+
+const { title, description, h1, tagline, mock, scenarios } = Astro.props;
+const Mock = mockComponents[mock];
+
+const finalCta = await getEntry('finalCta', 'default');
+const faq = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
+if (!finalCta || faq.length !== 9) {
+	throw new Error('the use-case pages need the shared final CTA and the global FAQ ×9 (SPEC §3.7/§3.8/§4.3)');
+}
+---
+<MarketingLayout title={title} description={description}>
+	<section data-use-case-hero class="px-6 py-18">
+		<div class="mx-auto flex max-w-3xl flex-col items-center text-center">
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+			<p data-use-case-tagline class="mt-5 max-w-2xl text-lg text-ink2">{tagline}</p>
+		</div>
+		<figure data-use-case-mock={mock} class="mx-auto mt-12 max-w-2xl">
+			<Mock />
+		</figure>
+	</section>
+	<section data-scenarios class="border-t border-line py-24">
+		<div class="wrap">
+			<ul class="grid gap-6 md:grid-cols-3">
+				{
+					scenarios.map((scenario) => (
+						<li data-scenario-card class="flex flex-col gap-3 box p-5">
+							<h3 class="text-lg font-semibold tracking-tight text-ink">{scenario.name}</h3>
+							<p class="text-base text-ink2">{scenario.text}</p>
+							<p data-scenario-packages class="mt-auto pt-2 text-base text-ink3">
+								{'→ '}
+								{scenario.packages.map((name, index) => (
+									<>
+										{index > 0 && ' · '}
+										<code class="whitespace-nowrap box bg-bg2 px-1.5 py-0.5 font-mono text-xs text-ink2">
+											{name}
+										</code>
+									</>
+								))}
+							</p>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</section>
+	<FaqList items={faq.map((entry) => entry.data)} />
+	<FinalCta heading={finalCta.data.heading} sub={finalCta.data.sub} />
+	<section data-use-case-back class="border-t border-line py-12">
+		<div class="wrap">
+			<a href="/#use-cases" class="text-base font-semibold text-acc hover:underline">← All use cases</a>
+		</div>
+	</section>
+</MarketingLayout>

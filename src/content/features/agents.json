@@ -1,0 +1,29 @@
+{
+	"order": 1,
+	"tab": "Agents",
+	"claim": "A minimal agent surface with a built-in tool loop.",
+	"bullets": [
+		{
+			"lead": "A handful of fields",
+			"text": "name, instructions, model, tools — plus optional memory and processors."
+		},
+		{
+			"lead": "One run, two consumption styles",
+			"text": "generate() and stream() share one output object; the tool loop is built in."
+		},
+		{
+			"lead": "Structured output & dynamic arguments",
+			"text": "every field takes a value or a function of the request context."
+		},
+		{
+			"lead": "Processors",
+			"text": "the one cross-cutting extension point — processInput / processOutputStep / processError."
+		}
+	],
+	"files": [
+		{
+			"file": "agent.ts",
+			"code": "import { Agent } from '@oribos/core/agent';\n\nconst redactPii = {\n  processInput: ({ messages }) => ({ messages: scrub(messages) }),\n  processOutputStep: ({ step }) => audit(step),\n};\n\nconst agent = new Agent({ name, instructions, model, processors: [redactPii] });\n\nconst run = agent.stream('Summarise this ticket.');"
+		}
+	]
+}

@@ -1,0 +1,5 @@
+{
+	"order": 2,
+	"question": "Is Oribos on npm yet?",
+	"answer": "Yes — Oribos is on npm. npm i @oribos/core installs the zero-dependency core, and every capability package ships alongside it under @oribos/* — add them one at a time, as you need them."
+}

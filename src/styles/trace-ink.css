@@ -1,0 +1,15 @@
+/* SPEC §7.5 判定③: the site's own auxiliary colour — the trace / tool counterpoint to amber.
+   Not a brand token: it stays out of the §5.1 set, and it is declared once per theme here, the
+   one place; the components that draw a trace consume `var(--trace-green)`.
+
+   This lives outside global.css on purpose: that file's literal-colour scan (`check-tokens`)
+   keeps every colour inside the §5.1 token blocks. */
+:root {
+	--trace-green: hsl(140, 45%, 32%);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--trace-green: hsl(140, 40%, 55%);
+	}
+}

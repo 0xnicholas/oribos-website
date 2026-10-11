@@ -1,0 +1,169 @@
+---
+// The one header every page carries (SPEC §2.2): wordmark → Use cases ▾ → Docs → GitHub →
+// the version badge. The badge is the single published state (SPEC-revamp §4.2): a mono, hairline
+// pill reading `v{version}` from `src/lib/version.ts`, linking the releases page. The dropdown and
+// the hamburger are disclosures — real <button>s carrying aria-expanded/aria-controls, panels
+// closed in the markup and toggled by the small script below. No JS leaves the shell as it
+// renders; the footer still carries every target.
+import { LINKS } from '../lib/links.ts';
+import { useCaseItems } from '../lib/navigation.ts';
+import { versionLabel } from '../lib/version.ts';
+import Chevron from './icons/Chevron.astro';
+import Menu from './icons/Menu.astro';
+
+const navLink = 'text-base text-ink2 transition-colors hover:text-ink';
+const trigger = `flex items-center gap-1 ${navLink}`;
+// SPEC-revamp §4.2: mono, hairline edge; hover moves colour only (SPEC-revamp §2.5).
+const pill =
+	'box px-2.5 py-0.5 font-mono text-xs text-ink2 transition-colors hover:border-acc hover:text-acc';
+const itemLink = 'block px-3 py-2 transition-colors hover:bg-bg2';
+---
+<header id="site-header" class="z-50">
+	<div class="wrap flex items-center justify-between gap-6 py-4">
+		<a href="/" class="text-lg font-semibold tracking-tight text-ink">Oribos</a>
+
+		<nav class="hidden items-center gap-6 md:flex" aria-label="Main">
+			<div class="relative">
+				<button type="button" class={trigger} aria-expanded="false" aria-controls="use-cases-menu">
+					Use cases
+					<Chevron />
+				</button>
+				<div id="use-cases-menu" hidden class="absolute left-0 top-full w-72 pt-2">
+					<ul class="box bg-bg p-2">
+						{useCaseItems.map((item) => (
+							<li>
+								<a href={item.href} class={itemLink}>
+									<span class="block text-base font-semibold text-ink">{item.label}</span>
+									<span class="block text-base text-ink2">{item.description}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
+			<a href={LINKS.docs} class={navLink}>Docs</a>
+			<a href={LINKS.github} class={navLink}>GitHub</a>
+			<a href={LINKS.releases} data-version-pill class={pill}>{versionLabel}</a>
+		</nav>
+
+		<button
+			type="button"
+			class="text-ink2 hover:text-ink md:hidden"
+			aria-expanded="false"
+			aria-controls="site-menu"
+			aria-label="Menu"
+		>
+			<Menu />
+		</button>
+	</div>
+
+	<div id="site-menu" hidden class="border-t border-line bg-bg md:hidden">
+		<nav class="wrap flex flex-col gap-1 py-4" aria-label="Menu">
+			<button
+				type="button"
+				class="flex w-full items-center justify-between py-2 text-base text-ink2 hover:text-ink"
+				aria-expanded="false"
+				aria-controls="mobile-use-cases"
+			>
+				Use cases
+				<Chevron />
+			</button>
+			<ul id="mobile-use-cases" hidden class="flex flex-col gap-1 pb-2">
+				{useCaseItems.map((item) => (
+					<li>
+						<a href={item.href} class="block px-3 py-2 text-base text-ink2 hover:bg-bg2 hover:text-ink">
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+			<a href={LINKS.docs} class="py-2 text-base text-ink2 hover:text-ink">Docs</a>
+			<a href={LINKS.github} class="py-2 text-base text-ink2 hover:text-ink">GitHub</a>
+			<a href={LINKS.releases} data-version-pill class={`${pill} mt-2 self-start`}>{versionLabel}</a>
+		</nav>
+	</div>
+</header>
+
+<style>
+	/* SPEC §2.2: the header stays at the top while the page scrolls, and past 8px of scroll it
+	   takes a translucent wash and blurs what passes under it. The markup carries no `sticky`
+	   utility — the position and the wash are the header's own rules, so the shell gate reads
+	   them off `#site-header` rather than off the whole sheet. With transparency reduced the
+	   wash becomes the solid page colour instead; the panels above stay opaque, so an open menu
+	   is never translucent. */
+	#site-header {
+		position: sticky;
+		top: 0;
+	}
+
+	#site-header.is-scrolled {
+		background-color: color-mix(in srgb, var(--bg) 82%, transparent);
+		-webkit-backdrop-filter: blur(12px);
+		backdrop-filter: blur(12px);
+	}
+
+	@media (prefers-reduced-transparency: reduce) {
+		#site-header.is-scrolled {
+			background-color: var(--bg);
+			-webkit-backdrop-filter: none;
+			backdrop-filter: none;
+		}
+	}
+</style>
+
+<script>
+	const header = document.getElementById('site-header');
+	if (header) {
+		const syncScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+		syncScroll();
+		window.addEventListener('scroll', syncScroll, { passive: true });
+
+		type Disclosure = { trigger: HTMLButtonElement; panel: HTMLElement };
+		const pairs: Disclosure[] = [];
+		for (const trigger of header.querySelectorAll<HTMLButtonElement>('button[aria-controls]')) {
+			const panel = document.getElementById(trigger.getAttribute('aria-controls') ?? '');
+			if (panel) pairs.push({ trigger, panel });
+		}
+
+		const setOpen = (pair: Disclosure, open: boolean): void => {
+			pair.trigger.setAttribute('aria-expanded', String(open));
+			pair.panel.hidden = !open;
+			if (!open) for (const nested of pairs) if (pair.panel.contains(nested.trigger)) setOpen(nested, false);
+		};
+
+		const closeAll = () => {
+			for (const pair of pairs) setOpen(pair, false);
+		};
+
+		for (const pair of pairs) {
+			pair.trigger.addEventListener('click', () => {
+				const open = pair.trigger.getAttribute('aria-expanded') !== 'true';
+				// Opening one panel closes its siblings; ancestors of the trigger stay open.
+				for (const other of pairs) {
+					if (other !== pair && !other.panel.contains(pair.trigger)) setOpen(other, false);
+				}
+				setOpen(pair, open);
+			});
+		}
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key !== 'Escape') return;
+			const open = pairs.filter((pair) => !pair.panel.hidden).pop();
+			if (!open) return;
+			setOpen(open, false);
+			open.trigger.focus();
+		});
+
+		document.addEventListener('pointerdown', (event) => {
+			for (const pair of pairs) {
+				if (pair.panel.hidden) continue;
+				if (pair.trigger.contains(event.target as Node) || pair.panel.contains(event.target as Node)) continue;
+				setOpen(pair, false);
+			}
+		});
+
+		// Tailwind's `md` breakpoint: below it the nav lives in the hamburger, and switching
+		// across the boundary drops whatever was open.
+		matchMedia('(min-width: 48rem)').addEventListener('change', closeAll);
+	}
+</script>

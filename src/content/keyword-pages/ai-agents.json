@@ -1,0 +1,52 @@
+{
+	"title": "AI agents for TypeScript — Oribos",
+	"description": "AI agents in TypeScript: a handful of fields, a built-in tool loop, streaming runs, and memory named per call — no hidden state.",
+	"h1": "AI agents — a handful of fields, a built-in loop, and no hidden state.",
+	"intro": "An Oribos agent is a small object — name, instructions, model, tools, plus optional memory and processors — with a built-in tool loop that streams. generate() and stream() run one code path: the loop executes tool calls and feeds results back to the model, and stream() yields the run's chunks as they happen. Tools are plain objects validated with the Standard Schema interfaces you already use, and memory is identity you name per call — thread and resource — so one agent serves every conversation without hidden state.",
+	"sections": [
+		{
+			"heading": "An agent is a small object",
+			"body": "Name, instructions, model, tools — plus optional memory and processors. The model instance comes straight from an AI SDK provider package, so there is no adapter or registry between your code and the provider."
+		},
+		{
+			"heading": "The loop is built in, and it streams",
+			"body": "When the model answers with a tool call, the loop executes the tool and feeds the result back to the model; a failing tool returns an error result the model can recover from. stream() yields the run's chunks as they happen, and generate() is the same run collapsed to its terminal values — one code path, so the two always agree."
+		},
+		{
+			"heading": "Tools are plain objects you already know how to write",
+			"body": "A tool is described by its fields and found by its key; schemas are Standard Schema dual interfaces, so Oribos validates the model's arguments with the schemas you already use and sends the corresponding JSON Schema to the provider."
+		},
+		{
+			"heading": "Memory is identity you name per call",
+			"body": "Thread and resource are passed per call and the agent itself carries no conversation state, so one agent serves every conversation. Message history is on by default; working memory is an opt-in, resource-scoped record the model updates through a framework-attached tool."
+		}
+	],
+	"learnMore": "ai-agents",
+	"faq": [
+		{
+			"question": "Do I need to write my own agent loop?",
+			"answer": "No. generate() and stream() run a built-in loop that executes tool calls and feeds results back, up to a configurable step cap; a tool failure comes back as an error result the model can recover from."
+		},
+		{
+			"question": "How does streaming work?",
+			"answer": "The run is an async iterable of chunks you can consume as they arrive, and the same object carries the terminal values. generate() is that run collapsed to its result."
+		},
+		{
+			"question": "Can one agent serve many users and conversations?",
+			"answer": "Yes — thread and resource are named per call and the agent holds no conversation state. Memory storage goes through a port with an in-memory default."
+		},
+		{
+			"question": "How is tool input validated?",
+			"answer": "Schemas are Standard Schema dual interfaces: Oribos validates the model's arguments with them and sends the corresponding JSON Schema to the provider."
+		},
+		{
+			"question": "How do I add guardrails, redaction, or rate limiting?",
+			"answer": "Processors: ordered hooks (processInput, processOutputStep, processError) are the framework's single cross-cutting extension point and run in declaration order."
+		},
+		{
+			"question": "How do I see what an agent is doing while it runs?",
+			"answer": "stream() yields the run's chunks as they happen — text deltas and tool activity. When a tracer is assembled, the same run opens spans (agent run, model step, tool call) that the built-in exporters can show, so a run can be watched live and read back afterwards."
+		}
+	],
+	"backAnchor": "/#agents"
+}

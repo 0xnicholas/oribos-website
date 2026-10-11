@@ -1,0 +1,88 @@
+---
+// The keyword pages' skeleton (SPEC-revamp §5.2–§5.5): the H1 (the keyword's face plus its
+// claim) over the §5.2 hero intro paragraph (`--t-lg`, copy only — no button, no chip), the
+// §5.4 argument cards — the locked section words in an h3 hairline card grid, no icons, no h2
+// section head, no in-card links — exactly one `Learn more` text link (the pre-launch constant
+// from `src/lib/links.ts` until the docs switch flips it), then the in-page FAQ (6 questions,
+// zero overlap with the global nine, wearing its own `data-page-faq` marker so the §3.7 gate
+// never claims it), the shared final CTA and the back-to-home anchor. One layout so the four
+// pages cannot drift apart; no code blocks, no links between keyword pages, no breadcrumbs.
+import { getEntry } from 'astro:content';
+import FinalCta from '../components/FinalCta.astro';
+import { learnMoreHref, type KeywordPageSlug } from '../lib/links.ts';
+import MarketingLayout from './MarketingLayout.astro';
+
+export interface KeywordSection {
+	heading: string;
+	body: string;
+}
+
+export interface KeywordFaqItem {
+	question: string;
+	answer: string;
+}
+
+export interface Props {
+	title: string;
+	description: string;
+	slug: KeywordPageSlug;
+	h1: string;
+	intro: string;
+	sections: readonly KeywordSection[];
+	faq: readonly KeywordFaqItem[];
+	backAnchor: string;
+}
+
+const { title, description, slug, h1, intro, sections, faq, backAnchor } = Astro.props;
+
+const finalCta = await getEntry('finalCta', 'default');
+if (!finalCta) {
+	throw new Error('the keyword pages need the shared final CTA (SPEC §3.8/§4.4)');
+}
+---
+<MarketingLayout title={title} description={description}>
+	<section data-keyword-hero class="px-6 py-18">
+		<div class="mx-auto max-w-3xl">
+			<h1 class="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">{h1}</h1>
+			<p data-keyword-intro class="mt-5 text-lg text-ink2">{intro}</p>
+		</div>
+	</section>
+	<section data-keyword-sections class="border-t border-line py-24">
+		<div class="wrap">
+			<div class="cols">
+				{
+					sections.map((section) => (
+						<article data-keyword-section class="col-span-4 flex flex-col gap-3 box p-5 md:col-span-6">
+							<h3 class="text-xl font-semibold tracking-tight text-ink">{section.heading}</h3>
+							<p class="text-lg text-ink2">{section.body}</p>
+						</article>
+					))
+				}
+			</div>
+			<p data-keyword-learn-more class="mt-12">
+				<a href={learnMoreHref(slug)} class="font-semibold text-acc hover:underline">Learn more</a>
+			</p>
+		</div>
+	</section>
+	<section data-page-faq class="border-t border-line px-6 py-24">
+		<div class="mx-auto max-w-3xl">
+			<h2 class="text-3xl font-semibold tracking-tight text-ink">Frequently asked questions</h2>
+			<div class="mt-8 divide-y divide-line border-y border-line">
+				{
+					faq.map((item) => (
+						<details>
+							<summary class="cursor-pointer py-4 font-semibold text-ink hover:text-acc">{item.question}</summary>
+							<p class="pb-4 text-base text-ink2">{item.answer}</p>
+						</details>
+					))
+				}
+			</div>
+		</div>
+	</section>
+	<FinalCta heading={finalCta.data.heading} sub={finalCta.data.sub} />
+	<section data-keyword-back class="border-t border-line px-6 py-12">
+		<div class="mx-auto max-w-3xl">
+			<a href={backAnchor} class="text-base font-semibold text-acc hover:underline">See how it works →</a>
+		</div>
+	</section>
+</MarketingLayout>

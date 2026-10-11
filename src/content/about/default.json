@@ -1,0 +1,29 @@
+{
+	"title": "About — Oribos",
+	"description": "About Oribos — why the project exists, who maintains it, and how code and content are licensed.",
+	"h1": "About Oribos",
+	"storyHeading": "Our story",
+	"story": [
+		"The project exists for one bet — that an agent framework should be a library inside your application, not a platform your application moves into. So every subsystem ships behind its own entry point, the core carries no runtime dependencies, and nothing here needs a database, a queue or a long-running process.",
+		"Oribos is the umbrella brand. The framework came first, the documentation site is next, and future subprojects live alongside them — under one package scope and one domain."
+	],
+	"behindHeading": "Who's behind it",
+	"behind": [
+		[
+			{ "text": "Oribos is built in the open on GitHub and maintained by " },
+			{ "link": { "label": "@0xnicholas", "key": "maintainer" } },
+			{
+				"text": ". There is no company behind it and no team page to read: the repository's issues are where questions, bug reports and disagreement land."
+			}
+		],
+		[
+			{
+				"text": "Code and examples are licensed Apache-2.0 — that license covers code, not the name. Site copy and graphics are © 2026 Oribos, all rights reserved."
+			}
+		]
+	],
+	"closing": {
+		"lead": "Read the code, open an issue.",
+		"sub": "Star or watch the repository to follow releases."
+	}
+}

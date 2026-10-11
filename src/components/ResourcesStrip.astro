@@ -1,0 +1,31 @@
+---
+// The resources band (SPEC-revamp §3.6): the `Go deeper` kicker and three cards — the label link
+// and its one-line description from the `resources` collection. The targets come from the
+// `src/lib/links.ts` constants, so the docs switch point stays one edit. No changelog flow, no
+// Releases card, no CTA.
+import { LINKS, type ResourceLinkKey } from '../lib/links.ts';
+
+export interface Props {
+	kicker: string;
+	links: readonly { label: string; key: ResourceLinkKey; description: string }[];
+}
+
+const { kicker, links } = Astro.props;
+---
+<section id="resources" data-resources class="scroll-mt-20 border-t border-line py-24">
+	<div class="wrap">
+		<p class="text-base font-semibold tracking-wide text-acc">{kicker}</p>
+		<ul class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+			{
+				links.map((link) => (
+					<li class="box p-6">
+						<a href={LINKS[link.key]} class="font-semibold text-acc transition-colors hover:text-acc-h">
+							{link.label}
+						</a>
+						<p class="mt-2 text-base text-ink2">{link.description}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
