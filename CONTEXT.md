@@ -79,7 +79,7 @@ _Avoid_: FAQ(未限定时指代不清)、SEO 问答
 _Avoid_: social proof 占位带、logo 墙(无客户案例)、数字宣称
 
 **agent prompt CTA**:
-改版后 hero 与 final CTA 共用的主 CTA 形态(改版图 #38 裁定):一个代码块,复制的是一段喂给 coding agent 的自含脚手架 prompt(install 行 + 最小 agent 代码 + README 指引);prompt 文本单点定义,final CTA 复用同一块。取代旧「Copy quick start」次 CTA(已废止,与 hero 代码卡自带 copy 按钮功能重复)。
+改版后 hero 与 final CTA 共用的主 CTA 形态(改版图 #38 裁定、#42 拍板 chip 式、#43 重裁 payload):一个盒式 chip——可见面只陈列四行(mono tag / Copy 按钮 / 任务句 / mono cmeta),复制按钮直拷其后的隐藏 payload(所见非所复制):一段喂给 coding agent 的自含脚手架 prompt(任务陈述 + install 行 + 最小 agent 代码 + README 指引);payload 单点定义,final CTA 复用同一块。取代旧「Copy quick start」次 CTA(已废止,与 hero 代码卡自带 copy 按钮功能重复)。
 _Avoid_: Copy quick start(废止形态)、install 命令裸块(#38 否决的备选)
 
 **文本页 (Text page)**:
