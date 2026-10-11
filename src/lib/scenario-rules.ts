@@ -385,14 +385,15 @@ export function useCaseColourIssues(page: ScenarioPage): string[] {
 }
 
 /**
- * SPEC §4.3/§2.10: the package chips' rendered pair — secondary ink on the secondary surface
- * — clears AA in both themes, the same pair the token audit measures.
+ * SPEC §4.3/§2.10: the package chips' rendered pair — accent ink on the secondary surface
+ * (SPEC-revamp §2.6: the chips read in the accent, like links) — clears AA in both themes,
+ * the same pair the token audit measures as the accent link on the secondary surface.
  */
 export function scenarioContrastIssues(tokens: Record<Theme, TokenSet>): string[] {
 	const issues: string[] = [];
 
 	for (const theme of ['light', 'dark'] as const) {
-		const fg = tokens[theme]['--ink2'];
+		const fg = tokens[theme]['--acc'];
 		const bg = tokens[theme]['--bg2'];
 		if (fg === undefined || bg === undefined) {
 			issues.push(`${theme}: the package chip pair needs tokens the §2.1 layer does not declare (SPEC §4.3/§2.10)`);

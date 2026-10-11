@@ -41,7 +41,7 @@ const packagesHtml = (packages: readonly string[]) =>
 	`→ ${packages
 		.map(
 			(name) =>
-				`<code class="box whitespace-nowrap bg-bg2 px-1.5 py-0.5 font-mono text-xs text-ink2">${name}</code>`,
+				`<code class="box whitespace-nowrap bg-bg2 px-1.5 py-0.5 font-mono text-xs text-acc">${name}</code>`,
 		)
 		.join(' · ')}`;
 
@@ -266,7 +266,7 @@ test('the package chip pair clears AA on the shipped token layer, both themes', 
 	assert.deepEqual(errors, []);
 	assert.deepEqual(scenarioContrastIssues(tokens), []);
 
-	const dimmed = { ...tokens, light: { ...tokens.light, '--ink2': '#a0a09c' } };
+	const dimmed = { ...tokens, light: { ...tokens.light, '--acc': '#d9a04a' } };
 	const muted = scenarioContrastIssues(dimmed);
 	assert.equal(muted.length, 1);
 	assert.match(muted[0]!, /light: package chip text on its surface/);

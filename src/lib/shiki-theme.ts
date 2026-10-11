@@ -1,9 +1,11 @@
 /**
- * The custom Shiki theme pair (SPEC-revamp §2.6): syntax colour is grayscale only — ink for
- * code, ink3 for comments, ink2 for the single string gray — with keywords separated by
- * weight, not hue. No rainbow. Every colour is read from the §2.1 token layer, so the theme
- * pair carries no value of its own; the `github-light` / `github-dark` pair this replaces
- * painted a second palette the token gate never saw.
+ * The custom Shiki theme pair (SPEC-revamp §2.6): the restrained three-color palette — keywords
+ * in the `--acc` amber (hue separates them now; the grayscale pair's keyword bold is retired),
+ * strings in the `--syn-green` green (the trace green's value, promoted to syntax use),
+ * function / method calls in the `--syn-blue` blue — over the ink grayscale: `--ink` for code,
+ * `--ink3` for comments, `--ink2` for constants. No rainbow: three hues, each a §2.1 token, so
+ * the theme pair carries no value of its own; the `github-light` / `github-dark` pair this
+ * replaced painted a second palette the token gate never saw.
  */
 
 import type { Theme, TokenSet } from './brand-tokens.ts';
@@ -30,11 +32,12 @@ function buildTheme(theme: Theme, tokens: TokenSet): ShikiTheme {
 		},
 		tokenColors: [
 			{ scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: ink3 } },
-			{ scope: ['string', 'punctuation.definition.string'], settings: { foreground: ink2 } },
+			{ scope: ['string', 'punctuation.definition.string'], settings: { foreground: tokens['--syn-green']! } },
 			{
 				scope: ['keyword', 'keyword.control', 'storage.type', 'storage.modifier', 'keyword.operator.new'],
-				settings: { foreground: ink, fontStyle: 'bold' },
+				settings: { foreground: tokens['--acc']! },
 			},
+			{ scope: ['entity.name.function', 'support.function'], settings: { foreground: tokens['--syn-blue']! } },
 			{ scope: ['constant', 'constant.numeric', 'constant.language'], settings: { foreground: ink2 } },
 		],
 	};

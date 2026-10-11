@@ -23,7 +23,8 @@
 	"files": [
 		{
 			"file": "agent.ts",
-			"code": "import { Agent } from '@oribos/core/agent';\n\nconst redactPii = {\n  processInput: ({ messages }) => ({ messages: scrub(messages) }),\n  processOutputStep: ({ step }) => audit(step),\n};\n\nconst agent = new Agent({ name, instructions, model, processors: [redactPii] });\n\nconst run = agent.stream('Summarise this ticket.');"
+			"code": "import { Agent } from '@oribos/core/agent';\n\nconst redactPii = {\n  processInput: ({ messages }) => ({ messages: scrub(messages) }),\n  processOutputStep: ({ step }) => audit(step),\n};\n\nconst agent = new Agent({ name, instructions, model, processors: [redactPii] });\n\nconst run = agent.stream('Summarise this ticket.');",
+			"highlight": [8]
 		}
 	]
 }

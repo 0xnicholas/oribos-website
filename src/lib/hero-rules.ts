@@ -5,7 +5,7 @@
  * collections that render them, so the page and its gate cannot agree by construction.
  */
 
-import { attributeValue, codeOf, decodeEntities, elementOf, linksOf, missingCodeSurface, occurrences, tagsOf, textOf } from './html.ts';
+import { attributeValue, codeOf, decodeEntities, elementOf, linksOf, missingCodeSurface, occurrences, textOf } from './html.ts';
 import { hslToHex } from './brand-tokens.ts';
 import { LINKS } from './links.ts';
 import { windowBarMeta } from './trace-meta.ts';
@@ -16,7 +16,8 @@ export type HeroPage = { path: string; html: string };
 export const heroH1 = 'Build AI agents that run for days.';
 export const heroSub =
 	'Build, observe, and ship durable agents — Oribos, the TypeScript agent framework with zero runtime dependencies.';
-/** SPEC-revamp §4.1: the hero's secondary CTA is a `GitHub` text link; the v1 copy button is retired. */
+/** SPEC-revamp §4.1: the `GitHub` text link label — the header and the final CTA carry it;
+ * the hero's is retired (§3.1: the left column ends at the chip and bottom-aligns the window). */
 export const ctaGithub = 'GitHub';
 export const retiredHeroCta = 'Copy quick start';
 /** SPEC-revamp §4.3: the copy button's success state. */
@@ -144,7 +145,7 @@ export function agentPromptIssues(page: HeroPage, scope: string, where: string):
 	return issues;
 }
 
-/** SPEC-revamp §3.1/§4.1/§4.3: the hero's copy, its chip CTA, its GitHub link, and what it must not carry. */
+/** SPEC-revamp §3.1/§4.1/§4.3: the hero's copy, its chip CTA, and what it must not carry. */
 export function heroIssues(page: HeroPage): string[] {
 	const hero = elementOf(page.html, 'section', 'data-hero');
 	if (hero === null) return [`${page.path}: no hero section (SPEC §3.1)`];
@@ -165,8 +166,10 @@ export function heroIssues(page: HeroPage): string[] {
 	}
 
 	const links = linksOf(hero);
-	if (!links.some((link) => link.text === ctaGithub && link.href === LINKS.github)) {
-		issues.push(`${page.path}: the hero has no \`${ctaGithub}\` link from src/lib/links.ts (SPEC-revamp §4.1)`);
+	// SPEC-revamp §3.1: the hero's GitHub text link is retired — the left column ends at the
+	// chip and bottom-aligns with the window. Tombstone so the link does not come back.
+	if (links.some((link) => link.text === ctaGithub && link.href === LINKS.github)) {
+		issues.push(`${page.path}: the hero still carries the \`${ctaGithub}\` text link — retired (SPEC-revamp §3.1)`);
 	}
 	const buttons = [...hero.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/gi)].map((match) => textOf(match[1]!));
 	if (buttons.includes(retiredHeroCta)) {
@@ -341,10 +344,11 @@ export function finalCtaIssues(page: HeroPage): string[] {
 	return issues;
 }
 
-/** SPEC-revamp §2.6: one dual-theme grayscale code surface — `.astro-code`, switched by the
- * OS preference, painted by the custom `oribos-*` pair. The retired github pair must not
- * ship: `<Code />` does not inherit `markdown.shikiConfig`, so a call site without the
- * explicit themes prop silently falls back to it (the regression this check exists for). */
+/** SPEC-revamp §2.6: one dual-theme code surface — `.astro-code`, switched by the OS
+ * preference, painted by the custom `oribos-*` pair (the restrained three-color palette over
+ * the ink grayscale). The retired github pair must not ship: `<Code />` does not inherit
+ * `markdown.shikiConfig`, so a call site without the explicit themes prop silently falls back
+ * to it (the regression this check exists for). */
 export function shikiIssues(css: string, html = ''): string[] {
 	const issues: string[] = [];
 	const darkBlocks = [...css.matchAll(/@media[^{]*prefers-color-scheme:\s*dark[^{]*\{([^}]*)\}/g)].map(
@@ -380,11 +384,14 @@ export function shikiIssues(css: string, html = ''): string[] {
 }
 
 /**
- * SPEC §7.5 判定③: the trace green is declared once — in `trace-ink.css` — and consumed only by
- * the components that draw trace / tool states: the hero's `TraceWaterfall` and the use-case
- * cards' trace-console mock (SPEC §3.5 brief ③).
+ * SPEC §7.5 判定③ + SPEC-revamp §2.6: the trace green's value is the §2.1 `--syn-green` token
+ * (the trace colour, promoted to syntax use); `trace-ink.css` keeps the one `--trace-green`
+ * declaration as an alias of it, and only the components that draw a trace read the alias — the
+ * hero's `TraceWaterfall` and the use-case cards' trace-console mock (SPEC §3.5 brief ③).
  */
 export const traceGreenDeclaration = 'src/styles/trace-ink.css';
+/** The token layer carries the green's value now (`--syn-green`) — its one literal home. */
+export const syntaxTokenLayer = 'src/styles/global.css';
 export const traceGreenConsumers = [
 	'src/components/TraceWaterfall.astro',
 	'src/components/mocks/MockTraceConsole.astro',
@@ -405,10 +412,12 @@ export function trailIssues(css: string, sources: readonly { path: string; text:
 		}
 	}
 
-	// The literal lives in one file; a component that restates it is a spread.
+	// The literal lives in the token layer (as `--syn-green`) and nowhere else — a component or
+	// stylesheet that restates it is a spread. global.css's own literal scan (check-tokens)
+	// keeps its token blocks honest, so the exemption opens no hole.
 	const needles = greens.flatMap(({ hsl }) => [hsl.toLowerCase(), hslToHex(hsl)]);
 	for (const source of sources) {
-		if (source.path === traceGreenDeclaration) continue;
+		if (source.path === traceGreenDeclaration || source.path === syntaxTokenLayer) continue;
 		const text = source.text.toLowerCase();
 		if (needles.some((needle) => text.includes(needle))) {
 			issues.push(`${source.path}: the trace green is trace-only — it does not spread (SPEC §7.5)`);

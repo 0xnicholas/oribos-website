@@ -53,6 +53,7 @@ if (
 		sub={hero.data.sub}
 		file={snippet.data.file}
 		code={snippet.data.code}
+		highlight={snippet.data.highlight}
 		trace={trace.data}
 	/>
 	<FactsBand facts={facts.map((entry) => entry.data)} />
@@ -70,6 +71,7 @@ if (
 		codeClaim={observability.data.codeClaim}
 		file={appSnippet.data.file}
 		code={appSnippet.data.code}
+		highlight={appSnippet.data.highlight}
 		trace={trace.data}
 	/>
 	<UseCaseCards

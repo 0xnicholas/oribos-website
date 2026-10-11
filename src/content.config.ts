@@ -70,8 +70,12 @@ const features = defineCollection({
 		claim: z.string(),
 		/** SPEC §3.2: a panel carries 3–5 supporting bullets. */
 		bullets: z.array(z.object({ lead: z.string(), text: z.string() })).min(3).max(5),
-		/** The code card's file tabs, in order — one or two files (SPEC §7.1/§7.3). */
-		files: z.array(z.object({ file: z.string(), code: z.string() })).min(1).max(2),
+		/** The code card's file tabs, in order — one or two files (SPEC §7.1/§7.3); each may
+		 * highlight lines by 1-based number (SPEC-revamp §2.6). */
+		files: z
+			.array(z.object({ file: z.string(), code: z.string(), highlight: z.array(z.number().int()).optional() }))
+			.min(1)
+			.max(2),
 	}),
 });
 
@@ -198,6 +202,8 @@ const snippets = defineCollection({
 		file: z.string(),
 		/** The code, verbatim; the rendered text is what a copy button copies. */
 		code: z.string(),
+		/** The 1-based lines the block highlights (SPEC-revamp §2.6), when it highlights any. */
+		highlight: z.array(z.number().int()).optional(),
 	}),
 });
 

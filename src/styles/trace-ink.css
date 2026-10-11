@@ -1,15 +1,12 @@
 /* SPEC §7.5 判定③: the site's own auxiliary colour — the trace / tool counterpoint to amber.
-   Not a brand token: it stays out of the §5.1 set, and it is declared once per theme here, the
-   one place; the components that draw a trace consume `var(--trace-green)`.
+   Not a brand token: it stays a semantic alias, declared once here, the one place; the
+   components that draw a trace consume `var(--trace-green)`.
 
-   This lives outside global.css on purpose: that file's literal-colour scan (`check-tokens`)
-   keeps every colour inside the §5.1 token blocks. */
+   The value itself is the §2.1 syntax green now (SPEC-revamp §2.6): the trace green was
+   promoted to `--syn-green` for the three-color syntax palette, so this alias keeps one source
+   of truth — the token layer in global.css — and needs no dark re-declaration (the token
+   swaps). Declared outside global.css on purpose: that file's token blocks hold §2.1 slots
+   only, and `--trace-green` is not one. */
 :root {
-	--trace-green: hsl(140, 45%, 32%);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--trace-green: hsl(140, 40%, 55%);
-	}
+	--trace-green: var(--syn-green);
 }

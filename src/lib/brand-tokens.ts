@@ -11,7 +11,7 @@
  *     silent fallback; a value that drifts from the table in `docs/SPEC-revamp.md` is drift,
  *     not a tweak. The same holds for the §2.3 type scale: eight steps, line heights on the
  *     4px discipline.
- *  2. **AA holds.** §2.10 reduces the palette to 8 rendered pairs × 2 themes; each pair is
+ *  2. **AA holds.** §2.10 reduces the palette to 13 rendered pairs × 2 themes; each pair is
  *     checked against WCAG AA (4.5:1). `--ink3` is deliberately below AA — muted meta is
  *     decorative mono labelling (§2.1/§2.3), never running text, so no pair of the audit
  *     reads on it.
@@ -21,7 +21,7 @@ export type Theme = 'light' | 'dark';
 /** Token name → declared value, e.g. `--acc` → `#9e630a`. */
 export type TokenSet = Record<string, string>;
 
-/** The §2.1 colour slots — the same eleven in both themes. */
+/** The §2.1 colour slots — the same thirteen in both themes. */
 export const colourTokens = [
 	'--bg',
 	'--bg2',
@@ -34,6 +34,8 @@ export const colourTokens = [
 	'--acc-lo',
 	'--acc-inv',
 	'--code-bg',
+	'--syn-green',
+	'--syn-blue',
 ] as const;
 export type ColourToken = (typeof colourTokens)[number];
 
@@ -124,7 +126,7 @@ export function rootDeclarations(region: string): { values: TokenSet; errors: st
 
 /**
  * Read the shipped token layer. `light` is the default region, `dark` the media block. The
- * result carries the eleven §2.1 colour slots per theme plus the §2.3 type-scale tokens,
+ * result carries the thirteen §2.1 colour slots per theme plus the §2.3 type-scale tokens,
  * which are theme-independent and live in the light region only.
  */
 export function parseLandingTokens(css: string): { tokens: Record<Theme, TokenSet>; errors: string[] } {
@@ -367,9 +369,12 @@ export type AuditRow = {
 };
 
 /**
- * The 8 pairs §2.10 enumerates per theme — body and secondary text × page & secondary
- * surface, the accent link × both, the accent hover state, and the inverted button label.
- * `--ink3` is muted meta labelling, deliberately outside AA (§2.1), so no pair reads on it.
+ * The 13 pairs §2.10 enumerates per theme — body and secondary text × page & secondary
+ * surface, the accent link × both, the accent hover state, the inverted button label, the
+ * three §2.6 syntax hues on the code ground (amber keyword, green string, blue call), and the
+ * two inks on the accent ground a highlighted line wears (`--ink2` is the comment bump;
+ * `--ink3` on `--acc-lo` would be 2.40:1, below the floor). `--ink3` is muted meta labelling,
+ * deliberately outside AA (§2.1), so no pair reads on it.
  */
 function auditPairs(tokens: TokenSet) {
 	return [
@@ -381,10 +386,15 @@ function auditPairs(tokens: TokenSet) {
 		{ label: 'accent link on secondary surface', fg: tokens['--acc']!, bg: tokens['--bg2']! },
 		{ label: 'accent hover on page background', fg: tokens['--acc-h']!, bg: tokens['--bg']! },
 		{ label: 'inverted label on accent button', fg: tokens['--acc-inv']!, bg: tokens['--acc']! },
+		{ label: 'syntax keyword on code background', fg: tokens['--acc']!, bg: tokens['--code-bg']! },
+		{ label: 'syntax string on code background', fg: tokens['--syn-green']!, bg: tokens['--code-bg']! },
+		{ label: 'syntax call on code background', fg: tokens['--syn-blue']!, bg: tokens['--code-bg']! },
+		{ label: 'secondary text on accent ground', fg: tokens['--ink2']!, bg: tokens['--acc-lo']! },
+		{ label: 'body text on accent ground', fg: tokens['--ink']!, bg: tokens['--acc-lo']! },
 	];
 }
 
-/** Run §2.10 over both themes: 8 pairs × 2 themes = the 16 checks the CI gate reports. */
+/** Run §2.10 over both themes: 13 pairs × 2 themes = the 26 checks the CI gate reports. */
 export function auditTokens(tokens: Record<Theme, TokenSet>): { rows: AuditRow[]; errors: string[] } {
 	const rows: AuditRow[] = [];
 	const errors: string[] = [];

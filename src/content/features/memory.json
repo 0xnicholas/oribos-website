@@ -23,11 +23,13 @@
 	"files": [
 		{
 			"file": "memory.ts",
-			"code": "import { Memory, createInMemoryStore } from '@oribos/core/memory';\n\nconst memory = new Memory({ storage: createInMemoryStore() });\nconst agent = new Agent({ name, instructions, model, memory });\n\nawait agent.generate('Should I bring a rain jacket?', {\n  memory: { thread: 'trip-lisbon', resource: 'user-42' },   // identity is per call\n});"
+			"code": "import { Memory, createInMemoryStore } from '@oribos/core/memory';\n\nconst memory = new Memory({ storage: createInMemoryStore() });\nconst agent = new Agent({ name, instructions, model, memory });\n\nawait agent.generate('Should I bring a rain jacket?', {\n  memory: { thread: 'trip-lisbon', resource: 'user-42' },   // identity is per call\n});",
+			"highlight": [7]
 		},
 		{
 			"file": "sqlite.ts",
-			"code": "import { createSqliteStorage } from '@oribos/sqlite';\n\nconst storage = createSqliteStorage({ path: 'oribos.db' });   // one adapter, all four ports\n\nconst app = createApp({\n  storage: { memory: storage.memory, durableAgent: storage.agentRunSnapshots },\n});"
+			"code": "import { createSqliteStorage } from '@oribos/sqlite';\n\nconst storage = createSqliteStorage({ path: 'oribos.db' });   // one adapter, all four ports\n\nconst app = createApp({\n  storage: { memory: storage.memory, durableAgent: storage.agentRunSnapshots },\n});",
+			"highlight": [3, 6]
 		}
 	]
 }

@@ -11,7 +11,7 @@ import { SITE } from './src/lib/site.ts';
 // and robots.txt all name one origin; versions are pinned in package.json by hand, never
 // through `astro add`.
 
-// The grayscale Shiki pair (SPEC-revamp §2.6) is derived from the shipped token layer. The
+// The custom Shiki pair (SPEC-revamp §2.6) is derived from the shipped token layer. The
 // config loader runs outside Vite, so it reads the file directly; the `<Code />` call sites
 // take the same pair through `src/lib/shiki-css.ts` (which they must — `<Code />` does not
 // inherit this config).

@@ -1,12 +1,11 @@
 ---
-// The home hero (SPEC-revamp §3.1, D form): two columns side by side — the left carries the H1,
-// the sub, the chip CTA and the GitHub text link; the right the product window, one pane at a
+// The home hero (SPEC-revamp §3.1, D form): two columns side by side, bottom-aligned — the left
+// carries the H1, the sub and the chip CTA; the right the product window, one pane at a
 // time (`agent.ts` / `trace`, the same run the observability band reuses), its bar reading the
 // capture shortened to trace id · model · duration. The narrow-screen order is the DOM order:
-// H1 → sub → chip → GitHub → window. No kicker; the header pill states the version.
+// H1 → sub → chip → window. No kicker; the header pill states the version.
 import { Code } from 'astro:components';
-import { codeThemes } from '../lib/shiki-css.ts';
-import { LINKS } from '../lib/links.ts';
+import { codeThemes, highlightTransformer } from '../lib/shiki-css.ts';
 import { windowBarMeta } from '../lib/trace-meta.ts';
 import AgentPromptCta from './AgentPromptCta.astro';
 import Check from './icons/Check.astro';
@@ -18,21 +17,22 @@ export interface Props {
 	sub: string;
 	file: string;
 	code: string;
+	/** The 1-based lines the code pane highlights (SPEC-revamp §2.6), from the snippet entry. */
+	highlight?: number[];
 	trace: TraceData;
 }
 
-const { h1, sub, file, code, trace } = Astro.props;
+const { h1, sub, file, code, highlight, trace } = Astro.props;
 const shikiThemes = codeThemes;
 const barMeta = windowBarMeta(trace.meta);
 ---
 <section class="py-24" data-hero>
-	<div class="wrap cols items-center">
+	<div class="wrap cols items-end">
 		<div class="col-span-4 md:col-span-12 xl:col-span-6">
 			<h1 class="text-3xl font-semibold tracking-tight text-ink xl:text-4xl">{h1}</h1>
 			<p class="mt-6 text-lg text-ink2">{sub}</p>
-			<div class="mt-12 flex flex-col items-start gap-3">
+			<div class="mt-12">
 				<AgentPromptCta />
-				<a href={LINKS.github} class="font-semibold text-acc transition-colors hover:text-acc-h">GitHub</a>
 			</div>
 		</div>
 
@@ -76,7 +76,7 @@ const barMeta = windowBarMeta(trace.meta);
 				</button>
 			</div>
 			<div role="tabpanel" id="hero-panel-code" aria-labelledby="hero-tab-code" data-hero-code>
-				<Code code={code} lang="ts" themes={shikiThemes} />
+				<Code code={code} lang="ts" themes={shikiThemes} transformers={[highlightTransformer(highlight)]} />
 			</div>
 			<div role="tabpanel" id="hero-panel-trace" aria-labelledby="hero-tab-trace" hidden data-hero-trace class="overflow-x-auto p-4">
 				<TraceWaterfall meta={trace.meta} rows={trace.rows} summary={trace.summary} />

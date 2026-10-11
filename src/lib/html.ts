@@ -127,7 +127,7 @@ export function codeOf(html: string): string | null {
 }
 
 /** SPEC-revamp §2.6: the classes every code block carries — the `astro-code` surface and the
- * custom grayscale theme pair (`github-light` / `github-dark` are retired). */
+ * custom theme pair (`github-light` / `github-dark` are retired). */
 export const codeSurfaceClasses = ['astro-code', 'oribos-light', 'oribos-dark'] as const;
 
 /** The §2.6 code-surface classes a `<pre>` tag is missing, in `codeSurfaceClasses` order. */

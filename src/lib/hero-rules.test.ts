@@ -28,6 +28,7 @@ import {
 	trailGreen,
 	trailIssues,
 	traceGreenDeclaration,
+	syntaxTokenLayer,
 } from './hero-rules.ts';
 import { LINKS } from './links.ts';
 
@@ -59,7 +60,6 @@ const hero = `
 	<p>${heroSub}</p>
 	<div>
 		${chip}
-		<a href="${LINKS.github}">GitHub</a>
 	</div>
 	<div data-window>
 		<div data-window-bar>
@@ -106,17 +106,17 @@ test('a hero page passes every hero rule', () => {
 	assert.deepEqual(finalCtaIssues(fullPage), []);
 });
 
-test('the hero copy, its chip CTA and the GitHub link are the locked ones', () => {
+test('the hero copy and its chip CTA are the locked ones', () => {
 	assert.match(heroIssues(page('<p>nothing</p>'))[0]!, /no hero section/);
 	assert.match(heroIssues(page(hero.replace(heroH1, 'Build AI agents.')))[0]!, /the hero H1 is/);
 
 	const kicker = page(hero.replace('<h1>', '<p>TypeScript · zero dependencies</p><h1>'));
 	assert.match(heroIssues(kicker)[0]!, /no kicker/);
 
-	const noGithub = page(hero.replace(`href="${LINKS.github}">GitHub`, 'href="/">GitHub'));
-	assert.match(heroIssues(noGithub).join('\n'), /no `GitHub` link/);
+	const withGithub = page(hero.replace('<div data-window>', `<a href="${LINKS.github}">GitHub</a><div data-window>`));
+	assert.match(heroIssues(withGithub).join('\n'), /still carries the `GitHub` text link/);
 
-	const retired = page(hero.replace('<a href=', `<button type="button">${retiredHeroCta}</button><a href=`));
+	const retired = page(hero.replace('<div data-window>', `<button type="button">${retiredHeroCta}</button><div data-window>`));
 	assert.match(heroIssues(retired).join('\n'), /Copy quick start/);
 
 	const pill = page(hero.replace('</section>', '<span>coming soon</span></section>'));
@@ -202,11 +202,18 @@ test('the shipped CSS switches the code surface; the trace green is declared onc
 	const css = `
 		.astro-code { padding: 1rem 1.25rem; font-size: var(--t-xs); }
 		@media (prefers-color-scheme: dark) { .astro-code, .astro-code span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; } }
-		:root { --trace-green: ${trailGreen.light}; }
-		@media (prefers-color-scheme: dark) { :root { --trace-green: ${trailGreen.dark}; } }
+		:root { --syn-green: ${trailGreen.light}; --trace-green: var(--syn-green); }
+		@media (prefers-color-scheme: dark) { :root { --syn-green: ${trailGreen.dark}; } }
 	`;
 	assert.deepEqual(shikiIssues(css), []);
-	assert.deepEqual(trailIssues(css, [{ path: traceGreenDeclaration, text: css }]), []);
+	// The value's one literal home is the token layer (`--syn-green`); the declaration file aliases it.
+	assert.deepEqual(
+		trailIssues(css, [
+			{ path: syntaxTokenLayer, text: ':root { --syn-green: #2d7645; }' },
+			{ path: traceGreenDeclaration, text: ':root { --trace-green: var(--syn-green); }' },
+		]),
+		[],
+	);
 
 	assert.match(shikiIssues('@media (prefers-color-scheme: dark) { .other { color: red } }')[0]!, /astro-code/);
 
@@ -216,7 +223,7 @@ test('the shipped CSS switches the code surface; the trace green is declared onc
 	assert.match(shikiIssues(css, '<pre class="astro-code github-light github-dark">x</pre>').join('\n'), /retired `github-light`/);
 	assert.match(shikiIssues(css, '<pre class="astro-code">x</pre>').join('\n'), /does not carry the dual `oribos-light`/);
 	assert.match(trailIssues('.trace {}', [])[0]!, /missing the light trace green/);
-	// The literal lives in the one declaration file: a component restating it is a spread.
+	// The literal lives in the token layer: a component restating it is a spread.
 	assert.match(
 		trailIssues(css, [{ path: 'src/components/Hero.astro', text: '.x { color: hsl(140, 45%, 32%) }' }])[0]!,
 		/trace-only/,

@@ -14,10 +14,12 @@ export interface Props {
 	codeClaim: string;
 	file: string;
 	code: string;
+	/** The 1-based lines the `app.ts` card highlights (SPEC-revamp §2.6), from the snippet entry. */
+	highlight?: number[];
 	trace: TraceData;
 }
 
-const { kicker, claim, lead, codeClaim, file, code, trace } = Astro.props;
+const { kicker, claim, lead, codeClaim, file, code, highlight, trace } = Astro.props;
 /** SPEC-revamp §3.4: the span kinds a run opens, in the list's order. */
 const spanTypes = ['agent run', 'model step', 'tool call', 'workflow step', 'memory recall · save'];
 ---
@@ -30,7 +32,7 @@ const spanTypes = ['agent run', 'model step', 'tool call', 'workflow step', 'mem
 			<div>
 				<h3 class="text-xl font-semibold tracking-tight text-ink">{codeClaim}</h3>
 				<div class="mt-4">
-					<CodeTabs id="observability-app" files={[{ file, code }]} />
+					<CodeTabs id="observability-app" files={[{ file, code, highlight }]} />
 				</div>
 			</div>
 			<div class="overflow-x-auto box p-4">

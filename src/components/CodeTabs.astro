@@ -5,14 +5,14 @@
 // so the site keeps zero new dependencies. Without JS the first file stays visible and the
 // buttons do nothing.
 import { Code } from 'astro:components';
-import { codeThemes } from '../lib/shiki-css.ts';
+import { codeThemes, highlightTransformer } from '../lib/shiki-css.ts';
 import Check from './icons/Check.astro';
 import Copy from './icons/Copy.astro';
 
 export interface Props {
 	/** A stable slug for this card's tab / panel ids, e.g. `workflows`. */
 	id: string;
-	files: readonly { file: string; code: string }[];
+	files: readonly { file: string; code: string; highlight?: number[] }[];
 	/** The tab list's accessible name; defaults to the first file's name. */
 	label?: string;
 }
@@ -33,7 +33,7 @@ if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`
 						aria-controls={`${id}-panel-${index}`}
 						aria-selected={index === 0 ? 'true' : 'false'}
 						tabindex={index === 0 ? 0 : -1}
-						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink"
+						class="px-2.5 py-1 font-mono text-xs text-ink3 hover:text-ink aria-selected:bg-bg2 aria-selected:text-ink aria-selected:shadow-[inset_0_-2px_0_var(--acc)]"
 					>
 						{file.file}
 					</button>
@@ -60,7 +60,7 @@ if (files.length === 0) throw new Error(`CodeTabs ${id} needs at least one file`
 				hidden={index !== 0}
 				data-panel
 			>
-				<Code code={file.code} lang="ts" themes={shikiThemes} />
+				<Code code={file.code} lang="ts" themes={shikiThemes} transformers={[highlightTransformer(file.highlight)]} />
 			</div>
 		))
 	}

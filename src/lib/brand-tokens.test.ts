@@ -22,7 +22,7 @@ test('the shipped token layer parses with no errors and carries both themes', ()
 
 	assert.equal(tokens.light['--acc'], '#9e630a');
 	assert.equal(tokens.dark['--acc'], '#ea9f2e');
-	// 11 §2.1 colour slots in each theme; the §2.3 type scale lives once in the light region.
+	// 13 §2.1 colour slots in each theme; the §2.3 type scale lives once in the light region.
 	assert.deepEqual(Object.keys(tokens.light), [...colourTokens]);
 	assert.deepEqual(Object.keys(tokens.dark), [...colourTokens]);
 });
@@ -92,11 +92,11 @@ test('colour literals outside the token blocks are findings; var() aliases are n
 	assert.equal(literalColorIssues(`${globalCss}\n@theme { --color-x: var(--acc); }`).length, 1);
 });
 
-test('the audit reports 16 checks and all of them pass on the pinned palette', () => {
+test('the audit reports 26 checks and all of them pass on the pinned palette', () => {
 	const { tokens } = parseLandingTokens(globalCss);
 	const { rows, errors } = auditTokens(tokens);
 	assert.deepEqual(errors, []);
-	assert.equal(rows.length, 16);
+	assert.equal(rows.length, 26);
 	assert.deepEqual(
 		rows.filter((row) => !row.pass).map((row) => row.label),
 		[],
@@ -108,6 +108,25 @@ test('the pinned accent pairs measure where §2.7 says they do', () => {
 	assert.equal(contrastRatio(tokens.light['--acc']!, tokens.light['--bg']!).toFixed(2), '4.95');
 	assert.equal(contrastRatio(tokens.dark['--acc']!, tokens.dark['--bg']!).toFixed(2), '8.61');
 	assert.equal(contrastRatio(tokens.light['--acc-inv']!, tokens.light['--acc']!).toFixed(2), '4.95');
+});
+
+test('the §2.6 syntax pairs measure where the design audit says they do', () => {
+	const { tokens } = parseLandingTokens(globalCss);
+	assert.equal(contrastRatio(tokens.light['--acc']!, tokens.light['--code-bg']!).toFixed(2), '4.74');
+	assert.equal(contrastRatio(tokens.dark['--acc']!, tokens.dark['--code-bg']!).toFixed(2), '8.27');
+	assert.equal(contrastRatio(tokens.light['--syn-green']!, tokens.light['--code-bg']!).toFixed(2), '5.30');
+	assert.equal(contrastRatio(tokens.dark['--syn-green']!, tokens.dark['--code-bg']!).toFixed(2), '7.66');
+	assert.equal(contrastRatio(tokens.light['--syn-blue']!, tokens.light['--code-bg']!).toFixed(2), '5.48');
+	assert.equal(contrastRatio(tokens.dark['--syn-blue']!, tokens.dark['--code-bg']!).toFixed(2), '8.14');
+});
+
+test('the highlighted-line inks clear AA on the accent ground; --ink3 does not (hence the comment bump)', () => {
+	const { tokens } = parseLandingTokens(globalCss);
+	assert.equal(contrastRatio(tokens.light['--ink2']!, tokens.light['--acc-lo']!).toFixed(2), '5.29');
+	assert.equal(contrastRatio(tokens.dark['--ink2']!, tokens.dark['--acc-lo']!).toFixed(2), '6.31');
+	assert.equal(contrastRatio(tokens.light['--ink']!, tokens.light['--acc-lo']!).toFixed(2), '15.06');
+	assert.equal(contrastRatio(tokens.dark['--ink']!, tokens.dark['--acc-lo']!).toFixed(2), '11.99');
+	assert.ok(contrastRatio(tokens.light['--ink3']!, tokens.light['--acc-lo']!) < 4.5);
 });
 
 test('--ink3 is deliberately sub-AA muted meta, outside every audited pair', () => {

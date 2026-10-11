@@ -22,7 +22,7 @@
 2. **内容布局**：首页 8 区 → **9 区**（§3）；关键词页 ×4 对标 mastra 同 slug 产品页重排、新增 hero 引言段与页内 FAQ 扩编（§5.2–5.3）；用例页 ×3 骨架定稿、零内容增量（§5.1）。
 3. **发布口径**：单一「已发布」态——双版切换机制作废；主 CTA = **隐藏 payload 的 chip 式 agent prompt CTA**（§4）；header pill = 版本徽标链 Releases。
 
-**不变的底座**：Astro 静态站、`output: 'static'`、无 adapter、content collections 承载锁定文案、零第三方子资源、只随 `prefers-color-scheme` 的双主题、16 项 WCAG AA 审计 CI 硬门（v1 §8 技术方案整体沿用，除本文件明示的 token 层与门禁改动）。
+**不变的底座**：Astro 静态站、`output: 'static'`、无 adapter、content collections 承载锁定文案、零第三方子资源、只随 `prefers-color-scheme` 的双主题、26 项 WCAG AA 审计 CI 硬门（v1 §8 技术方案整体沿用，除本文件明示的 token 层与门禁改动）。
 
 **红线速查**（v1 §9 全文有效，仅两处修订，详见 §7）：无客户案例、不写数字宣称、无 RAG/evals 宣称、无 blog/newsletter/订阅面、不点名竞品、零第三方子资源——**全部沿旧**。install 类命令由「全站禁止」改为**双槽位纪律**（§4.6）。
 
@@ -47,6 +47,8 @@
   --acc-lo: #f4e8d3;    /* 强调底色（低饱和琥珀底） */
   --acc-inv: #ffffff;   /* 强调底上的反字 */
   --code-bg: #fafaf8;   /* 代码块底 */
+  --syn-green: #2d7645; /* 语法绿：字符串 = hsl(140,45%,32%)（trace 绿晋升为语法 token）；对 --code-bg 5.30:1 */
+  --syn-blue: #2f5fd0;  /* 语法蓝：函数/方法调用；对 --code-bg 5.48:1 */
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -61,13 +63,16 @@
     --acc-lo: #3a2c14;
     --acc-inv: #101010;
     --code-bg: #151513;
+    --syn-green: #5eba7d; /* = hsl(140,40%,55%)；对 --code-bg 7.66:1 */
+    --syn-blue: #8aabff;  /* 对 --code-bg 8.14:1 */
   }
 }
 ```
 
 - **暗 accent 漂移已裁**（#41 遗留）：规范值 = `#ea9f2e`（#36 记录值；favicon / OG 资产已按此落，**施工期不重导出**）。原型 CSS 实写的 `#eaa03c` 是实现漂移，施工按 `#ea9f2e` 修正。
 - 派生量不手写：`::selection` = `--acc` 底 + `--acc-inv` 字；focus 见 §2.5。
-- **调色纪律**：琥珀是全站**唯一**品牌强调色相——链接、主按钮、focus、wordmark 方块点、tab 选中下划线、trace bar 完成态同一色相；灰阶中性微暖，不引入第二色相。功能语义色另设（trace 状态绿先例，不扩散为品牌色）。
+- **调色纪律**：琥珀是全站**唯一**品牌强调色相——链接、主按钮、focus、wordmark 方块点、tab 选中下划线、trace bar 完成态同一色相；灰阶中性微暖，不引入第二色相。功能语义色另设（trace 状态绿先例，不扩散为品牌色）。**语法色例外**：`--syn-green` / `--syn-blue` 与琥珀关键字色仅出现在代码块语法高亮与行高亮指示条内（§2.6），不算品牌色相扩散。
+- **trace 绿晋升**：原 §7.5 辅助色 trace 绿的**值**晋升为 `--syn-green`（亮 `#2d7645` / 暗 `#5eba7d`，即 hsl(140,45%,32%) / hsl(140,40%,55%)）入本表；`trace-ink.css` 的 `--trace-green` 改为指向它的别名，单一真相源不破，trace 组件消费口径不变。
 
 ### 2.2 网格与纵向节奏
 
@@ -107,7 +112,9 @@
 
 ### 2.6 代码块、产品窗与宿主界面 mock（同一盒式语言）
 
-- **代码块**：tab 条 + 1px hairline 盒、零圆角零阴影；语法高亮**无彩虹**——自定义 Shiki 主题（亮暗一对），token 色仅灰阶 + 字符串单档灰，必要时以字重区分关键字；代码底 `--code-bg`，块内 mono 走系统栈。
+- **代码块**：tab 条 + 1px hairline 盒、零圆角零阴影；语法高亮**克制三色**（非灰阶、非彩虹）——自定义 Shiki 主题（亮暗一对）：关键字取 `--acc` 琥珀（**色相代字重**，灰阶期关键字加粗退役）、字符串取 `--syn-green`（trace 绿晋升，§2.1）、函数/方法调用取 `--syn-blue`；其余维持灰阶——注释 `--ink3`、常量 `--ink2`、正文 `--ink`，import 说明符与普通标识符不着色；代码底 `--code-bg`，块内 mono 走系统栈。
+- **行高亮**：内容 JSON 以 `highlight: [1 基行号]` 声明（`code` 逐字不动，`highlight` 为其同级字段），Shiki transformer 给对应行打 `hl` 类；视觉 = 满宽 `--acc-lo` 底带 + 2px `--acc` 左指示条（inset 绘制，负 margin 横穿代码块横向 padding，`overflow-x: auto` 下保持满宽；零圆角、无投影语言不破）。**高亮行内注释 token 由 `--ink3` 提至 `--ink2`**（`--ink3` 对 `--acc-lo` 仅 2.40:1 不达 AA，`--ink2` 为 5.29:1——§2.10 新增审计对）。
+- **tab 条与 chip**：代码卡激活 tab 加 2px `--acc` 下指示条（inset，不新增字号）；用例页包名 chip 文字由 `--ink2` 改 `--acc`（链接同色相，底仍 `--bg2`）。
 - **产品窗 / 宿主界面 mock**：同盒式语言（hairline 盒 + 窗点栏 + tab 条）；mock 内容 brief 沿 v1 §3.5 三件套（聊天窗 / 审批线程 / trace 控制台），通用界面、无第三方名。
 - **trace waterfall**：mono 表（label / 事件 / 耗时三列，五行级体量）；bar 完成态 `--acc`。hero 产品窗与 observability 区**复用同一份数据与组件**（两处陈列 = 刻意对齐 mastra 的重复手法，#37 裁定）。
 
@@ -115,7 +122,7 @@
 
 - 只随 `prefers-color-scheme`，无切换按钮、无 `.dark` class、无持久化（沿旧）。
 - Carbon 式换值：角色不变只换值（§2.1 表）；暗底 `#101010` 中性黑（非纯黑、非旧暖黑）；经典先例 = Der Film 黑底浅字红点强调（#35）。
-- 16 项 WCAG AA 审计 CI 硬门保留（对象换 §2.1 新值，#36/#41 已核：亮 accent 4.86:1、暗 accent ≈8.6:1、按钮反字 ≥4.9:1）。
+- 26 项 WCAG AA 审计 CI 硬门保留（对象换 §2.1 新值并随 §2.6 语法三色与行高亮扩 5 对，#36/#41 已核：亮 accent 4.86:1、暗 accent ≈8.6:1、按钮反字 ≥4.9:1）。
 
 ### 2.8 favicon / OG / theme-color（终形，#41 已落资产）
 
@@ -131,7 +138,7 @@
 
 ### 2.10 防漂移与验收（CI 门，v1 §5.5 → v2）
 
-1. **对比度门**：16 项审计对象换 §2.1 值，退出码硬门不变。
+1. **对比度门**：26 项审计对象（§2.6 语法三色 + 行高亮 ink/ink2 对 `--acc-lo` 扩入），退出码硬门不变。
 2. **token 门（新）**：渲染产物解析出的 `--*` 值逐项 == §2.1 表。
 3. **字阶门（新）**：组件字号只出自 §2.3 token（`check-*` 扫描）。
 4. ~~两站色值对比门~~ **删除**（§2.9）。
@@ -155,10 +162,10 @@ mastra 11 区裁定汇总：**删 2**（公告条、案例卡区）、**替 2**�
 
 ### 3.1 Hero（D 形态：并置两栏 + 隐藏 payload chip CTA）
 
-- **版面** = 并置两栏框：左 = H1 + sub + chip CTA + GitHub 文字链；右 = **产品窗**（tab 单 pane 切 `agent.ts` / `trace`；trace waterfall 留 hero 窗内，§2.6 复用件；窗栏 meta = trace id · model · duration 一行）。
+- **版面** = 并置两栏框：左 = H1 + sub + chip CTA；右 = **产品窗**（tab 单 pane 切 `agent.ts` / `trace`；trace waterfall 留 hero 窗内，§2.6 复用件；窗栏 meta = trace id · model · duration 一行）；两栏**底对齐**（左列 chip 底边 = 产品窗底边）。
 - **文案**：H1 + sub `沿用 build`（`hero/home.json`，勿改）。
-- **chip CTA** = 主 CTA，形态与逐字文案见 §4.3；**次 CTA** = GitHub 文字链（v1「Copy quick start」废止）。
-- **窄屏序**：H1 → sub → chip → GitHub → 产品窗。
+- **chip CTA** = 唯一 CTA，形态与逐字文案见 §4.3；hero 次 CTA（GitHub 文字链）**退役**——左列收短以底对齐产品窗，GitHub 入链留 header 与 final CTA（v1「Copy quick start」废止沿旧）。
+- **窄屏序**：H1 → sub → chip → 产品窗。
 - 产品窗左 pane = §6 hero `agent.ts` 17 行逐字 + copy 按钮（复制**当前可见文件**逐字，沿旧）。
 
 ### 3.2 架构事实带（architecture facts band，新区；`#social-proof` 锚废止，全站无入链）
@@ -177,7 +184,7 @@ Size is a checked property
 
 ### 3.3 Feature tabs ×5
 
-`沿用 build`（五 tab = Agents / Workflows / Harness / Memory / MCP；每 tab claim + 4 支撑项 + ≤10 行代码卡逐字不动；tab 数不是密度来源）。视觉随 §2 重绘（tab 条 hairline 盒式、高亮无彩虹）。
+`沿用 build`（五 tab = Agents / Workflows / Harness / Memory / MCP；每 tab claim + 4 支撑项 + ≤10 行代码卡逐字不动；tab 数不是密度来源）。视觉随 §2 重绘（tab 条 hairline 盒式、语法高亮随 §2.6 克制三色）。
 
 ### 3.4 Observability（三件组，#37 升舱）
 
@@ -224,7 +231,7 @@ Architecture: The architecture behind zero runtime dependencies — design decis
 | header `GitHub` | 文字链 | `links.github` |
 | header pill | `v{version}` 徽标（链） | GitHub Releases（§4.2） |
 | hero 主 CTA | **chip 式 agent prompt CTA**（§4.3） | 复制 payload 逐字 |
-| hero 次 CTA | `GitHub` 文字链 | `links.github` |
+| hero 次 CTA | **退役**（GitHub 文字链随底对齐移除，§3.1） | — |
 | feature / observability / hero 产品窗代码卡 | `⧉ copy` | 复制当前可见文件逐字（沿旧） |
 | Resources 卡组 | 三卡 | `links.*`（沿旧） |
 | final CTA（首页 + 用例页 + 关键词页共用） | H2 + 新 sub + 同款 chip + GitHub 次链（§4.5） | 同 hero chip |
@@ -411,7 +418,7 @@ v1「正文约 500–700 词」区间**废止**（#39）；密度 = 结构槽位
 
 ## 6. 代码示例不变量
 
-- **11 块不减、逐字不动、分布不变**：hero `agent.ts`（17 行显式例外，不许压缩）+ 五 tab 共 9 文件（各 ≤10 行）+ observability `app.ts`。真相源 = `build/01-skeleton` content collections（`snippets/` 等），施工只换陈列容器（§2.6 盒式、无彩虹高亮）。
+- **11 块不减、逐字不动、分布不变**：hero `agent.ts`（17 行显式例外，不许压缩）+ 五 tab 共 9 文件（各 ≤10 行）+ observability `app.ts`。真相源 = `build/01-skeleton` content collections（`snippets/` 等），施工只换陈列容器与着色（§2.6 盒式、克制三色高亮、行高亮 `highlight` 字段——`code` 逐字不动）。
 - 产品窗左 pane 展示**完整 weather tool 版** `agent.ts`（prompt payload 的 6 行是压缩版，两者并存是刻意：可见代码的火力在产品窗，不在 CTA——#43 链一/链二分解）。
 - **prompt payload 不计入 11 块**（§4.3）；trace waterfall 数据沿用 build 真实 run 截取。
 - MCP 代码段 `version` 字面随单一常量（§4.6）。

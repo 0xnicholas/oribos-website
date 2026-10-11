@@ -12,7 +12,7 @@ export interface FeaturePanel {
 	tab: string;
 	claim: string;
 	bullets: readonly { lead: string; text: string }[];
-	files: readonly { file: string; code: string }[];
+	files: readonly { file: string; code: string; highlight?: number[] }[];
 }
 
 export interface Props {

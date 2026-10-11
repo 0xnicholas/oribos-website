@@ -4,8 +4,10 @@
  * `src/styles/global.css` — the same file the site loads — so the gate cannot drift from what
  * ships: a token edit that drops a pair below 4.5:1 turns this red.
  *
- * §5.5 reduces the palette to 8 rendered pairs (body / headings / link × page & nav-footer,
- * accent-low chip, button invert, muted meta) × 2 themes = the 16 checks below.
+ * §5.5 reduces the palette to 13 rendered pairs (body / headings / link × page & nav-footer,
+ * accent-low chip, button invert, muted meta, the three §2.6 syntax hues on the code ground,
+ * and the two inks on the accent ground a highlighted line wears) × 2 themes = the 26 checks
+ * below.
  *
  * Usage:
  *   node --experimental-strip-types scripts/check-contrast.mjs [--root <dir>] [--css <file>]

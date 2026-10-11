@@ -19,11 +19,13 @@
 	"files": [
 		{
 			"file": "server.ts",
-			"code": "import { createMcpServer } from '@oribos/mcp-server';\n\nconst server = createMcpServer({ name: 'weather', version: '{version}', tools: { weather } });\n\nexport default server.fetch;   // the same tools over MCP — HTTP or stdio"
+			"code": "import { createMcpServer } from '@oribos/mcp-server';\n\nconst server = createMcpServer({ name: 'weather', version: '{version}', tools: { weather } });\n\nexport default server.fetch;   // the same tools over MCP — HTTP or stdio",
+			"highlight": [3, 5]
 		},
 		{
 			"file": "client.ts",
-			"code": "import { createMcpClient } from '@oribos/mcp-client';\n\nconst client = await createMcpClient({ transport: { type: 'http', url } });\n\nconst agent = new Agent({ name, model, tools: client.tools });   // remote tools, as plain tools"
+			"code": "import { createMcpClient } from '@oribos/mcp-client';\n\nconst client = await createMcpClient({ transport: { type: 'http', url } });\n\nconst agent = new Agent({ name, model, tools: client.tools });   // remote tools, as plain tools",
+			"highlight": [3, 5]
 		}
 	]
 }

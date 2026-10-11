@@ -23,11 +23,13 @@
 	"files": [
 		{
 			"file": "workflow.ts",
-			"code": "import { createWorkflow } from '@oribos/core/workflows';\n\nconst workflow = createWorkflow({ id: 'expense-approval', inputSchema: report, outputSchema: receipt })\n  .foreach(checkItem, { concurrency: 2 })\n  .parallel([policyCheck, budgetCheck])\n  .then(draftMemo)\n  .then(approvalGate)\n  .commit();"
+			"code": "import { createWorkflow } from '@oribos/core/workflows';\n\nconst workflow = createWorkflow({ id: 'expense-approval', inputSchema: report, outputSchema: receipt })\n  .foreach(checkItem, { concurrency: 2 })\n  .parallel([policyCheck, budgetCheck])\n  .then(draftMemo)\n  .then(approvalGate)\n  .commit();",
+			"highlight": [4, 5, 6, 7]
 		},
 		{
 			"file": "resume.ts",
-			"code": "// another process, later — the whole state is one JSON snapshot\nconst outcome = await workflow.createRun({ runId: 'run-1' }).resume({\n  step: 'approval-gate',\n  resumeData: { approved: true },\n});"
+			"code": "// another process, later — the whole state is one JSON snapshot\nconst outcome = await workflow.createRun({ runId: 'run-1' }).resume({\n  step: 'approval-gate',\n  resumeData: { approved: true },\n});",
+			"highlight": [2]
 		}
 	]
 }

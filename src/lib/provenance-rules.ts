@@ -9,7 +9,9 @@
  * - §4.6 turns the MCP snippet's version literal into the `{version}` token;
  * - §5.2/§5.3 add only each keyword page's `intro` and its new `faq` row;
  * - §3.6 adds only the Resources card descriptions; §4.2 adds the `releases` link, removing
- *   nothing.
+ *   nothing;
+ * - §2.6 adds each code snippet's `highlight` field (the line highlights) — snippet text is
+ *   untouched.
  *
  * On top of the revamp sanctions sits the repositioning ruling (SPEC §2.3/§3.1 改判): the
  * `ultralight` positioning is retired, so the hero H1/sub, the final-CTA heading, the
@@ -57,8 +59,13 @@ export const sanctions: readonly Sanction[] = [
 	{ path: /^src\/content\/social-proof\//, status: 'D', reason: 'the social-proof collection is abolished (SPEC-revamp §3.2)' },
 	{ path: /^src\/content\/faq\/on-npm\.json$/, status: 'M', keys: ['answer'], reason: 'only the npm answer flips to the published state (SPEC-revamp §4.4)' },
 	{ path: /^src\/content\/faq\/what-is-oribos\.json$/, status: 'M', keys: ['answer'], reason: 'the definition answer drops the retired `ultralight` framing (SPEC §3.7 改判)' },
-	{ path: /^src\/content\/features\/agents\.json$/, status: 'M', keys: ['claim'], reason: 'the Agents claim says `compact`, not `minimal` (SPEC §3.2 改判)' },
-	{ path: /^src\/content\/features\/mcp\.json$/, status: 'M', keys: ['files'], reason: 'only the MCP snippet\'s version literal becomes the {version} token (SPEC-revamp §4.6)' },
+	{ path: /^src\/content\/features\/agents\.json$/, status: 'M', keys: ['claim', 'files'], reason: 'the Agents claim says `compact`, not `minimal` (SPEC §3.2 改判); the snippet gains its §2.6 line highlights' },
+	{ path: /^src\/content\/features\/workflows\.json$/, status: 'M', keys: ['files'], reason: 'the workflow snippets gain their §2.6 line highlights' },
+	{ path: /^src\/content\/features\/harness\.json$/, status: 'M', keys: ['files'], reason: 'the harness snippets gain their §2.6 line highlights' },
+	{ path: /^src\/content\/features\/memory\.json$/, status: 'M', keys: ['files'], reason: 'the memory snippets gain their §2.6 line highlights' },
+	{ path: /^src\/content\/features\/mcp\.json$/, status: 'M', keys: ['files'], reason: 'the MCP snippet\'s version literal becomes the {version} token (SPEC-revamp §4.6); the snippets also gain their §2.6 line highlights' },
+	{ path: /^src\/content\/snippets\/agent\.json$/, status: 'M', keys: ['highlight'], reason: 'the hero snippet gains its §2.6 line highlights' },
+	{ path: /^src\/content\/snippets\/app\.json$/, status: 'M', keys: ['highlight'], reason: 'the observability snippet gains its §2.6 line highlights' },
 	{ path: /^src\/content\/final-cta\/default\.json$/, status: 'M', keys: ['sub', 'heading'], reason: 'the sub flips to the published state (SPEC-revamp §4.5); the heading follows the new hero H1 (SPEC §3.1 改判)' },
 	{ path: /^src\/content\/hero\/home\.json$/, status: 'M', keys: ['h1', 'sub'], reason: 'the hero H1/sub move to the `run for days` positioning (SPEC §3.1 改判)' },
 	{ path: /^src\/content\/use-case-intro\/default\.json$/, status: 'M', keys: ['sub'], reason: 'the intro sub drops `small` from the framework line (SPEC §3.5 改判)' },

@@ -44,6 +44,8 @@
 	--acc-lo: #f4e8d3; /* accent ground (low-saturation amber) */
 	--acc-inv: #ffffff; /* inverted label on accent ground */
 	--code-bg: #fafaf8; /* code block ground */
+	--syn-green: #2d7645; /* syntax: strings — = hsl(140,45%,32%), the trace green promoted (§2.6) */
+	--syn-blue: #2f5fd0; /* syntax: function / method calls */
 
 	/* §2.3 type scale (1:1.333, locked) — sizes in px, line heights on the 4px discipline */
 	--t-xs: 13px;
@@ -78,6 +80,8 @@
 		--acc-lo: #3a2c14;
 		--acc-inv: #101010;
 		--code-bg: #151513;
+		--syn-green: #5eba7d; /* = hsl(140,40%,55%) */
+		--syn-blue: #8aabff;
 	}
 }
 
@@ -96,6 +100,8 @@
 	--color-acc-lo: var(--acc-lo);
 	--color-acc-inv: var(--acc-inv);
 	--color-code-bg: var(--code-bg);
+	--color-syn-green: var(--syn-green);
+	--color-syn-blue: var(--syn-blue);
 
 	--font-sans: 'InterVar', system-ui, -apple-system, sans-serif;
 	--font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -226,11 +232,43 @@ body {
 
 /* Code surface (SPEC-revamp §2.6): every block on the site is one `.astro-code` shape — the
    hairline box frame, the xs mono step, horizontal scroll, no wrapping, no line numbers.
-   Syntax colours come from the grayscale Shiki pair; only the frame takes the brand tokens. */
+   Syntax colours come from the three-color Shiki pair (§2.6); only the frame takes the brand
+   tokens. */
 .astro-code {
 	padding: 1rem 1.25rem;
 	font-size: var(--t-xs);
 	line-height: var(--t-xs-lh);
+}
+
+/* Line highlighting (SPEC-revamp §2.6): a highlighted line takes the `--acc-lo` band at the
+   block's full width plus a 2px `--acc` left bar, drawn inset so nothing shifts. The `<code>`
+   element is sized to its longest line (`max-content`, never narrower than the block), so every
+   `.line` — an inline-block at least the code's width — keeps the band full-width under
+   `overflow-x: auto`; the negative margins let it run across the block's horizontal padding.
+   The `!important` on the band outranks the dark switch's span re-point, and the token spans on
+   a highlighted line stay transparent so the band reads through in both themes. Comment tokens
+   on a highlighted line are bumped to `--ink2` by the transformer (src/lib/highlight-lines.ts):
+   `--ink3` on `--acc-lo` fails AA. */
+.astro-code code {
+	display: block;
+	width: max-content;
+	min-width: 100%;
+}
+
+.astro-code .line {
+	display: inline-block;
+	min-width: 100%;
+}
+
+.astro-code .line.hl {
+	margin-inline: -1.25rem;
+	padding-inline: 1.25rem;
+	background-color: var(--acc-lo) !important;
+	box-shadow: inset 2px 0 0 var(--acc);
+}
+
+.astro-code .line.hl span {
+	background-color: transparent !important;
 }
 
 /* Shiki dual themes (SPEC-revamp §2.6): the block ships both themes as `--shiki-*` custom
